@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book of Alternative Services - Interactive Liturgy &amp; Service Sequencer</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"EB Garamond"', 'Georgia', 'serif'],
+            cinzel: ['Cinzel', 'Georgia', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            rubric: '#991b1b',
+            parchment: '#fdfbf7',
+            anglican: {
+              50: '#f7f6f2',
+              100: '#ede9df',
+              200: '#d9d2be',
+              700: '#433c2a',
+              800: '#2e291c',
+              900: '#1b1810',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-stone-100 text-stone-900 font-sans min-h-screen flex flex-col">
+
+  <!-- Header / Navigation Bar -->
+  <header class="bg-stone-900 text-stone-100 border-b border-stone-800 sticky top-0 z-40 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded bg-amber-800/80 border border-amber-600 flex items-center justify-center text-amber-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-cinzel font-semibold tracking-wide text-stone-100">Book of Alternative Services</h1>
+          <p class="text-xs text-stone-400">Interactive Liturgy Builder, Rite Adapter &amp; Dynamic Order Sequencer</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="viewToggleBtn" type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+          </svg>
+          <span id="viewToggleText">Full Service View</span>
+        </button>
+
+        <button id="exportJsonBtn" type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          Save Service (.json)
+        </button>
+
+        <button id="copyLitBtn" type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+          </svg>
+          Copy Text
+        </button>
+
+        <button id="printBtn" type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-amber-700 hover:bg-amber-600 text-white font-medium transition shadow-sm">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+          </svg>
+          Print / Bulletin
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-stone-900 text-stone-100 border border-stone-700 px-4 py-2.5 rounded shadow-lg text-sm flex items-center space-x-2 transition transform translate-y-12 opacity-0 duration-300 pointer-events-none">
+    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <span id="toastMsg">Liturgy copied to clipboard!</span>
+  </div>
+
+  <!-- Custom Block / Item Editor Modal -->
+  <div id="blockModal" class="fixed inset-0 z-50 bg-stone-900/60 hidden items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-lg border border-stone-200 shadow-xl max-w-lg w-full p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-stone-200 pb-2.5">
+        <h3 id="blockModalTitle" class="text-sm font-bold uppercase tracking-wider text-stone-800">Insert / Edit Liturgical Element</h3>
+        <button type="button" id="closeModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">&times;</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label for="modalBlockCategory" class="block text-xs font-medium text-stone-600 mb-1">Element Type / Template:</label>
+          <select id="modalBlockCategory" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-2 text-stone-900">
+            <option value="hymn">Hymn / Congregational Song / Anthem (Common Praise)</option>
+            <option value="land_ack">Territorial Land Acknowledgement (Indigenous Reconciliation)</option>
+            <option value="announcements">Welcome &amp; Parish Announcements</option>
+            <option value="childrens_talk">Children's Focus / All-Age Homily</option>
+            <option value="healing_rite">Laying on of Hands &amp; Anointing (BAS p. 555)</option>
+            <option value="baptism_renewal">Renewal of Baptismal Covenant (BAS p. 158)</option>
+            <option value="pastoral_blessing">Pastoral Blessing (Birthdays, Anniversaries, Commissioning)</option>
+            <option value="banns">Banns of Marriage (BAS p. 549)</option>
+            <option value="custom_reading">Additional Scripture Lesson or Canticle</option>
+            <option value="custom_prayer">Custom Prayer, Collect, or Liturgical Text</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="modalBlockHeading" class="block text-xs font-medium text-stone-600 mb-1">Element Title / Heading:</label>
+            <input type="text" id="modalBlockHeading" class="w-full text-xs border border-stone-300 rounded px-2.5 py-1.5 bg-white" placeholder="e.g., Processional Hymn: CP #384">
+          </div>
+          <div>
+            <label for="modalBlockSpeaker" class="block text-xs font-medium text-stone-600 mb-1">Officiant / Speaker Label:</label>
+            <input type="text" id="modalBlockSpeaker" class="w-full text-xs border border-stone-300 rounded px-2.5 py-1.5 bg-white" placeholder="e.g., Celebrant, Leader, All, Choir">
+          </div>
+        </div>
+
+        <div>
+          <label for="modalBlockRubric" class="block text-xs font-medium text-stone-600 mb-1">Ceremonial Rubric (Red Italic Instruction):</label>
+          <input type="text" id="modalBlockRubric" class="w-full text-xs border border-stone-300 rounded px-2.5 py-1.5 bg-white text-rubric italic" placeholder="e.g., All stand as the procession enters.">
+        </div>
+
+        <div>
+          <label for="modalBlockBody" class="block text-xs font-medium text-stone-600 mb-1">Liturgical Text / Stanzas / Content:</label>
+          <textarea id="modalBlockBody" rows="5" class="w-full text-xs border border-stone-300 rounded p-2 bg-white font-serif" placeholder="Enter prayer text, hymn lyrics, or responsive lines..."></textarea>
+        </div>
+
+        <div>
+          <label for="modalBlockResponse" class="block text-xs font-medium text-stone-600 mb-1">Congregational Response (Optional, rendered in bold):</label>
+          <input type="text" id="modalBlockResponse" class="w-full text-xs border border-stone-300 rounded px-2.5 py-1.5 bg-white font-semibold" placeholder="e.g., Amen. / Thanks be to God.">
+        </div>
+
+        <div id="modalInsertPositionWrapper">
+          <label for="modalInsertAfter" class="block text-xs font-medium text-stone-600 mb-1">Place in Service Order:</label>
+          <select id="modalInsertAfter" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-900">
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 pt-3 border-t border-stone-200">
+        <button type="button" id="cancelModalBtn" class="px-3 py-1.5 text-xs font-medium rounded border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700">Cancel</button>
+        <button type="button" id="saveModalBtn" class="px-4 py-1.5 text-xs font-medium rounded bg-amber-700 hover:bg-amber-600 text-white shadow-sm">Save to Service</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT COLUMN: Liturgy Configuration, Sequencer & Reading Chooser -->
+    <aside id="builderSidebar" class="lg:col-span-5 space-y-5 no-print">
+
+      <!-- 1. SERVICE RITE & OCCASION ALIGNMENT -->
+      <div class="bg-white rounded-lg border border-stone-200 shadow-sm p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-700 flex items-center">
+            <svg class="w-4 h-4 mr-1.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            1. Rite &amp; Lectionary Occasion
+          </h2>
+          <span id="seasonBadge" class="px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+            Ordinary Time
+          </span>
+        </div>
+
+        <div>
+          <label for="ritePreset" class="block text-xs font-medium text-stone-600 mb-1">BAS Service Rite / Liturgical Form:</label>
+          <select id="ritePreset" class="w-full text-xs sm:text-sm bg-amber-50/60 border border-amber-300 rounded px-2.5 py-2 text-stone-900 font-medium focus:ring-2 focus:ring-amber-600 focus:outline-none">
+            <option value="eucharist">The Holy Eucharist (BAS p. 185 – Standard Order)</option>
+            <option value="lenten_eucharist">Penitential / Lenten Eucharist (BAS p. 188 – Confession at Gathering)</option>
+            <option value="word_lay">Service of the Word / Lay-Led Liturgy (BAS p. 130 – For LPAs &amp; Lay Readers)</option>
+            <option value="morning_prayer">Morning Prayer: The Daily Office (BAS p. 47 – Venite, Readings, Benedictus)</option>
+            <option value="evening_prayer">Evening Prayer: Service of Light (BAS p. 62 – Phos Hilaron, Magnificat)</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="feastPreset" class="block text-xs font-medium text-stone-600 mb-1">Select Lectionary Sunday, Feast, or Pastoral Occasion:</label>
+          <select id="feastPreset" class="w-full text-xs sm:text-sm bg-stone-50 border border-stone-300 rounded px-2.5 py-2 text-stone-900 focus:ring-2 focus:ring-amber-600 focus:outline-none">
+            <option value="proper28">21st Sunday after Pentecost (Proper 28, Year B)</option>
+            <option value="allsaints">All Saints' Day / All Saints' Sunday (November 1)</option>
+            <option value="advent1">First Sunday of Advent (Year C)</option>
+            <option value="christmas">Christmas Day (The Nativity of our Lord)</option>
+            <option value="epiphany">The Epiphany of the Lord (January 6)</option>
+            <option value="ash_wednesday">Ash Wednesday / First Sunday in Lent</option>
+            <option value="good_friday">Good Friday (The Passion of our Lord)</option>
+            <option value="easter">Easter Day (The Resurrection of our Lord)</option>
+            <option value="pentecost">The Day of Pentecost (Whitsunday)</option>
+            <option value="trinity">Trinity Sunday (First Sunday after Pentecost)</option>
+            <option value="reign_of_christ">The Reign of Christ (Last Sunday after Pentecost)</option>
+            <option value="healing">Pastoral Liturgy of Healing &amp; Wholeness (BAS p. 551)</option>
+            <option value="custom">Custom Sunday / Parish Occasion</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-stone-100">
+          <div>
+            <label for="parishTitle" class="block text-xs font-medium text-stone-600 mb-1">Parish / Community Title:</label>
+            <input type="text" id="parishTitle" value="All Saints' Anglican Church • Peterborough" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800 focus:ring-1 focus:ring-amber-600 focus:outline-none">
+          </div>
+          <div>
+            <label for="serviceDateInput" class="block text-xs font-medium text-stone-600 mb-1">Service Date / Time Note:</label>
+            <input type="text" id="serviceDateInput" value="Sunday Morning Worship • 10:00 AM" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800 focus:ring-1 focus:ring-amber-600 focus:outline-none">
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. DYNAMIC SERVICE ORDER & BLOCK SEQUENCER -->
+      <div class="bg-white rounded-lg border border-stone-200 shadow-sm p-4">
+        <div class="flex items-center justify-between mb-1.5">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-700 flex items-center">
+            <svg class="w-4 h-4 mr-1.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+            </svg>
+            2. Service Order &amp; Sequencer
+          </h2>
+          <div class="flex items-center space-x-1.5">
+            <button type="button" id="openInsertModalBtn" class="px-2.5 py-1 text-xs font-semibold rounded bg-amber-700 hover:bg-amber-600 text-white shadow-sm transition">
+              + Insert Element
+            </button>
+            <button type="button" id="resetOrderBtn" class="px-2 py-1 text-xs rounded border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-600 transition" title="Reset sequence to selected Rite default">
+              Reset
+            </button>
+          </div>
+        </div>
+        <p class="text-xs text-stone-500 mb-3">
+          Reorder any element (<span class="font-semibold">↑ / ↓</span>), toggle inclusion, edit inline (<span class="font-semibold">✎</span>), or insert hymns, land acknowledgements, announcements, and pastoral rites anywhere in the flow.
+        </p>
+
+        <!-- Reorderable Block List -->
+        <div id="sequencerList" class="space-y-1.5 max-h-80 overflow-y-auto pr-1 border border-stone-200 rounded-md p-2 bg-stone-50/70">
+        </div>
+      </div>
+
+      <!-- 3. READINGS PICKER & CHOOSER -->
+      <div class="bg-white rounded-lg border border-stone-200 shadow-sm p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-700 flex items-center">
+            <svg class="w-4 h-4 mr-1.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+            3. Lectionary Readings &amp; Propers
+          </h2>
+          <span class="text-xs text-stone-500">Pick suggested options</span>
+        </div>
+        <p class="text-xs text-stone-500 mb-3">Choose which suggested lessons to proclaim, switch between Track 1 / Track 2, or edit full texts and proper prayers.</p>
+
+        <!-- Reading 1: First Lesson -->
+        <div class="mb-3 p-3 rounded-md bg-stone-50 border border-stone-200">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center space-x-2 text-xs font-semibold text-stone-800 cursor-pointer">
+              <input type="checkbox" id="includeReading1" checked class="rounded text-amber-700 focus:ring-amber-600 w-4 h-4">
+              <span>First Reading (Old Testament / First Lesson)</span>
+            </label>
+            <button type="button" id="toggleReading1Edit" class="text-xs text-amber-800 hover:text-amber-900 underline">Edit text</button>
+          </div>
+          
+          <div class="mt-2 pl-6 space-y-1.5" id="reading1TrackContainer">
+            <div class="text-xs text-stone-600 font-medium">Suggested Option:</div>
+            <div id="reading1OptionsList" class="space-y-1"></div>
+          </div>
+
+          <div id="reading1EditArea" class="hidden mt-2 pt-2 border-t border-stone-200">
+            <label for="reading1Citation" class="block text-xs text-stone-600 font-medium">Citation:</label>
+            <input type="text" id="reading1Citation" class="w-full text-xs border rounded p-1 mb-1.5 bg-white">
+            <label for="reading1Text" class="block text-xs text-stone-600 font-medium">Passage Text:</label>
+            <textarea id="reading1Text" rows="3" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+          </div>
+        </div>
+
+        <!-- Reading 2: The Psalm & BAS Psalm Prayer -->
+        <div class="mb-3 p-3 rounded-md bg-stone-50 border border-stone-200">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center space-x-2 text-xs font-semibold text-stone-800 cursor-pointer">
+              <input type="checkbox" id="includePsalm" checked class="rounded text-amber-700 focus:ring-amber-600 w-4 h-4">
+              <span>The Psalm (Responsive)</span>
+            </label>
+            <button type="button" id="togglePsalmEdit" class="text-xs text-amber-800 hover:text-amber-900 underline">Edit text</button>
+          </div>
+
+          <div class="mt-2 pl-6 space-y-1">
+            <div class="text-xs text-stone-700 font-medium" id="psalmCitationLabel">Psalm 104:1-9, 24, 35c</div>
+            <label class="flex items-center space-x-2 text-xs text-stone-600 cursor-pointer pt-1">
+              <input type="checkbox" id="includePsalmPrayer" checked class="rounded text-amber-700 focus:ring-amber-600 w-3.5 h-3.5">
+              <span>Include BAS Psalm Collect / Prayer after Psalm</span>
+            </label>
+          </div>
+
+          <div id="psalmEditArea" class="hidden mt-2 pt-2 border-t border-stone-200">
+            <label for="psalmCitation" class="block text-xs text-stone-600 font-medium">Psalm Citation:</label>
+            <input type="text" id="psalmCitation" class="w-full text-xs border rounded p-1 mb-1.5 bg-white">
+            <label for="psalmText" class="block text-xs text-stone-600 font-medium">Psalm Text (Leader / * People lines):</label>
+            <textarea id="psalmText" rows="3" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+          </div>
+        </div>
+
+        <!-- Reading 3: Second Lesson (Epistle) -->
+        <div class="mb-3 p-3 rounded-md bg-stone-50 border border-stone-200">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center space-x-2 text-xs font-semibold text-stone-800 cursor-pointer">
+              <input type="checkbox" id="includeReading2" checked class="rounded text-amber-700 focus:ring-amber-600 w-4 h-4">
+              <span>Second Reading (Epistle / New Testament)</span>
+            </label>
+            <button type="button" id="toggleReading2Edit" class="text-xs text-amber-800 hover:text-amber-900 underline">Edit text</button>
+          </div>
+
+          <div class="mt-2 pl-6">
+            <div class="text-xs text-stone-700 font-medium" id="reading2CitationLabel">Hebrews 5:1-10</div>
+          </div>
+
+          <div id="reading2EditArea" class="hidden mt-2 pt-2 border-t border-stone-200">
+            <label for="reading2Citation" class="block text-xs text-stone-600 font-medium">Citation:</label>
+            <input type="text" id="reading2Citation" class="w-full text-xs border rounded p-1 mb-1.5 bg-white">
+            <label for="reading2Text" class="block text-xs text-stone-600 font-medium">Passage Text:</label>
+            <textarea id="reading2Text" rows="3" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+          </div>
+        </div>
+
+        <!-- Reading 4: The Holy Gospel -->
+        <div class="mb-3 p-3 rounded-md bg-stone-50 border border-stone-200">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center space-x-2 text-xs font-semibold text-stone-800 cursor-pointer">
+              <input type="checkbox" id="includeGospel" checked class="rounded text-amber-700 focus:ring-amber-600 w-4 h-4">
+              <span>The Holy Gospel</span>
+            </label>
+            <button type="button" id="toggleGospelEdit" class="text-xs text-amber-800 hover:text-amber-900 underline">Edit text</button>
+          </div>
+
+          <div class="mt-2 pl-6">
+            <div class="text-xs text-stone-700 font-medium" id="gospelCitationLabel">Mark 10:35-45</div>
+          </div>
+
+          <div id="gospelEditArea" class="hidden mt-2 pt-2 border-t border-stone-200">
+            <label for="gospelCitation" class="block text-xs text-stone-600 font-medium">Gospel Citation:</label>
+            <input type="text" id="gospelCitation" class="w-full text-xs border rounded p-1 mb-1.5 bg-white">
+            <label for="gospelText" class="block text-xs text-stone-600 font-medium">Gospel Passage:</label>
+            <textarea id="gospelText" rows="3" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+          </div>
+        </div>
+
+        <!-- Proper Prayers Editor -->
+        <div class="p-3 rounded-md bg-amber-50/50 border border-amber-200/80">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-stone-800">Proper Prayers of the Day (Collect, Gifts, Post-Communion)</span>
+            <button type="button" id="togglePropersEdit" class="text-xs text-amber-800 hover:text-amber-900 underline">Customize Propers</button>
+          </div>
+          <div id="propersEditArea" class="hidden mt-2 pt-2 border-t border-amber-200 space-y-2">
+            <div>
+              <label for="collectInput" class="block text-xs text-stone-600 font-medium">Collect of the Day:</label>
+              <textarea id="collectInput" rows="2" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+            </div>
+            <div>
+              <label for="giftsPrayerInput" class="block text-xs text-stone-600 font-medium">Prayer over the Gifts:</label>
+              <textarea id="giftsPrayerInput" rows="2" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+            </div>
+            <div>
+              <label for="postCommunionInput" class="block text-xs text-stone-600 font-medium">Prayer after Communion:</label>
+              <textarea id="postCommunionInput" rows="2" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. LITURGICAL TEXT VARIANTS & BAS OPTIONS -->
+      <div class="bg-white rounded-lg border border-stone-200 shadow-sm p-4 space-y-3.5">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-700 flex items-center">
+          <svg class="w-4 h-4 mr-1.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+          4. BAS Liturgical Variants
+        </h2>
+
+        <!-- Gathering Greeting -->
+        <div>
+          <label for="greetingSelect" class="block text-xs font-medium text-stone-600 mb-1">Gathering Greeting / Opening Acclamation:</label>
+          <select id="greetingSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="standard">Standard (p. 185): "The grace of our Lord Jesus Christ..."</option>
+            <option value="easter">Eastertide (p. 185): "Alleluia! Christ is risen..."</option>
+            <option value="lent">Lent / Penitential (p. 185): "Bless the Lord who forgives all our sins..."</option>
+            <option value="epiphany">Epiphany: "I will make you as a light for the nations..."</option>
+            <option value="morning_office">Morning Prayer (p. 47): "Lord, open our lips..."</option>
+            <option value="evening_office">Evening Prayer (p. 62): "Jesus Christ is the light of the world..."</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+          <label class="flex items-center space-x-2 text-xs text-stone-700 cursor-pointer">
+            <input type="checkbox" id="includeCollectPurity" checked class="rounded text-amber-700 focus:ring-amber-600">
+            <span>Collect for Purity</span>
+          </label>
+          <label class="flex items-center space-x-2 text-xs text-stone-700 cursor-pointer">
+            <input type="checkbox" id="includeGloria" checked class="rounded text-amber-700 focus:ring-amber-600">
+            <span>Opening Canticle / Praise</span>
+          </label>
+        </div>
+
+        <!-- Opening Hymn of Praise / Canticle Variant -->
+        <div>
+          <label for="canticleSelect" class="block text-xs font-medium text-stone-600 mb-1">Opening Hymn of Praise / Invitatory Canticle:</label>
+          <select id="canticleSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="gloria">Glory to God in the Highest (Gloria in Excelsis, BAS p. 186)</option>
+            <option value="kyrie">Kyrie Eleison ("Lord, have mercy / Christ, have mercy", BAS p. 186)</option>
+            <option value="trisagion">Trisagion ("Holy God, holy and mighty...", BAS p. 187)</option>
+            <option value="venite">Venite – Psalm 95 ("Come, let us sing to the Lord", BAS p. 49)</option>
+            <option value="jubilate">Jubilate – Psalm 100 ("Be joyful in the Lord, all you lands", BAS p. 50)</option>
+            <option value="phos_hilaron">Phos Hilaron ("O Gracious Light, pure brightness", BAS p. 62)</option>
+          </select>
+        </div>
+
+        <!-- Gospel Acclamation / Office Canticle -->
+        <div>
+          <label for="gospelAcclamationSelect" class="block text-xs font-medium text-stone-600 mb-1">Gospel Acclamation / Seasonal Tract:</label>
+          <select id="gospelAcclamationSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="alleluia">Festal / Ordinary: "Alleluia! Speak, Lord, for your servant is listening..."</option>
+            <option value="lenten">Lenten Tract (No Alleluia): "Praise to you, Lord Jesus Christ, King of endless glory..."</option>
+            <option value="benedictus">Gospel Canticle: The Song of Zechariah (Benedictus, BAS p. 88)</option>
+            <option value="magnificat">Gospel Canticle: The Song of Mary (Magnificat, BAS p. 86)</option>
+          </select>
+        </div>
+
+        <!-- Affirmation of Faith / Creed -->
+        <div>
+          <label for="creedSelect" class="block text-xs font-medium text-stone-600 mb-1">Affirmation of Faith / The Creed (BAS pp. 53, 188-189):</label>
+          <select id="creedSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="nicene">The Nicene Creed ("We believe in one God...", BAS p. 188)</option>
+            <option value="apostles">The Apostles' Creed ("I believe in God...", BAS p. 189)</option>
+            <option value="shema">Hear, O Israel / The Shema ("The Lord our God, the Lord is one", BAS p. 53)</option>
+            <option value="none">Omit Creed (Weekday / Informal Service)</option>
+          </select>
+        </div>
+
+        <!-- Prayers of the People -->
+        <div>
+          <label for="prayersSelect" class="block text-xs font-medium text-stone-600 mb-1">Prayers of the People (BAS Litanies pp. 110-127):</label>
+          <select id="prayersSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="litany1">Litany 1 (BAS p. 110 – "In peace let us pray... Lord, have mercy")</option>
+            <option value="litany2">Litany 2 (BAS p. 112 – "Let us pray with confidence... Lord, hear our prayer")</option>
+            <option value="litany3">Litany 3 (BAS p. 115 – "Father, we pray for your holy catholic Church...")</option>
+            <option value="litany4">Litany 4 (BAS p. 116 – Good Shepherd / Creation &amp; Justice)</option>
+            <option value="litany14">Litany 14 (BAS p. 127 – Litany of Thanksgiving)</option>
+            <option value="pastoral">Parish Pastoral Intercessions (With local names &amp; intentions)</option>
+          </select>
+        </div>
+
+        <!-- Eucharistic Prayer (1-6) -->
+        <div>
+          <label for="eucharisticPrayerSelect" class="block text-xs font-medium text-stone-600 mb-1">The Great Thanksgiving (BAS Eucharistic Prayers 1–6):</label>
+          <select id="eucharisticPrayerSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="prayer1">Eucharistic Prayer 1 (BAS p. 193 – Salvation History &amp; Seasonal Preface)</option>
+            <option value="prayer2">Eucharistic Prayer 2 (BAS p. 196 – Hippolytus / Creation &amp; Covenant)</option>
+            <option value="prayer3">Eucharistic Prayer 3 (BAS p. 198 – With Proper Preface)</option>
+            <option value="prayer4">Eucharistic Prayer 4 (BAS p. 201 – Cosmic Creation &amp; New Creation)</option>
+            <option value="prayer5">Eucharistic Prayer 5 (BAS p. 204 – For All Ages / Children &amp; Families)</option>
+            <option value="prayer6">Eucharistic Prayer 6 (BAS p. 207 – Solemn / Festal)</option>
+          </select>
+        </div>
+
+        <!-- Proper Preface Selector -->
+        <div>
+          <label for="prefaceSelect" class="block text-xs font-medium text-stone-600 mb-1">Proper Preface (for Eucharistic Prayers 1 &amp; 3, BAS pp. 218-226):</label>
+          <select id="prefaceSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="auto">Auto-Match Selected Occasion / Season</option>
+            <option value="lords_day">Of the Lord's Day (Ordinary Time, BAS p. 218)</option>
+            <option value="advent">Advent (BAS p. 219)</option>
+            <option value="incarnation">Christmas / The Incarnation (BAS p. 219)</option>
+            <option value="epiphany">Epiphany Manifestation (BAS p. 220)</option>
+            <option value="lent">Lent &amp; Penitential (BAS p. 220)</option>
+            <option value="easter">Eastertide (BAS p. 222)</option>
+            <option value="pentecost">Pentecost / Holy Spirit (BAS p. 223)</option>
+            <option value="trinity">Trinity Sunday (BAS p. 224)</option>
+            <option value="allsaints">All Saints &amp; Commemorations (BAS p. 225)</option>
+          </select>
+        </div>
+
+        <!-- The Lord's Prayer & Breaking of the Bread -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label for="lordsPrayerSelect" class="block text-xs font-medium text-stone-600 mb-1">The Lord's Prayer (p. 211):</label>
+            <select id="lordsPrayerSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2 py-1.5 text-stone-800">
+              <option value="contemporary">Contemporary ("Our Father in heaven...")</option>
+              <option value="traditional">Traditional ("Our Father, who art...")</option>
+            </select>
+          </div>
+          <div>
+            <label for="fractionSelect" class="block text-xs font-medium text-stone-600 mb-1">Fraction Rite (pp. 212-213):</label>
+            <select id="fractionSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2 py-1.5 text-stone-800">
+              <option value="fraction1">Fraction 1 (Standard: "We break this bread...")</option>
+              <option value="fraction2">Fraction 2 (Creation: "Creator of all, golden fields...")</option>
+              <option value="fraction3">Fraction 3 (Advent/Banquet: "God of promise...")</option>
+              <option value="fraction5">Fraction 5 (Lent/Passion: "Communion in Christ's body...")</option>
+              <option value="fraction6">Fraction 6 (Easter: "Lord, we died with you...")</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+    </aside>
+
+    <!-- RIGHT COLUMN: STREAMLINED SERVICE VIEWER -->
+    <section id="servicePreviewSection" class="lg:col-span-7 flex flex-col">
+      
+      <!-- Toolbar for Liturgy View -->
+      <div class="bg-white rounded-t-lg border border-stone-200 border-b-0 p-3 flex flex-wrap items-center justify-between gap-3 no-print">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-medium text-stone-500 uppercase tracking-wider">Display:</span>
+          <button id="toggleRubricsBtn" type="button" class="px-2.5 py-1 text-xs rounded border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 transition">
+            Rubrics: <span id="rubricStatusText" class="font-semibold text-rubric">Visible</span>
+          </button>
+          <button id="toggleInlineControlsBtn" type="button" class="px-2.5 py-1 text-xs rounded border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 transition">
+            Inline Controls: <span id="inlineControlsStatusText" class="font-semibold text-amber-800">On</span>
+          </button>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-stone-500">Text Size:</span>
+          <div class="inline-flex rounded-md shadow-sm">
+            <button id="fontSmBtn" type="button" class="px-2 py-1 text-xs font-medium border border-stone-300 rounded-l hover:bg-stone-100 bg-stone-50 text-stone-700">A-</button>
+            <button id="fontMdBtn" type="button" class="px-2.5 py-1 text-xs font-medium border-t border-b border-stone-300 hover:bg-stone-100 bg-white text-stone-900 font-bold">Standard</button>
+            <button id="fontLgBtn" type="button" class="px-2 py-1 text-xs font-medium border border-stone-300 rounded-r hover:bg-stone-100 bg-stone-50 text-stone-700">A+ (Lectern)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- The Single-Page Streamlined Service Sheet -->
+      <div id="serviceSheet" class="bg-parchment text-stone-900 rounded-b-lg border border-stone-200 shadow-md p-6 sm:p-10 font-serif leading-relaxed service-container font-size-md flex-1 overflow-y-auto">
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-stone-900 text-stone-400 text-xs py-4 px-6 border-t border-stone-800 text-center no-print">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>The Book of Alternative Services (1985) • Anglican Church of Canada Liturgical Framework</div>
+      <div>Supports Holy Eucharist, Service of the Word, Morning &amp; Evening Prayer, and Custom Parish Sequencing</div>
+    </div>
+  </footer>
+
+  <!-- Liturgical Data & Application Scripts -->
+  <script src="js/lectionary-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
