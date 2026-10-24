@@ -9,10 +9,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="digitalbas">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="manifest" href="/digitalbas/manifest.json?v=2">
+  <link rel="icon" type="image/svg+xml" href="/digitalbas/icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="/digitalbas/icon-192.png">
+  <link rel="apple-touch-icon" href="/digitalbas/icon-192.png">
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -589,7 +589,7 @@
 
   <!-- Liturgical Data & Application Scripts -->
   <script>
-    const LECTIONARY_DATA = {
+const LECTIONARY_DATA = {
       proper28: {
         name: "21st Sunday after Pentecost (Proper 28, Year B)",
         season: "Ordinary Time (Green)",
@@ -2630,6 +2630,17 @@
     window.editBlockGlobal = function(id) { openBlockModal(id); };
     window.insertAfterGlobal = function(id) { openBlockModal(null, id); };
     window.removeBlockGlobal = function(idx) { removeOrDisableBlock(idx); };
-  </script>
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/digitalbas/sw.js?v=2', {
+      scope: '/digitalbas/',
+      updateViaCache: 'none'
+    }).catch((err) => {
+      console.warn('digitalbas Service Worker registration skipped:', err);
+    });
+  });
+}
+</script>
 </body>
 </html>

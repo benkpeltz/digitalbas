@@ -1,24 +1,28 @@
 /**
- * Service Worker for digitalbas (Progressive Web App)
- * Scoped strictly to /digitalbas/ so it never collides with other GitHub Pages PWAs on the same origin.
+ * Service Worker for digitalbas on https://benkpeltz.github.io/digitalbas/
+ * - Cache-isolated with CACHE_PREFIX = 'digitalbas-'
+ * - Ignores any request outside '/digitalbas'
+ * - Uses Network-First (with offline cache fallback) so index.html and manifest.json never serve stale versions
  */
 
-const CACHE_NAME = 'digitalbas-pwa-v2';
-const RELATIVE_ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './css/styles.css',
-  './js/lectionary-data.js',
-  './js/app.js',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/icon.svg'
+const CACHE_PREFIX = 'digitalbas-';
+const CACHE_NAME = 'digitalbas-v2';
+
+const PRECACHE_URLS = [
+  '/digitalbas/',
+  '/digitalbas/index.html',
+  '/digitalbas/manifest.json?v=2',
+  '/digitalbas/css/styles.css',
+  '/digitalbas/js/lectionary-data.js',
+  '/digitalbas/js/app.js',
+  '/digitalbas/icon-192.png',
+  '/digitalbas/icon-512.png',
+  '/digitalbas/icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(RELATIVE_ASSETS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
   );
   self.skipWaiting();
 });
@@ -27,9 +31,12 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys
-          .filter((key) => key.startsWith('digitalbas-') && key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
+        keys.map((key) => {
+          if (key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+          return null;
+        })
       )
     )
   );
@@ -38,12 +45,23 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  if (!event.request.url.includes('/digitalbas')) return;
+
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).catch(() => caches.match('./index.html'));
-    })
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+        }
+        return networkResponse;
+      })
+      .catch(() =>
+        caches.match(event.request).then((cachedResponse) => {
+          return cachedResponse || caches.match('/digitalbas/index.html');
+        })
+      )
   );
 });

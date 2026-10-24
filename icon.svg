@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#1c1917"/>
+  <rect x="36" y="36" width="440" height="440" rx="72" fill="#78350f" stroke="#d97706" stroke-width="8"/>
+  <!-- Liturgical Cross & Open Book Motif -->
+  <path d="M256 96v220M186 166h140" stroke="#fef3c7" stroke-width="24" stroke-linecap="round"/>
+  <path d="M128 336c40-20 88-20 128 0 40-20 88-20 128 0v64c-40-20-88-20-128 0-40-20-88-20-128 0v-64z" fill="#fdfbf7" stroke="#fde68a" stroke-width="10" stroke-linejoin="round"/>
+</svg>
