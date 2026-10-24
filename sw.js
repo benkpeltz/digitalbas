@@ -12,9 +12,9 @@ const PRECACHE_URLS = [
   '/digitalbas/',
   '/digitalbas/index.html',
   '/digitalbas/manifest.json?v=2',
-  '/digitalbas/css/styles.css',
-  '/digitalbas/js/lectionary-data.js',
-  '/digitalbas/js/app.js',
+  '/digitalbas/styles.css',
+  '/digitalbas/lectionary-data.js',
+  '/digitalbas/app.js',
   '/digitalbas/icon-192.png',
   '/digitalbas/icon-512.png',
   '/digitalbas/icon.svg'
