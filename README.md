@@ -1,39 +1,34 @@
-# Book of Alternative Services (BAS) – Interactive Liturgy Builder & Service Sequencer (v2)
+# Book of Alternative Services (BAS) – Interactive Liturgy Builder & PWA (v2)
 
-An interactive, modular liturgical web application modeled on *The Book of Alternative Services (1985)* of the Anglican Church of Canada. Built for clergy, Lay Pastoral Assistants (LPAs), lay readers, music directors, and parish administrators to plan services aligned with the liturgical occasion, customize and reorder every liturgical block, and generate a clean single-page service for officiating or printing parish bulletins.
+An interactive, installable Progressive Web App (PWA) modeled on *The Book of Alternative Services (1985)* of the Anglican Church of Canada. Built for clergy, Lay Pastoral Assistants (LPAs), lay readers, and parish administrators to plan services aligned with the liturgical occasion, reorder or insert any liturgical element, and view or print a streamlined single-page service.
 
 ---
 
-## Key Features in Version 2
+## Android PWA & GitHub Pages Subpath Scoping
 
-### 1. Multiple BAS Rites & Liturgical Forms
-Switch seamlessly between five liturgical archetypes, each pre-configuring the proper sequence of blocks, greetings, canticles, and concluding rites:
-- **The Holy Eucharist (BAS p. 185)**: Full standard celebration of Word and Table.
-- **Penitential / Lenten Eucharist (BAS p. 188)**: Places the Penitential Rite (Confession & Absolution) and *Kyrie / Trisagion* in the Gathering Rite and uses the Lenten Gospel Tract.
-- **Service of the Word / Lay-Led Liturgy (BAS p. 130)**: Tailored for Lay Pastoral Assistants and lay readers when no priest is present, using lay-appropriate pardon phrasing (*"have mercy upon us"*) and *The Grace*.
-- **Morning Prayer: The Daily Office (BAS p. 47)**: Includes Opening Sentence, Penitential Introduction, *Venite* or *Jubilate*, Psalmody, Lessons, *Benedictus*, Affirmation (*Hear, O Israel* or Apostles' Creed), Litany, Collect, Lord's Prayer, and Dismissal.
-- **Evening Prayer: Service of Light (BAS p. 62)**: Includes the *Service of Light* greeting, *Phos Hilaron ("O Gracious Light")*, Psalmody, Lessons, *Magnificat*, Evening Litany, Collects, Lord's Prayer, and Dismissal.
+When multiple GitHub Pages repositories are hosted under the same domain (`https://<username>.github.io/<repo-name>/`), Android's WebAPK generator can mistakenly treat them as the same app unless each app's manifest, links, and service worker are strictly scoped to its repository subpath.
 
-### 2. Dynamic Service Order & Block Sequencer
-- **Reorder Any Element (`↑` / `↓`)**: Move any block up or down in the service order—either from the **Service Order & Sequencer** panel in the left sidebar or by hovering directly over any block in the live preview.
-- **Toggle or Remove Elements**: Check/uncheck built-in elements or remove custom blocks with a single click.
-- **Insert Contextual Elements (`+ Insert Element`)**: Insert pre-built or custom blocks at any point in the service:
-  - *Hymn / Congregational Song / Anthem* (*Common Praise*)
-  - *Territorial Land Acknowledgement* (pre-populated for Treaty 20 / Williams Treaties / Michi Saagiig Anishinaabeg territory, fully editable)
-  - *Welcome & Parish Announcements*
-  - *Children's Focus / All-Age Homily*
-  - *Laying on of Hands & Anointing (Healing Rite, BAS p. 555)*
-  - *Renewal of Baptismal Covenant (BAS p. 158)*
-  - *Pastoral Blessing (Birthdays, Anniversaries, Commissioning)*
-  - *Publication of the Banns of Marriage (BAS p. 549)*
-  - *Additional Scripture Lesson, Canticle, or Custom Parish Collect*
-- **Inline Editing (`✎`)**: Click the edit icon on any built-in or custom block to customize its heading, speaker label, crimson rubric, prayer text, or congregational response.
+This repository is pre-configured for the subpath **`/bas-interactive-liturgy/`**:
 
-### 3. Complete BAS Propers & Textual Variants
-- **Full Appointed Propers per Occasion**: Includes the **Collect of the Day**, **BAS Psalter Psalm Prayer**, **Prayer over the Gifts**, **Prayer after Communion**, and **Seasonal Proper Prefaces (BAS pp. 218–226)** across Ordinary Time, Advent, Christmas, Epiphany, Ash Wednesday/Lent, Good Friday, Easter, Pentecost, Trinity Sunday, Reign of Christ, All Saints' Day, and Pastoral Healing.
-- **Six BAS Eucharistic Prayers (1–6)**: Supports Eucharistic Prayers 1 through 6 alongside Fractions 1, 2, 3, 5, and 6.
-- **Canticles, Creeds & Litanies**: Choose between *Gloria in Excelsis*, *Kyrie*, *Trisagion*, *Venite*, *Jubilate*, *Phos Hilaron*, *Benedictus*, *Magnificat*, Nicene Creed, Apostles' Creed, *Hear, O Israel (The Shema, p. 53)*, Litanies 1, 2, 3, 4, 14, and Pastoral Intercessions, plus Contemporary or Traditional *Lord's Prayer (p. 211)*.
-- **Officiant & Bulletin Tools**: Toggle rubrics on/off, toggle hover controls on/off, scale typography (`A-`, `Standard`, `A+ Lectern`), export your customized service configuration as `.json`, copy formatted plain text, or print a clean bulletin via `@media print`.
+1. **Manifest Identity & Scope (`manifest.json` & `manifest.webmanifest`)**:
+   - `"id": "/bas-interactive-liturgy/"` — Assigns a unique WebAPK application ID on Android.
+   - `"start_url": "/bas-interactive-liturgy/index.html"` — Launches directly into this repository's entry point.
+   - `"scope": "/bas-interactive-liturgy/"` — Prevents the app from capturing routes outside this repository.
+   - `"name": "Book of Alternative Services - Interactive Liturgy"` & `"short_name": "BAS Liturgy"`.
+   - `"icons"`: Relative paths (`icons/icon-192.png`, `icons/icon-512.png`, `icons/icon.svg`) so icons resolve inside `/bas-interactive-liturgy/icons/` rather than the root domain `/`.
+
+2. **HTML Head & Asset Links (`index.html`)**:
+   - `<link rel="manifest" href="manifest.json">` and all icon/stylesheet/script references use relative subpath links with zero hardcoded root (`/`) asset paths.
+   - Includes `<meta name="application-name" content="BAS Liturgy">`, `<meta name="apple-mobile-web-app-title" content="BAS Liturgy">`, and `<meta name="theme-color" content="#1c1917">`.
+
+3. **Scoped Service Worker (`sw.js` & `js/app.js`)**:
+   - Registered in `js/app.js` with `navigator.serviceWorker.register('/bas-interactive-liturgy/sw.js', { scope: '/bas-interactive-liturgy/' })`.
+   - Uses an isolated cache namespace (`bas-interactive-liturgy-pwa-v2`) and only deletes its own prefix on activation, leaving other GitHub Pages PWAs on your domain untouched.
+
+> **Important Note if You Name Your GitHub Repository Something Different:**
+> If your GitHub repository name is not `bas-interactive-liturgy` (for example, if you name it `bas-app`), update `/bas-interactive-liturgy/` to `/<your-repo-name>/` in two places:
+> 1. `manifest.json` (and `manifest.webmanifest`): `"id"`, `"start_url"`, and `"scope"`.
+> 2. `js/app.js`: `const REPO_SCOPE = '/<your-repo-name>/';` at the bottom of the file.
 
 ---
 
@@ -41,29 +36,21 @@ Switch seamlessly between five liturgical archetypes, each pre-configuring the p
 
 ```text
 bas-interactive-liturgy/
-├── index.html                          # Main application entry point (GitHub Pages ready)
-├── bas_service_builder_standalone.html # Single-file self-contained version (portable offline copy)
+├── index.html                          # Main PWA entry point (subpath-scoped head & manifest links)
+├── manifest.json                       # Subpath-scoped Web App Manifest (id, start_url, scope)
+├── manifest.webmanifest                # Mirror Web App Manifest for strict MIME-type servers
+├── sw.js                               # Subpath-scoped Service Worker with isolated cache prefix
+├── bas_service_builder_standalone.html # Single-file self-contained copy
 ├── css/
 │   └── styles.css                      # Liturgical rubric styling, lectern font sizes, and print rules
 ├── js/
 │   ├── lectionary-data.js              # Lectionary database, Proper Prefaces, Rite templates, Custom blocks
-│   └── app.js                          # Dynamic block sequencer, modal editor, and rendering engine
+│   └── app.js                          # Dynamic block sequencer, modal editor, rendering engine & SW registration
+├── icons/
+│   ├── icon-192.png                    # 192x192 PNG icon (required by Android WebAPK)
+│   ├── icon-512.png                    # 512x512 PNG icon (required by Android WebAPK splash/install)
+│   └── icon.svg                        # Scalable vector liturgical icon
 ├── LICENSE                             # MIT License
 ├── .gitignore                          # Standard Git ignore rules
-└── README.md                           # Project documentation & deployment guide
+└── README.md                           # Project & PWA configuration documentation
 ```
-
----
-
-## How to Test Locally & Deploy on GitHub Pages
-
-### Testing Locally
-1. Unzip `bas-interactive-liturgy-v2.zip`.
-2. Double-click `index.html` (or `bas_service_builder_standalone.html`) to open it directly in any modern browser (Chrome, Safari, Firefox, Edge)—no `npm install` or build server required.
-
-### Uploading to GitHub & Publishing on GitHub Pages
-1. Create a new repository on GitHub (for example, `bas-interactive-liturgy`).
-2. Upload the contents of the `bas-interactive-liturgy/` folder (`index.html`, `css/`, `js/`, `README.md`, `LICENSE`, `.gitignore`) to the root of your repository's `main` branch.
-3. Go to **Settings → Pages** in your GitHub repository.
-4. Under **Build and deployment**, select **Deploy from a branch**, choose the `main` branch and `/ (root)` directory, and click **Save**.
-5. Within 1–2 minutes, your app will be live at `https://<your-github-username>.github.io/bas-interactive-liturgy/`.

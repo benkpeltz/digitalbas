@@ -1,0 +1,38 @@
+{
+  "id": "/bas-interactive-liturgy/",
+  "name": "Book of Alternative Services - Interactive Liturgy",
+  "short_name": "BAS Liturgy",
+  "description": "Interactive Book of Alternative Services (1985) Liturgy Builder, Rite Adapter, and Dynamic Order Sequencer.",
+  "start_url": "/bas-interactive-liturgy/index.html",
+  "scope": "/bas-interactive-liturgy/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fdfbf7",
+  "theme_color": "#1c1917",
+  "categories": [
+    "books",
+    "reference",
+    "education",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
