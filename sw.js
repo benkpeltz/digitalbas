@@ -1,9 +1,9 @@
 /**
- * Service Worker for Book of Alternative Services - Interactive Liturgy (PWA)
- * Scoped strictly to /bas-interactive-liturgy/ so it never collides with other GitHub Pages PWAs on the same origin.
+ * Service Worker for digitalbas (Progressive Web App)
+ * Scoped strictly to /digitalbas/ so it never collides with other GitHub Pages PWAs on the same origin.
  */
 
-const CACHE_NAME = 'bas-interactive-liturgy-pwa-v2';
+const CACHE_NAME = 'digitalbas-pwa-v2';
 const RELATIVE_ASSETS = [
   './',
   './index.html',
@@ -28,7 +28,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key.startsWith('bas-interactive-liturgy-') && key !== CACHE_NAME)
+          .filter((key) => key.startsWith('digitalbas-') && key !== CACHE_NAME)
           .map((key) => caches.delete(key))
       )
     )

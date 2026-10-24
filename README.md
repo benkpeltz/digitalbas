@@ -1,56 +1,61 @@
-# Book of Alternative Services (BAS) – Interactive Liturgy Builder & PWA (v2)
+# digitalbas — Interactive Book of Alternative Services (PWA)
 
 An interactive, installable Progressive Web App (PWA) modeled on *The Book of Alternative Services (1985)* of the Anglican Church of Canada. Built for clergy, Lay Pastoral Assistants (LPAs), lay readers, and parish administrators to plan services aligned with the liturgical occasion, reorder or insert any liturgical element, and view or print a streamlined single-page service.
 
 ---
 
-## Android PWA & GitHub Pages Subpath Scoping
+## Android PWA & GitHub Pages Subpath Configuration (`/digitalbas/`)
 
-When multiple GitHub Pages repositories are hosted under the same domain (`https://<username>.github.io/<repo-name>/`), Android's WebAPK generator can mistakenly treat them as the same app unless each app's manifest, links, and service worker are strictly scoped to its repository subpath.
+When multiple GitHub Pages repositories are hosted under the same domain (`https://<username>.github.io/<repo-name>/`), Android's WebAPK generator can treat them as the same app unless each app's manifest, links, and service worker are strictly scoped to its repository subpath.
 
-This repository is pre-configured for the subpath **`/bas-interactive-liturgy/`**:
+All files in this repository are configured for the repository and app name **`digitalbas`** (`/digitalbas/`):
 
 1. **Manifest Identity & Scope (`manifest.json` & `manifest.webmanifest`)**:
-   - `"id": "/bas-interactive-liturgy/"` — Assigns a unique WebAPK application ID on Android.
-   - `"start_url": "/bas-interactive-liturgy/index.html"` — Launches directly into this repository's entry point.
-   - `"scope": "/bas-interactive-liturgy/"` — Prevents the app from capturing routes outside this repository.
-   - `"name": "Book of Alternative Services - Interactive Liturgy"` & `"short_name": "BAS Liturgy"`.
-   - `"icons"`: Relative paths (`icons/icon-192.png`, `icons/icon-512.png`, `icons/icon.svg`) so icons resolve inside `/bas-interactive-liturgy/icons/` rather than the root domain `/`.
+   - `"id": "/digitalbas/"` — Assigns a distinct WebAPK package identity on Android.
+   - `"start_url": "/digitalbas/index.html"` — Launches directly into the `digitalbas` entry point.
+   - `"scope": "/digitalbas/"` — Restricts navigation capture strictly to `/digitalbas/` rather than the root domain `/`.
+   - `"name": "digitalbas"` & `"short_name": "digitalbas"`.
+   - `"icons"`: Relative paths (`icons/icon-192.png`, `icons/icon-512.png`, `icons/icon.svg`) resolving inside `/digitalbas/icons/`.
 
-2. **HTML Head & Asset Links (`index.html`)**:
-   - `<link rel="manifest" href="manifest.json">` and all icon/stylesheet/script references use relative subpath links with zero hardcoded root (`/`) asset paths.
-   - Includes `<meta name="application-name" content="BAS Liturgy">`, `<meta name="apple-mobile-web-app-title" content="BAS Liturgy">`, and `<meta name="theme-color" content="#1c1917">`.
+2. **HTML Head & Relative Links (`index.html`)**:
+   - `<title>digitalbas — Book of Alternative Services Interactive Liturgy</title>`
+   - `<meta name="application-name" content="digitalbas">` and `<meta name="apple-mobile-web-app-title" content="digitalbas">`
+   - `<link rel="manifest" href="manifest.json">` and relative icon/stylesheet/script paths with zero hardcoded root (`/`) asset paths.
 
 3. **Scoped Service Worker (`sw.js` & `js/app.js`)**:
-   - Registered in `js/app.js` with `navigator.serviceWorker.register('/bas-interactive-liturgy/sw.js', { scope: '/bas-interactive-liturgy/' })`.
-   - Uses an isolated cache namespace (`bas-interactive-liturgy-pwa-v2`) and only deletes its own prefix on activation, leaving other GitHub Pages PWAs on your domain untouched.
-
-> **Important Note if You Name Your GitHub Repository Something Different:**
-> If your GitHub repository name is not `bas-interactive-liturgy` (for example, if you name it `bas-app`), update `/bas-interactive-liturgy/` to `/<your-repo-name>/` in two places:
-> 1. `manifest.json` (and `manifest.webmanifest`): `"id"`, `"start_url"`, and `"scope"`.
-> 2. `js/app.js`: `const REPO_SCOPE = '/<your-repo-name>/';` at the bottom of the file.
+   - Registered in `js/app.js` with `navigator.serviceWorker.register('/digitalbas/sw.js', { scope: '/digitalbas/' })` (with automatic fallback to `./` on `localhost`).
+   - Uses an isolated cache namespace (`digitalbas-pwa-v2`) and only purges caches prefixed with `digitalbas-`.
 
 ---
 
 ## Repository File Structure
 
 ```text
-bas-interactive-liturgy/
-├── index.html                          # Main PWA entry point (subpath-scoped head & manifest links)
-├── manifest.json                       # Subpath-scoped Web App Manifest (id, start_url, scope)
-├── manifest.webmanifest                # Mirror Web App Manifest for strict MIME-type servers
-├── sw.js                               # Subpath-scoped Service Worker with isolated cache prefix
-├── bas_service_builder_standalone.html # Single-file self-contained copy
+digitalbas/
+├── index.html                   # Main PWA entry point (scoped to digitalbas)
+├── manifest.json                # Web App Manifest (id, start_url, scope = /digitalbas/)
+├── manifest.webmanifest         # Mirror Web App Manifest
+├── sw.js                        # Scoped Service Worker (cache = digitalbas-pwa-v2)
+├── digitalbas_standalone.html   # Single-file self-contained portable copy
 ├── css/
-│   └── styles.css                      # Liturgical rubric styling, lectern font sizes, and print rules
+│   └── styles.css               # Liturgical rubric styling, lectern font sizes, and print rules
 ├── js/
-│   ├── lectionary-data.js              # Lectionary database, Proper Prefaces, Rite templates, Custom blocks
-│   └── app.js                          # Dynamic block sequencer, modal editor, rendering engine & SW registration
+│   ├── lectionary-data.js       # Lectionary database, Proper Prefaces, Rite templates, Custom blocks
+│   └── app.js                   # Dynamic block sequencer, modal editor, rendering engine & /digitalbas/ SW registration
 ├── icons/
-│   ├── icon-192.png                    # 192x192 PNG icon (required by Android WebAPK)
-│   ├── icon-512.png                    # 512x512 PNG icon (required by Android WebAPK splash/install)
-│   └── icon.svg                        # Scalable vector liturgical icon
-├── LICENSE                             # MIT License
-├── .gitignore                          # Standard Git ignore rules
-└── README.md                           # Project & PWA configuration documentation
+│   ├── icon-192.png             # 192x192 PNG icon (Android WebAPK)
+│   ├── icon-512.png             # 512x512 PNG icon (Android WebAPK splash/install)
+│   └── icon.svg                 # Scalable vector liturgical icon
+├── LICENSE                      # MIT License
+├── .gitignore                   # Standard Git ignore rules
+└── README.md                    # Project & PWA documentation
 ```
+
+---
+
+## Deploying to GitHub Pages
+
+1. Create or open your **`digitalbas`** repository on GitHub (`https://github.com/<your-username>/digitalbas`).
+2. Upload the contents of the `digitalbas/` folder (`index.html`, `manifest.json`, `manifest.webmanifest`, `sw.js`, `digitalbas_standalone.html`, `css/`, `js/`, `icons/`, `README.md`, `LICENSE`, `.gitignore`) to the root of the `main` branch.
+3. Enable **GitHub Pages** under **Settings → Pages** (Deploy from branch: `main` / `(root)`).
+4. Visit `https://<your-username>.github.io/digitalbas/` in Chrome on Android and tap **Install app** / **Add to Home screen**.

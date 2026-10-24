@@ -1,0 +1,2635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>digitalbas — Book of Alternative Services Interactive Liturgy</title>
+  <meta name="theme-color" content="#1c1917">
+  <meta name="application-name" content="digitalbas">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="digitalbas">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"EB Garamond"', 'Georgia', 'serif'],
+            cinzel: ['Cinzel', 'Georgia', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            rubric: '#991b1b',
+            parchment: '#fdfbf7',
+            anglican: {
+              50: '#f7f6f2',
+              100: '#ede9df',
+              200: '#d9d2be',
+              700: '#433c2a',
+              800: '#2e291c',
+              900: '#1b1810',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; font-size: 11pt !important; }
+      .print-page { padding: 0 !important; max-width: 100% !important; box-shadow: none !important; }
+      .service-container { margin: 0 !important; width: 100% !important; max-width: 100% !important; border: none !important; box-shadow: none !important; }
+      .block-hover-controls { display: none !important; }
+    }
+    .liturgical-rubric {
+      color: #991b1b;
+      font-style: italic;
+      font-size: 0.92em;
+      margin: 0.35rem 0;
+      line-height: 1.45;
+    }
+    .response-people {
+      font-weight: 700;
+      color: #111827;
+    }
+    .font-size-sm { font-size: 0.95rem; }
+    .font-size-md { font-size: 1.125rem; }
+    .font-size-lg { font-size: 1.28rem; }
+    .font-size-xl { font-size: 1.48rem; }
+    .service-block-wrapper:hover .block-hover-controls {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="bg-stone-100 text-stone-900 font-sans min-h-screen flex flex-col">
+
+  <!-- Header / Navigation Bar -->
+  <header class="bg-stone-900 text-stone-100 border-b border-stone-800 sticky top-0 z-40 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded bg-amber-800/80 border border-amber-600 flex items-center justify-center text-amber-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-cinzel font-semibold tracking-wide text-stone-100">Book of Alternative Services</h1>
+          <p class="text-xs text-stone-400">Interactive Liturgy Builder, Rite Adapter &amp; Dynamic Order Sequencer</p>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button id="viewToggleBtn" type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+          </svg>
+          <span id="viewToggleText">Full Service View</span>
+        </button>
+
+        <button id="exportJsonBtn" type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          Save Service (.json)
+        </button>
+
+        <button id="copyLitBtn" type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+          </svg>
+          Copy Text
+        </button>
+
+        <button id="printBtn" type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-amber-700 hover:bg-amber-600 text-white font-medium transition shadow-sm">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+          </svg>
+          Print / Bulletin
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-stone-900 text-stone-100 border border-stone-700 px-4 py-2.5 rounded shadow-lg text-sm flex items-center space-x-2 transition transform translate-y-12 opacity-0 duration-300 pointer-events-none">
+    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <span id="toastMsg">Liturgy copied to clipboard!</span>
+  </div>
+
+  <!-- Custom Block / Item Editor Modal -->
+  <div id="blockModal" class="fixed inset-0 z-50 bg-stone-900/60 hidden items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-lg border border-stone-200 shadow-xl max-w-lg w-full p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-stone-200 pb-2.5">
+        <h3 id="blockModalTitle" class="text-sm font-bold uppercase tracking-wider text-stone-800">Insert / Edit Liturgical Element</h3>
+        <button type="button" id="closeModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">&times;</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label for="modalBlockCategory" class="block text-xs font-medium text-stone-600 mb-1">Element Type / Template:</label>
+          <select id="modalBlockCategory" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-2 text-stone-900">
+            <option value="hymn">Hymn / Congregational Song / Anthem (Common Praise)</option>
+            <option value="land_ack">Territorial Land Acknowledgement (Indigenous Reconciliation)</option>
+            <option value="announcements">Welcome &amp; Parish Announcements</option>
+            <option value="childrens_talk">Children's Focus / All-Age Homily</option>
+            <option value="healing_rite">Laying on of Hands &amp; Anointing (BAS p. 555)</option>
+            <option value="baptism_renewal">Renewal of Baptismal Covenant (BAS p. 158)</option>
+            <option value="pastoral_blessing">Pastoral Blessing (Birthdays, Anniversaries, Commissioning)</option>
+            <option value="banns">Banns of Marriage (BAS p. 549)</option>
+            <option value="custom_reading">Additional Scripture Lesson or Canticle</option>
+            <option value="custom_prayer">Custom Prayer, Collect, or Liturgical Text</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="modalBlockHeading" class="block text-xs font-medium text-stone-600 mb-1">Element Title / Heading:</label>
+            <input type="text" id="modalBlockHeading" class="w-full text-xs border border-stone-300 rounded px-2.5 py-1.5 bg-white" placeholder="e.g., Processional Hymn: CP #384">
+          </div>
+          <div>
+            <label for="modalBlockSpeaker" class="block text-xs font-medium text-stone-600 mb-1">Officiant / Speaker Label:</label>
+            <input type="text" id="modalBlockSpeaker" class="w-full text-xs border border-stone-300 rounded px-2.5 py-1.5 bg-white" placeholder="e.g., Celebrant, Leader, All, Choir">
+          </div>
+        </div>
+
+        <div>
+          <label for="modalBlockRubric" class="block text-xs font-medium text-stone-600 mb-1">Ceremonial Rubric (Red Italic Instruction):</label>
+          <input type="text" id="modalBlockRubric" class="w-full text-xs border border-stone-300 rounded px-2.5 py-1.5 bg-white text-rubric italic" placeholder="e.g., All stand as the procession enters.">
+        </div>
+
+        <div>
+          <label for="modalBlockBody" class="block text-xs font-medium text-stone-600 mb-1">Liturgical Text / Stanzas / Content:</label>
+          <textarea id="modalBlockBody" rows="5" class="w-full text-xs border border-stone-300 rounded p-2 bg-white font-serif" placeholder="Enter prayer text, hymn lyrics, or responsive lines..."></textarea>
+        </div>
+
+        <div>
+          <label for="modalBlockResponse" class="block text-xs font-medium text-stone-600 mb-1">Congregational Response (Optional, rendered in bold):</label>
+          <input type="text" id="modalBlockResponse" class="w-full text-xs border border-stone-300 rounded px-2.5 py-1.5 bg-white font-semibold" placeholder="e.g., Amen. / Thanks be to God.">
+        </div>
+
+        <div id="modalInsertPositionWrapper">
+          <label for="modalInsertAfter" class="block text-xs font-medium text-stone-600 mb-1">Place in Service Order:</label>
+          <select id="modalInsertAfter" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-900">
+          </select>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 pt-3 border-t border-stone-200">
+        <button type="button" id="cancelModalBtn" class="px-3 py-1.5 text-xs font-medium rounded border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700">Cancel</button>
+        <button type="button" id="saveModalBtn" class="px-4 py-1.5 text-xs font-medium rounded bg-amber-700 hover:bg-amber-600 text-white shadow-sm">Save to Service</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT COLUMN: Liturgy Configuration, Sequencer & Reading Chooser -->
+    <aside id="builderSidebar" class="lg:col-span-5 space-y-5 no-print">
+
+      <!-- 1. SERVICE RITE & OCCASION ALIGNMENT -->
+      <div class="bg-white rounded-lg border border-stone-200 shadow-sm p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-700 flex items-center">
+            <svg class="w-4 h-4 mr-1.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            1. Rite &amp; Lectionary Occasion
+          </h2>
+          <span id="seasonBadge" class="px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+            Ordinary Time
+          </span>
+        </div>
+
+        <div>
+          <label for="ritePreset" class="block text-xs font-medium text-stone-600 mb-1">BAS Service Rite / Liturgical Form:</label>
+          <select id="ritePreset" class="w-full text-xs sm:text-sm bg-amber-50/60 border border-amber-300 rounded px-2.5 py-2 text-stone-900 font-medium focus:ring-2 focus:ring-amber-600 focus:outline-none">
+            <option value="eucharist">The Holy Eucharist (BAS p. 185 – Standard Order)</option>
+            <option value="lenten_eucharist">Penitential / Lenten Eucharist (BAS p. 188 – Confession at Gathering)</option>
+            <option value="word_lay">Service of the Word / Lay-Led Liturgy (BAS p. 130 – For LPAs &amp; Lay Readers)</option>
+            <option value="morning_prayer">Morning Prayer: The Daily Office (BAS p. 47 – Venite, Readings, Benedictus)</option>
+            <option value="evening_prayer">Evening Prayer: Service of Light (BAS p. 62 – Phos Hilaron, Magnificat)</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="feastPreset" class="block text-xs font-medium text-stone-600 mb-1">Select Lectionary Sunday, Feast, or Pastoral Occasion:</label>
+          <select id="feastPreset" class="w-full text-xs sm:text-sm bg-stone-50 border border-stone-300 rounded px-2.5 py-2 text-stone-900 focus:ring-2 focus:ring-amber-600 focus:outline-none">
+            <option value="proper28">21st Sunday after Pentecost (Proper 28, Year B)</option>
+            <option value="allsaints">All Saints' Day / All Saints' Sunday (November 1)</option>
+            <option value="advent1">First Sunday of Advent (Year C)</option>
+            <option value="christmas">Christmas Day (The Nativity of our Lord)</option>
+            <option value="epiphany">The Epiphany of the Lord (January 6)</option>
+            <option value="ash_wednesday">Ash Wednesday / First Sunday in Lent</option>
+            <option value="good_friday">Good Friday (The Passion of our Lord)</option>
+            <option value="easter">Easter Day (The Resurrection of our Lord)</option>
+            <option value="pentecost">The Day of Pentecost (Whitsunday)</option>
+            <option value="trinity">Trinity Sunday (First Sunday after Pentecost)</option>
+            <option value="reign_of_christ">The Reign of Christ (Last Sunday after Pentecost)</option>
+            <option value="healing">Pastoral Liturgy of Healing &amp; Wholeness (BAS p. 551)</option>
+            <option value="custom">Custom Sunday / Parish Occasion</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-stone-100">
+          <div>
+            <label for="parishTitle" class="block text-xs font-medium text-stone-600 mb-1">Parish / Community Title:</label>
+            <input type="text" id="parishTitle" value="All Saints' Anglican Church • Peterborough" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800 focus:ring-1 focus:ring-amber-600 focus:outline-none">
+          </div>
+          <div>
+            <label for="serviceDateInput" class="block text-xs font-medium text-stone-600 mb-1">Service Date / Time Note:</label>
+            <input type="text" id="serviceDateInput" value="Sunday Morning Worship • 10:00 AM" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800 focus:ring-1 focus:ring-amber-600 focus:outline-none">
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. DYNAMIC SERVICE ORDER & BLOCK SEQUENCER -->
+      <div class="bg-white rounded-lg border border-stone-200 shadow-sm p-4">
+        <div class="flex items-center justify-between mb-1.5">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-700 flex items-center">
+            <svg class="w-4 h-4 mr-1.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+            </svg>
+            2. Service Order &amp; Sequencer
+          </h2>
+          <div class="flex items-center space-x-1.5">
+            <button type="button" id="openInsertModalBtn" class="px-2.5 py-1 text-xs font-semibold rounded bg-amber-700 hover:bg-amber-600 text-white shadow-sm transition">
+              + Insert Element
+            </button>
+            <button type="button" id="resetOrderBtn" class="px-2 py-1 text-xs rounded border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-600 transition" title="Reset sequence to selected Rite default">
+              Reset
+            </button>
+          </div>
+        </div>
+        <p class="text-xs text-stone-500 mb-3">
+          Reorder any element (<span class="font-semibold">↑ / ↓</span>), toggle inclusion, edit inline (<span class="font-semibold">✎</span>), or insert hymns, land acknowledgements, announcements, and pastoral rites anywhere in the flow.
+        </p>
+
+        <!-- Reorderable Block List -->
+        <div id="sequencerList" class="space-y-1.5 max-h-80 overflow-y-auto pr-1 border border-stone-200 rounded-md p-2 bg-stone-50/70">
+        </div>
+      </div>
+
+      <!-- 3. READINGS PICKER & CHOOSER -->
+      <div class="bg-white rounded-lg border border-stone-200 shadow-sm p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-700 flex items-center">
+            <svg class="w-4 h-4 mr-1.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+            </svg>
+            3. Lectionary Readings &amp; Propers
+          </h2>
+          <span class="text-xs text-stone-500">Pick suggested options</span>
+        </div>
+        <p class="text-xs text-stone-500 mb-3">Choose which suggested lessons to proclaim, switch between Track 1 / Track 2, or edit full texts and proper prayers.</p>
+
+        <!-- Reading 1: First Lesson -->
+        <div class="mb-3 p-3 rounded-md bg-stone-50 border border-stone-200">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center space-x-2 text-xs font-semibold text-stone-800 cursor-pointer">
+              <input type="checkbox" id="includeReading1" checked class="rounded text-amber-700 focus:ring-amber-600 w-4 h-4">
+              <span>First Reading (Old Testament / First Lesson)</span>
+            </label>
+            <button type="button" id="toggleReading1Edit" class="text-xs text-amber-800 hover:text-amber-900 underline">Edit text</button>
+          </div>
+          
+          <div class="mt-2 pl-6 space-y-1.5" id="reading1TrackContainer">
+            <div class="text-xs text-stone-600 font-medium">Suggested Option:</div>
+            <div id="reading1OptionsList" class="space-y-1"></div>
+          </div>
+
+          <div id="reading1EditArea" class="hidden mt-2 pt-2 border-t border-stone-200">
+            <label for="reading1Citation" class="block text-xs text-stone-600 font-medium">Citation:</label>
+            <input type="text" id="reading1Citation" class="w-full text-xs border rounded p-1 mb-1.5 bg-white">
+            <label for="reading1Text" class="block text-xs text-stone-600 font-medium">Passage Text:</label>
+            <textarea id="reading1Text" rows="3" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+          </div>
+        </div>
+
+        <!-- Reading 2: The Psalm & BAS Psalm Prayer -->
+        <div class="mb-3 p-3 rounded-md bg-stone-50 border border-stone-200">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center space-x-2 text-xs font-semibold text-stone-800 cursor-pointer">
+              <input type="checkbox" id="includePsalm" checked class="rounded text-amber-700 focus:ring-amber-600 w-4 h-4">
+              <span>The Psalm (Responsive)</span>
+            </label>
+            <button type="button" id="togglePsalmEdit" class="text-xs text-amber-800 hover:text-amber-900 underline">Edit text</button>
+          </div>
+
+          <div class="mt-2 pl-6 space-y-1">
+            <div class="text-xs text-stone-700 font-medium" id="psalmCitationLabel">Psalm 104:1-9, 24, 35c</div>
+            <label class="flex items-center space-x-2 text-xs text-stone-600 cursor-pointer pt-1">
+              <input type="checkbox" id="includePsalmPrayer" checked class="rounded text-amber-700 focus:ring-amber-600 w-3.5 h-3.5">
+              <span>Include BAS Psalm Collect / Prayer after Psalm</span>
+            </label>
+          </div>
+
+          <div id="psalmEditArea" class="hidden mt-2 pt-2 border-t border-stone-200">
+            <label for="psalmCitation" class="block text-xs text-stone-600 font-medium">Psalm Citation:</label>
+            <input type="text" id="psalmCitation" class="w-full text-xs border rounded p-1 mb-1.5 bg-white">
+            <label for="psalmText" class="block text-xs text-stone-600 font-medium">Psalm Text (Leader / * People lines):</label>
+            <textarea id="psalmText" rows="3" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+          </div>
+        </div>
+
+        <!-- Reading 3: Second Lesson (Epistle) -->
+        <div class="mb-3 p-3 rounded-md bg-stone-50 border border-stone-200">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center space-x-2 text-xs font-semibold text-stone-800 cursor-pointer">
+              <input type="checkbox" id="includeReading2" checked class="rounded text-amber-700 focus:ring-amber-600 w-4 h-4">
+              <span>Second Reading (Epistle / New Testament)</span>
+            </label>
+            <button type="button" id="toggleReading2Edit" class="text-xs text-amber-800 hover:text-amber-900 underline">Edit text</button>
+          </div>
+
+          <div class="mt-2 pl-6">
+            <div class="text-xs text-stone-700 font-medium" id="reading2CitationLabel">Hebrews 5:1-10</div>
+          </div>
+
+          <div id="reading2EditArea" class="hidden mt-2 pt-2 border-t border-stone-200">
+            <label for="reading2Citation" class="block text-xs text-stone-600 font-medium">Citation:</label>
+            <input type="text" id="reading2Citation" class="w-full text-xs border rounded p-1 mb-1.5 bg-white">
+            <label for="reading2Text" class="block text-xs text-stone-600 font-medium">Passage Text:</label>
+            <textarea id="reading2Text" rows="3" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+          </div>
+        </div>
+
+        <!-- Reading 4: The Holy Gospel -->
+        <div class="mb-3 p-3 rounded-md bg-stone-50 border border-stone-200">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center space-x-2 text-xs font-semibold text-stone-800 cursor-pointer">
+              <input type="checkbox" id="includeGospel" checked class="rounded text-amber-700 focus:ring-amber-600 w-4 h-4">
+              <span>The Holy Gospel</span>
+            </label>
+            <button type="button" id="toggleGospelEdit" class="text-xs text-amber-800 hover:text-amber-900 underline">Edit text</button>
+          </div>
+
+          <div class="mt-2 pl-6">
+            <div class="text-xs text-stone-700 font-medium" id="gospelCitationLabel">Mark 10:35-45</div>
+          </div>
+
+          <div id="gospelEditArea" class="hidden mt-2 pt-2 border-t border-stone-200">
+            <label for="gospelCitation" class="block text-xs text-stone-600 font-medium">Gospel Citation:</label>
+            <input type="text" id="gospelCitation" class="w-full text-xs border rounded p-1 mb-1.5 bg-white">
+            <label for="gospelText" class="block text-xs text-stone-600 font-medium">Gospel Passage:</label>
+            <textarea id="gospelText" rows="3" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+          </div>
+        </div>
+
+        <!-- Proper Prayers Editor -->
+        <div class="p-3 rounded-md bg-amber-50/50 border border-amber-200/80">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-stone-800">Proper Prayers of the Day (Collect, Gifts, Post-Communion)</span>
+            <button type="button" id="togglePropersEdit" class="text-xs text-amber-800 hover:text-amber-900 underline">Customize Propers</button>
+          </div>
+          <div id="propersEditArea" class="hidden mt-2 pt-2 border-t border-amber-200 space-y-2">
+            <div>
+              <label for="collectInput" class="block text-xs text-stone-600 font-medium">Collect of the Day:</label>
+              <textarea id="collectInput" rows="2" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+            </div>
+            <div>
+              <label for="giftsPrayerInput" class="block text-xs text-stone-600 font-medium">Prayer over the Gifts:</label>
+              <textarea id="giftsPrayerInput" rows="2" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+            </div>
+            <div>
+              <label for="postCommunionInput" class="block text-xs text-stone-600 font-medium">Prayer after Communion:</label>
+              <textarea id="postCommunionInput" rows="2" class="w-full text-xs border rounded p-1.5 bg-white font-serif"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. LITURGICAL TEXT VARIANTS & BAS OPTIONS -->
+      <div class="bg-white rounded-lg border border-stone-200 shadow-sm p-4 space-y-3.5">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-stone-700 flex items-center">
+          <svg class="w-4 h-4 mr-1.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+          </svg>
+          4. BAS Liturgical Variants
+        </h2>
+
+        <!-- Gathering Greeting -->
+        <div>
+          <label for="greetingSelect" class="block text-xs font-medium text-stone-600 mb-1">Gathering Greeting / Opening Acclamation:</label>
+          <select id="greetingSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="standard">Standard (p. 185): "The grace of our Lord Jesus Christ..."</option>
+            <option value="easter">Eastertide (p. 185): "Alleluia! Christ is risen..."</option>
+            <option value="lent">Lent / Penitential (p. 185): "Bless the Lord who forgives all our sins..."</option>
+            <option value="epiphany">Epiphany: "I will make you as a light for the nations..."</option>
+            <option value="morning_office">Morning Prayer (p. 47): "Lord, open our lips..."</option>
+            <option value="evening_office">Evening Prayer (p. 62): "Jesus Christ is the light of the world..."</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+          <label class="flex items-center space-x-2 text-xs text-stone-700 cursor-pointer">
+            <input type="checkbox" id="includeCollectPurity" checked class="rounded text-amber-700 focus:ring-amber-600">
+            <span>Collect for Purity</span>
+          </label>
+          <label class="flex items-center space-x-2 text-xs text-stone-700 cursor-pointer">
+            <input type="checkbox" id="includeGloria" checked class="rounded text-amber-700 focus:ring-amber-600">
+            <span>Opening Canticle / Praise</span>
+          </label>
+        </div>
+
+        <!-- Opening Hymn of Praise / Canticle Variant -->
+        <div>
+          <label for="canticleSelect" class="block text-xs font-medium text-stone-600 mb-1">Opening Hymn of Praise / Invitatory Canticle:</label>
+          <select id="canticleSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="gloria">Glory to God in the Highest (Gloria in Excelsis, BAS p. 186)</option>
+            <option value="kyrie">Kyrie Eleison ("Lord, have mercy / Christ, have mercy", BAS p. 186)</option>
+            <option value="trisagion">Trisagion ("Holy God, holy and mighty...", BAS p. 187)</option>
+            <option value="venite">Venite – Psalm 95 ("Come, let us sing to the Lord", BAS p. 49)</option>
+            <option value="jubilate">Jubilate – Psalm 100 ("Be joyful in the Lord, all you lands", BAS p. 50)</option>
+            <option value="phos_hilaron">Phos Hilaron ("O Gracious Light, pure brightness", BAS p. 62)</option>
+          </select>
+        </div>
+
+        <!-- Gospel Acclamation / Office Canticle -->
+        <div>
+          <label for="gospelAcclamationSelect" class="block text-xs font-medium text-stone-600 mb-1">Gospel Acclamation / Seasonal Tract:</label>
+          <select id="gospelAcclamationSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="alleluia">Festal / Ordinary: "Alleluia! Speak, Lord, for your servant is listening..."</option>
+            <option value="lenten">Lenten Tract (No Alleluia): "Praise to you, Lord Jesus Christ, King of endless glory..."</option>
+            <option value="benedictus">Gospel Canticle: The Song of Zechariah (Benedictus, BAS p. 88)</option>
+            <option value="magnificat">Gospel Canticle: The Song of Mary (Magnificat, BAS p. 86)</option>
+          </select>
+        </div>
+
+        <!-- Affirmation of Faith / Creed -->
+        <div>
+          <label for="creedSelect" class="block text-xs font-medium text-stone-600 mb-1">Affirmation of Faith / The Creed (BAS pp. 53, 188-189):</label>
+          <select id="creedSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="nicene">The Nicene Creed ("We believe in one God...", BAS p. 188)</option>
+            <option value="apostles">The Apostles' Creed ("I believe in God...", BAS p. 189)</option>
+            <option value="shema">Hear, O Israel / The Shema ("The Lord our God, the Lord is one", BAS p. 53)</option>
+            <option value="none">Omit Creed (Weekday / Informal Service)</option>
+          </select>
+        </div>
+
+        <!-- Prayers of the People -->
+        <div>
+          <label for="prayersSelect" class="block text-xs font-medium text-stone-600 mb-1">Prayers of the People (BAS Litanies pp. 110-127):</label>
+          <select id="prayersSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="litany1">Litany 1 (BAS p. 110 – "In peace let us pray... Lord, have mercy")</option>
+            <option value="litany2">Litany 2 (BAS p. 112 – "Let us pray with confidence... Lord, hear our prayer")</option>
+            <option value="litany3">Litany 3 (BAS p. 115 – "Father, we pray for your holy catholic Church...")</option>
+            <option value="litany4">Litany 4 (BAS p. 116 – Good Shepherd / Creation &amp; Justice)</option>
+            <option value="litany14">Litany 14 (BAS p. 127 – Litany of Thanksgiving)</option>
+            <option value="pastoral">Parish Pastoral Intercessions (With local names &amp; intentions)</option>
+          </select>
+        </div>
+
+        <!-- Eucharistic Prayer (1-6) -->
+        <div>
+          <label for="eucharisticPrayerSelect" class="block text-xs font-medium text-stone-600 mb-1">The Great Thanksgiving (BAS Eucharistic Prayers 1–6):</label>
+          <select id="eucharisticPrayerSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="prayer1">Eucharistic Prayer 1 (BAS p. 193 – Salvation History &amp; Seasonal Preface)</option>
+            <option value="prayer2">Eucharistic Prayer 2 (BAS p. 196 – Hippolytus / Creation &amp; Covenant)</option>
+            <option value="prayer3">Eucharistic Prayer 3 (BAS p. 198 – With Proper Preface)</option>
+            <option value="prayer4">Eucharistic Prayer 4 (BAS p. 201 – Cosmic Creation &amp; New Creation)</option>
+            <option value="prayer5">Eucharistic Prayer 5 (BAS p. 204 – For All Ages / Children &amp; Families)</option>
+            <option value="prayer6">Eucharistic Prayer 6 (BAS p. 207 – Solemn / Festal)</option>
+          </select>
+        </div>
+
+        <!-- Proper Preface Selector -->
+        <div>
+          <label for="prefaceSelect" class="block text-xs font-medium text-stone-600 mb-1">Proper Preface (for Eucharistic Prayers 1 &amp; 3, BAS pp. 218-226):</label>
+          <select id="prefaceSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2.5 py-1.5 text-stone-800">
+            <option value="auto">Auto-Match Selected Occasion / Season</option>
+            <option value="lords_day">Of the Lord's Day (Ordinary Time, BAS p. 218)</option>
+            <option value="advent">Advent (BAS p. 219)</option>
+            <option value="incarnation">Christmas / The Incarnation (BAS p. 219)</option>
+            <option value="epiphany">Epiphany Manifestation (BAS p. 220)</option>
+            <option value="lent">Lent &amp; Penitential (BAS p. 220)</option>
+            <option value="easter">Eastertide (BAS p. 222)</option>
+            <option value="pentecost">Pentecost / Holy Spirit (BAS p. 223)</option>
+            <option value="trinity">Trinity Sunday (BAS p. 224)</option>
+            <option value="allsaints">All Saints &amp; Commemorations (BAS p. 225)</option>
+          </select>
+        </div>
+
+        <!-- The Lord's Prayer & Breaking of the Bread -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div>
+            <label for="lordsPrayerSelect" class="block text-xs font-medium text-stone-600 mb-1">The Lord's Prayer (p. 211):</label>
+            <select id="lordsPrayerSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2 py-1.5 text-stone-800">
+              <option value="contemporary">Contemporary ("Our Father in heaven...")</option>
+              <option value="traditional">Traditional ("Our Father, who art...")</option>
+            </select>
+          </div>
+          <div>
+            <label for="fractionSelect" class="block text-xs font-medium text-stone-600 mb-1">Fraction Rite (pp. 212-213):</label>
+            <select id="fractionSelect" class="w-full text-xs bg-stone-50 border border-stone-300 rounded px-2 py-1.5 text-stone-800">
+              <option value="fraction1">Fraction 1 (Standard: "We break this bread...")</option>
+              <option value="fraction2">Fraction 2 (Creation: "Creator of all, golden fields...")</option>
+              <option value="fraction3">Fraction 3 (Advent/Banquet: "God of promise...")</option>
+              <option value="fraction5">Fraction 5 (Lent/Passion: "Communion in Christ's body...")</option>
+              <option value="fraction6">Fraction 6 (Easter: "Lord, we died with you...")</option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+
+    </aside>
+
+    <!-- RIGHT COLUMN: STREAMLINED SERVICE VIEWER -->
+    <section id="servicePreviewSection" class="lg:col-span-7 flex flex-col">
+      
+      <!-- Toolbar for Liturgy View -->
+      <div class="bg-white rounded-t-lg border border-stone-200 border-b-0 p-3 flex flex-wrap items-center justify-between gap-3 no-print">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-medium text-stone-500 uppercase tracking-wider">Display:</span>
+          <button id="toggleRubricsBtn" type="button" class="px-2.5 py-1 text-xs rounded border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 transition">
+            Rubrics: <span id="rubricStatusText" class="font-semibold text-rubric">Visible</span>
+          </button>
+          <button id="toggleInlineControlsBtn" type="button" class="px-2.5 py-1 text-xs rounded border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 transition">
+            Inline Controls: <span id="inlineControlsStatusText" class="font-semibold text-amber-800">On</span>
+          </button>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-stone-500">Text Size:</span>
+          <div class="inline-flex rounded-md shadow-sm">
+            <button id="fontSmBtn" type="button" class="px-2 py-1 text-xs font-medium border border-stone-300 rounded-l hover:bg-stone-100 bg-stone-50 text-stone-700">A-</button>
+            <button id="fontMdBtn" type="button" class="px-2.5 py-1 text-xs font-medium border-t border-b border-stone-300 hover:bg-stone-100 bg-white text-stone-900 font-bold">Standard</button>
+            <button id="fontLgBtn" type="button" class="px-2 py-1 text-xs font-medium border border-stone-300 rounded-r hover:bg-stone-100 bg-stone-50 text-stone-700">A+ (Lectern)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- The Single-Page Streamlined Service Sheet -->
+      <div id="serviceSheet" class="bg-parchment text-stone-900 rounded-b-lg border border-stone-200 shadow-md p-6 sm:p-10 font-serif leading-relaxed service-container font-size-md flex-1 overflow-y-auto">
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-stone-900 text-stone-400 text-xs py-4 px-6 border-t border-stone-800 text-center no-print">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>The Book of Alternative Services (1985) • Anglican Church of Canada Liturgical Framework</div>
+      <div>Supports Holy Eucharist, Service of the Word, Morning &amp; Evening Prayer, and Custom Parish Sequencing</div>
+    </div>
+  </footer>
+
+  <!-- Liturgical Data & Application Scripts -->
+  <script>
+    const LECTIONARY_DATA = {
+      proper28: {
+        name: "21st Sunday after Pentecost (Proper 28, Year B)",
+        season: "Ordinary Time (Green)",
+        prefaceKey: "lords_day",
+        colorBadge: "bg-emerald-100 text-emerald-800 border-emerald-300",
+        collect: "Almighty and everliving God, increase in us your gift of faith, that forsaking what lies behind and reaching out to what is before, we may run the way of your commandments and win the crown of the everlasting joy; through Jesus Christ our Lord, who lives and reigns with you and the Holy Spirit, one God, now and for ever. Amen.",
+        prayerOverGifts: "Eternal God, your word inspires our faith. May we who offer you our praise trust you in all things. We ask this in the name of Jesus Christ the Lord. Amen.",
+        prayerAfterCommunion: "God of peace, you have nourished us in this sacrament with the body and blood of Christ. May we who have taken holy things keep faith in our hearts and lives, in the name of Jesus Christ the Lord. Amen.",
+        psalmPrayer: "Creator of the universe, source of all life, you have filled the earth with beauty and wonder. Open our eyes to see your hand at work in all creation, and give us grace to care for the earth as faithful stewards; through Jesus Christ our Lord. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Track 1: Job 38:1-7, (34-41)",
+                citation: "Job 38:1-7, 34-41",
+                text: "The Lord answered Job out of the whirlwind: 'Who is this that darkens counsel by words without knowledge? Gird up your loins like a man, I will question you, and you shall declare to me. Where were you when I laid the foundation of the earth? Tell me, if you have understanding. Who determined its measurements—surely you know! Or who stretched the line upon it? On what were its bases sunk, or who laid its cornerstone when the morning stars sang together and all the heavenly beings shouted for joy?'"
+              },
+              {
+                label: "Track 2: Isaiah 53:4-12 (Suffering Servant)",
+                citation: "Isaiah 53:4-12",
+                text: "Surely he has borne our infirmities and carried our diseases; yet we accounted him stricken, struck down by God, and afflicted. But he was wounded for our transgressions, crushed for our iniquities; upon him was the punishment that made us whole, and by his bruises we are healed. All we like sheep have gone astray; we have all turned to our own way, and the Lord has laid on him the iniquity of us all."
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 104:1-9, 24, 35c",
+            verses: [
+              { leader: "Bless the Lord, O my soul! *", people: "O Lord my God, you are great indeed, clothed in majesty and splendour," },
+              { leader: "wrapped in light as with a cloak, *", people: "stretching out the heavens like a tent." },
+              { leader: "You set the beams of your chambers upon the waters; *", people: "you make the clouds your chariot; you ride on the wings of the wind;" },
+              { leader: "you make the winds your messengers *", people: "and flames of fire your servants." },
+              { leader: "O Lord, how manifold are your works! *", people: "in wisdom you have made them all; the earth is full of your creatures." },
+              { leader: "Bless the Lord, O my soul. *", people: "Hallelujah!" }
+            ]
+          },
+          reading2: {
+            citation: "Hebrews 5:1-10",
+            text: "Every high priest chosen from among mortals is put in charge of things pertaining to God on their behalf, to offer gifts and sacrifices for sins. He is able to deal gently with the ignorant and wayward, since he himself is subject to weakness; and because of this he must offer sacrifice for his own sins as well as for those of the people. And one does not presume to take this honour, but takes it only when called by God, just as Aaron was. So also Christ did not glorify himself in becoming a high priest, but was appointed by the one who said to him, 'You are my Son, today I have begotten you.'"
+          },
+          gospel: {
+            citation: "Mark 10:35-45",
+            text: "James and John, the sons of Zebedee, came forward to Jesus and said to him, 'Teacher, we want you to do for us whatever we ask of you.' And he said to them, 'What is it you want me to do for you?' And they said to him, 'Grant us to sit, one at your right hand and one at your left, in your glory.' But Jesus said to them, 'You do not know what you are asking. Are you able to drink the cup that I drink, or be baptized with the baptism that I am baptized with?' They replied, 'We are able.' ... So Jesus called them and said to them, 'Whoever wishes to become great among you must be your servant, and whoever wishes to be first among you must be slave of all. For the Son of Man came not to be served but to serve, and to give his life a ransom for many.'"
+          }
+        }
+      },
+      allsaints: {
+        name: "All Saints' Day (November 1)",
+        season: "Feast of All Saints (White/Gold)",
+        prefaceKey: "allsaints",
+        colorBadge: "bg-amber-100 text-amber-900 border-amber-300",
+        collect: "Almighty God, whose people are knit together in one holy Church, the mystical Body of your Son, grant us grace to follow your blessed saints in lives of faith and commitment, and to know the inexpressible joys you have prepared for those who love you; through your Son, Jesus Christ our Lord, who lives and reigns with you and the Holy Spirit, one God, now and for ever. Amen.",
+        prayerOverGifts: "Holy and mighty God, we give you thanks for the triumph of Christ in the lives of all his saints. Receive all we offer you this day, and help us, like them, to run our course with faith, that we may come to your eternal kingdom. We ask this in the name of Jesus Christ our Lord. Amen.",
+        prayerAfterCommunion: "Lord of hosts, we praise your glory reflected in your saints. May we who share at this table be filled with the joy of your eternal kingdom, where Jesus is Lord, now and for ever. Amen.",
+        psalmPrayer: "Creator of all, the earth is yours and all who dwell in it. Give us clean hands and pure hearts, that we may stand in your holy place and receive your blessing; through Jesus Christ our Lord. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Wisdom of Solomon 3:1-9",
+                citation: "Wisdom of Solomon 3:1-9",
+                text: "The souls of the righteous are in the hand of God, and no torment will ever touch them. In the eyes of the foolish they seemed to have died, and their departure was thought to be a disaster, and their going from us to be their destruction; but they are at peace. For though in the sight of others they were punished, their hope is full of immortality."
+              },
+              {
+                label: "Alternate: Isaiah 25:6-9",
+                citation: "Isaiah 25:6-9",
+                text: "On this mountain the Lord of hosts will make for all peoples a feast of rich food, a feast of well-aged wines, of rich food filled with marrow, of well-aged wines strained clear. And he will destroy on this mountain the shroud that is cast over all peoples, the sheet that is spread over all nations; he will swallow up death forever. Then the Lord God will wipe away the tears from all faces."
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 24",
+            verses: [
+              { leader: "The earth is the Lord's and all that is in it, *", people: "the world and all who dwell therein." },
+              { leader: "For it is he who founded it upon the seas *", people: "and made it firm upon the rivers of the deep." },
+              { leader: "'Who can ascend the hill of the Lord? *", people: "and who can stand in his holy place?'" },
+              { leader: "'Those who have clean hands and a pure heart, *", people: "who have not pledged themselves to falsehood, nor sworn by what is a fraud.'" },
+              { leader: "They shall receive a blessing from the Lord *", people: "and a just reward from the God of their salvation." }
+            ]
+          },
+          reading2: {
+            citation: "Revelation 21:1-6a",
+            text: "I saw a new heaven and a new earth; for the first heaven and the first earth had passed away, and the sea was no more. And I saw the holy city, the new Jerusalem, coming down out of heaven from God, prepared as a bride adorned for her husband. And I heard a loud voice from the throne saying, 'See, the home of God is among mortals. He will dwell with them; they will be his peoples, and God himself will be with them; he will wipe every tear from their eyes.'"
+          },
+          gospel: {
+            citation: "John 11:32-44",
+            text: "When Mary came where Jesus was and saw him, she knelt at his feet and said to him, 'Lord, if you had been here, my brother would not have died.' When Jesus saw her weeping, and the Jews who came with her also weeping, he was greatly disturbed in spirit and deeply moved. He said, 'Where have you laid him?' They said to him, 'Lord, come and see.' Jesus began to weep... He cried with a loud voice, 'Lazarus, come out!' The dead man came out, his hands and feet bound with strips of cloth, and his face wrapped in a cloth. Jesus said to them, 'Unbind him, and let him go.'"
+          }
+        }
+      },
+      advent1: {
+        name: "First Sunday of Advent (Year C)",
+        season: "Advent (Purple/Blue)",
+        prefaceKey: "advent",
+        colorBadge: "bg-purple-100 text-purple-800 border-purple-300",
+        collect: "Almighty God, give us grace to cast away the works of darkness and put on the armour of light, now in the time of this mortal life in which your Son Jesus Christ came to visit us in great humility; that on the last day, when he shall come again in his glorious majesty to judge the living and the dead, we may rise to the life immortal; through him who lives and reigns with you and the Holy Spirit, one God, now and for ever. Amen.",
+        prayerOverGifts: "God of love and power, your word inspires our faith. Receive all we offer you this day, and grant that your people may be prepared for the coming of your Son Jesus Christ our Lord. Amen.",
+        prayerAfterCommunion: "God for whom we wait, you have fed us with the bread of eternal life. Keep us ever watchful, that we may be ready to stand before the Son of man, Jesus Christ our Lord. Amen.",
+        psalmPrayer: "God of compassion and truth, to you we lift up our souls. Teach us your paths and lead us in your truth, as we await the fullness of your redemption; through Jesus Christ our Lord. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Jeremiah 33:14-16",
+                citation: "Jeremiah 33:14-16",
+                text: "The days are surely coming, says the Lord, when I will fulfil the promise I made to the house of Israel and the house of Judah. In those days and at that time I will cause a righteous Branch to spring up for David; and he shall execute justice and righteousness in the land. In those days Judah will be saved and Jerusalem will live in safety. And this is the name by which it will be called: 'The Lord is our righteousness.'"
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 25:1-9",
+            verses: [
+              { leader: "To you, O Lord, I lift up my soul; my God, I put my trust in you; *", people: "let me not be humiliated, nor let my enemies triumph over me." },
+              { leader: "Let none who look to you be put to shame; *", people: "let the treacherous be disappointed in their schemes." },
+              { leader: "Show me your ways, O Lord, *", people: "and teach me your paths." },
+              { leader: "Lead me in your truth and teach me, *", people: "for you are the God of my salvation; in you have I trusted all the day long." }
+            ]
+          },
+          reading2: {
+            citation: "1 Thessalonians 3:9-13",
+            text: "How can we thank God enough for you in return for all the joy that we feel before our God because of you? Night and day we pray most earnestly that we may see you face to face and restore whatever is lacking in your faith. Now may our God and Father himself and our Lord Jesus direct our way to you. And may the Lord make you increase and abound in love for one another and for all."
+          },
+          gospel: {
+            citation: "Luke 21:25-36",
+            text: "Jesus said, 'There will be signs in the sun, the moon, and the stars, and on the earth distress among nations confused by the roaring of the sea and the waves. People will faint from fear and foreboding of what is coming upon the world, for the powers of the heavens will be shaken. Then they will see the Son of Man coming in a cloud with power and great glory. Now when these things begin to take place, stand up and raise your heads, because your redemption is drawing near.'"
+          }
+        }
+      },
+      christmas: {
+        name: "Christmas Day (Nativity of our Lord)",
+        season: "Christmas (White/Gold)",
+        prefaceKey: "incarnation",
+        colorBadge: "bg-amber-100 text-amber-900 border-amber-300",
+        collect: "Almighty God, you wonderfully created and yet more wonderfully restored the dignity of human nature. In your mercy, grant that we may share the divine life of him who humbled himself to share our humanity, your Son Jesus Christ, who lives and reigns with you, in the unity of the Holy Spirit, one God, now and for ever. Amen.",
+        prayerOverGifts: "Source of light and gladness, accept all we offer on this joyful feast. May we grow up in him who unites our lives to yours; for he is Lord now and for ever. Amen.",
+        prayerAfterCommunion: "Father of all, the child born for us is the Saviour of the world. May he who made us your children welcome us into your glorious kingdom, where he is alive and reigns, now and for ever. Amen.",
+        psalmPrayer: "Creator of the heavens and the earth, let all creation sing a new song of joy, for you have made known your salvation in the birth of your Son, Jesus Christ our Lord. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Isaiah 9:2-7",
+                citation: "Isaiah 9:2-7",
+                text: "The people who walked in darkness have seen a great light; those who lived in a land of deep darkness—on them light has shined. You have multiplied the nation, you have increased its joy... For a child has been born for us, a son given to us; authority rests upon his shoulders; and he is named Wonderful Counsellor, Mighty God, Everlasting Father, Prince of Peace."
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 96",
+            verses: [
+              { leader: "Sing to the Lord a new song; *", people: "sing to the Lord, all the whole earth." },
+              { leader: "Sing to the Lord and bless his name; *", people: "proclaim the good news of his salvation from day to day." },
+              { leader: "Declare his glory among the nations *", people: "and his wonders among all peoples." },
+              { leader: "For great is the Lord and greatly to be praised; *", people: "he is more to be feared than all gods." }
+            ]
+          },
+          reading2: {
+            citation: "Titus 2:11-14",
+            text: "For the grace of God has appeared, bringing salvation to all, training us to renounce impiety and worldly passions, and in the present age to live lives that are self-controlled, upright, and godly, while we wait for the blessed hope and the manifestation of the glory of our great God and Saviour, Jesus Christ."
+          },
+          gospel: {
+            citation: "Luke 2:1-14 (15-20)",
+            text: "In those days a decree went out from Emperor Augustus that all the world should be registered... And she gave birth to her firstborn son and wrapped him in bands of cloth, and laid him in a manger, because there was no place for them in the inn. In that region there were shepherds living in the fields, keeping watch over their flock by night. Then an angel of the Lord stood before them... 'Do not be afraid; for see—I am bringing you good news of great joy for all the people: to you is born this day in the city of David a Saviour, who is the Messiah, the Lord.'"
+          }
+        }
+      },
+      epiphany: {
+        name: "The Epiphany of the Lord (January 6)",
+        season: "Epiphany (White/Gold)",
+        prefaceKey: "epiphany",
+        colorBadge: "bg-amber-100 text-amber-900 border-amber-300",
+        collect: "Eternal God, who by a star led wise men to the worship of your Son. Guide by your light the nations of the earth, that the whole world may see your glory; through Jesus Christ our Lord, who lives and reigns with you and the Holy Spirit, one God, now and for ever. Amen.",
+        prayerOverGifts: "Gracious God, accept the offerings of your Church, not gold, frankincense, and myrrh, but that which they proclaim: Jesus Christ, our light and our salvation. Amen.",
+        prayerAfterCommunion: "God of all the nations of the earth, guide us by your light through the deserts of this world, until we come to behold your glory face to face; through Jesus Christ our Lord. Amen.",
+        psalmPrayer: "God of righteousness, you have given your justice to the King's Son. May his reign bring peace to the nations and deliverance to the needy; through Jesus Christ our Lord. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Isaiah 60:1-6",
+                citation: "Isaiah 60:1-6",
+                text: "Arise, shine; for your light has come, and the glory of the Lord has risen upon you. For darkness shall cover the earth, and thick darkness the peoples; but the Lord will arise upon you, and his glory will appear over you. Nations shall come to your light, and kings to the brightness of your dawn."
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 72:1-7, 10-14",
+            verses: [
+              { leader: "Give the king your justice, O God, *", people: "and your righteousness to the king's son;" },
+              { leader: "That he may rule your people righteously *", people: "and the poor with justice." },
+              { leader: "The kings of Tarshish and of the isles shall pay tribute, *", people: "and the kings of Arabia and Saba offer gifts." },
+              { leader: "All kings shall bow down before him, *", people: "and all the nations do him service." }
+            ]
+          },
+          reading2: {
+            citation: "Ephesians 3:1-12",
+            text: "This is the reason that I Paul am a prisoner for Christ Jesus for the sake of you Gentiles... The mystery is that the Gentiles have become fellow-heirs, members of the same body, and sharers in the promise in Christ Jesus through the gospel."
+          },
+          gospel: {
+            citation: "Matthew 2:1-12",
+            text: "In the time of King Herod, after Jesus was born in Bethlehem of Judea, wise men from the East came to Jerusalem, asking, 'Where is the child who has been born king of the Jews? For we observed his star at its rising, and have come to pay him homage.' ... On entering the house, they saw the child with Mary his mother; and they knelt down and paid him homage. Then, opening their treasure-chests, they offered him gifts of gold, frankincense, and myrrh."
+          }
+        }
+      },
+      ash_wednesday: {
+        name: "Ash Wednesday / First Sunday in Lent",
+        season: "Lent (Purple)",
+        prefaceKey: "lent",
+        colorBadge: "bg-purple-100 text-purple-900 border-purple-300",
+        collect: "Almighty and everlasting God, you despise nothing you have made and forgive the sins of all who are penitent. Create and make in us new and contrite hearts, that we, worthily lamenting our sins and acknowledging our brokenness, may obtain of you, the God of all mercy, perfect remission and forgiveness; through Jesus Christ our Lord, who lives and reigns with you and the Holy Spirit, one God, for ever and ever. Amen.",
+        prayerOverGifts: "Merciful God, turn us from sin to faithfulness. Accept our offerings, and prepare us to celebrate the death and resurrection of Christ our Saviour, who is alive and reigns with you now and for ever. Amen.",
+        prayerAfterCommunion: "God of compassion, through your Son Jesus Christ you reconcile your people to yourself. Following his example of prayer and fasting, may we obey you with willing hearts and serve one another in holy love; through Jesus Christ our Lord. Amen.",
+        psalmPrayer: "Have mercy on us, O God, in your great goodness. Wash us thoroughly from our wickedness and create in us clean hearts, that we may rejoice again in your saving help; through Jesus Christ our Lord. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Joel 2:1-2, 12-17",
+                citation: "Joel 2:1-2, 12-17",
+                text: "Yet even now, says the Lord, return to me with all your heart, with fasting, with weeping, and with mourning; rend your hearts and not your clothing. Return to the Lord, your God, for he is gracious and merciful, slow to anger, and abounding in steadfast love, and relents from punishing."
+              },
+              {
+                label: "Alternate: Isaiah 58:1-12 (True Fasting)",
+                citation: "Isaiah 58:1-12",
+                text: "Is not this the fast that I choose: to loose the bonds of injustice, to undo the thongs of the yoke, to let the oppressed go free, and to break every yoke? Is it not to share your bread with the hungry, and bring the homeless poor into your house; when you see the naked, to cover them, and not to hide yourself from your own kin?"
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 51:1-18",
+            verses: [
+              { leader: "Have mercy on me, O God, according to your loving-kindness; *", people: "in your great compassion blot out my offences." },
+              { leader: "Wash me through and through from my wickedness *", people: "and cleanse me from my sin." },
+              { leader: "Create in me a clean heart, O God, *", people: "and renew a right spirit within me." },
+              { leader: "Cast me not away from your presence *", people: "and take not your holy Spirit from me." },
+              { leader: "Give me the joy of your saving help again *", people: "and sustain me with your bountiful Spirit." }
+            ]
+          },
+          reading2: {
+            citation: "2 Corinthians 5:20b–6:10",
+            text: "We entreat you on behalf of Christ, be reconciled to God. For our sake he made him to be sin who knew no sin, so that in him we might become the righteousness of God. As we work together with him, we urge you also not to accept the grace of God in vain. See, now is the acceptable time; see, now is the day of salvation!"
+          },
+          gospel: {
+            citation: "Matthew 6:1-6, 16-21",
+            text: "Jesus said, 'Beware of practising your piety before others in order to be seen by them; for then you have no reward from your Father in heaven... Do not store up for yourselves treasures on earth, where moth and rust consume and where thieves break in and steal; but store up for yourselves treasures in heaven, where neither moth nor rust consumes and where thieves do not break in and steal. For where your treasure is, there your heart will be also.'"
+          }
+        }
+      },
+      good_friday: {
+        name: "Good Friday (The Celebration of the Lord's Passion)",
+        season: "Holy Week / Passiontide (Red/Black)",
+        prefaceKey: "lent",
+        colorBadge: "bg-red-100 text-red-900 border-red-300",
+        collect: "Almighty God, look graciously, we pray, on this your family, for whom our Lord Jesus Christ was willing to be betrayed and given into the hands of sinners, and to suffer death upon the cross; who now lives and reigns with you and the Holy Spirit, one God, for ever and ever. Amen.",
+        prayerOverGifts: "Merciful God, by the passion of your Son you have redeemed the world. Receive our lives as a living sacrifice of thanksgiving; through Jesus Christ our Lord. Amen.",
+        prayerAfterCommunion: "Almighty and eternal God, you have restored us to life by the triumphant death and resurrection of Christ. Continue this healing work within us, that we may partake in the mystery of your boundless love; through Jesus Christ our Lord. Amen.",
+        psalmPrayer: "Lord Jesus Christ, when you cried out on the cross, you bore our forsakenness so that we might never be separated from the love of God. Draw all people to yourself, now and for ever. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Isaiah 52:13–53:12 (Fourth Servant Song)",
+                citation: "Isaiah 52:13–53:12",
+                text: "See, my servant shall prosper; he shall be exalted and lifted up, and shall be very high... He was despised and rejected by others; a man of suffering and acquainted with infirmity; and as one from whom others hide their faces he was despised, and we held him of no account. Surely he has borne our infirmities and carried our diseases... upon him was the punishment that made us whole, and by his bruises we are healed."
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 22:1-11",
+            verses: [
+              { leader: "My God, my God, why have you forsaken me? *", people: "and are so far from my cry and from the words of my distress?" },
+              { leader: "O my God, I cry in the daytime, but you do not answer; *", people: "by night as well, but I find no rest." },
+              { leader: "Yet you are the Holy One, *", people: "enthroned upon the praises of Israel." },
+              { leader: "Our forefathers put their trust in you; *", people: "they trusted, and you delivered them." }
+            ]
+          },
+          reading2: {
+            citation: "Hebrews 10:16-25",
+            text: "Therefore, my friends, since we have confidence to enter the sanctuary by the blood of Jesus, by the new and living way that he opened for us through the curtain (that is, through his flesh), and since we have a great priest over the house of God, let us approach with a true heart in full assurance of faith."
+          },
+          gospel: {
+            citation: "John 18:1–19:42 (The Passion of our Lord)",
+            text: "So they took Jesus; and carrying the cross by himself, he went out to what is called The Place of the Skull, which in Hebrew is called Golgotha. There they crucified him, and with him two others, one on either side, with Jesus between them... When Jesus had received the wine, he said, 'It is finished.' Then he bowed his head and gave up his spirit."
+          }
+        }
+      },
+      easter: {
+        name: "Easter Day (The Resurrection of our Lord)",
+        season: "Eastertide (White/Gold)",
+        prefaceKey: "easter",
+        colorBadge: "bg-amber-100 text-amber-900 border-amber-300",
+        collect: "Lord of all life and power, who through the mighty resurrection of your Son overcame the old order of sin and death to make all things new in him: grant that we, being dead to sin and alive to you in Jesus Christ, may reign with him in glory; who with you and the Holy Spirit is alive and reigns, one God, now and for ever. Amen.",
+        prayerOverGifts: "God our strength and salvation, receive all we offer you this day, and grant that we who celebrate the resurrection of your Son may share his eternal glory; for he is Lord now and for ever. Amen.",
+        prayerAfterCommunion: "God of life, bring us to the glory of the resurrection promised in this Easter sacrament. We ask this in the name of Jesus Christ the risen Lord. Amen.",
+        psalmPrayer: "Risen Christ, cornerstone of our salvation, on this day the Lord has acted and we rejoice in your victory over death. Fill our hearts with your Easter peace, now and for ever. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Acts 10:34-43",
+                citation: "Acts 10:34-43",
+                text: "Peter began to speak to them: 'I truly understand that God shows no partiality, but in every nation anyone who fears him and does what is right is acceptable to him. You know the message he sent to the people of Israel, preaching peace by Jesus Christ—he is Lord of all... They put him to death by hanging him on a tree; but God raised him on the third day and allowed him to appear...'"
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 118:1-2, 14-24",
+            verses: [
+              { leader: "Give thanks to the Lord, for he is good; *", people: "his mercy endures for ever." },
+              { leader: "Let Israel now proclaim, *", people: "'His mercy endures for ever.'" },
+              { leader: "The Lord is my strength and my song, *", people: "and he has become my salvation." },
+              { leader: "The same stone which the builders rejected *", people: "has become the chief cornerstone." },
+              { leader: "This is the Lord's doing, *", people: "and it is marvellous in our eyes." },
+              { leader: "On this day the Lord has acted; *", people: "we will rejoice and be glad in it." }
+            ]
+          },
+          reading2: {
+            citation: "1 Corinthians 15:19-26",
+            text: "If for this life only we have hoped in Christ, we are of all people most to be pitied. But in fact Christ has been raised from the dead, the first fruits of those who have died. For since death came through a human being, the resurrection of the dead has also come through a human being; for as all die in Adam, so all will be made alive in Christ."
+          },
+          gospel: {
+            citation: "John 20:1-18",
+            text: "Early on the first day of the week, while it was still dark, Mary Magdalene came to the tomb and saw that the stone had been removed from the tomb... Jesus said to her, 'Mary!' She turned and said to him in Hebrew, 'Rabbouni!' (which means Teacher)... Mary Magdalene went and announced to the disciples, 'I have seen the Lord'; and she told them that he had said these things to her."
+          }
+        }
+      },
+      pentecost: {
+        name: "The Day of Pentecost (Year B)",
+        season: "Pentecost (Red)",
+        prefaceKey: "pentecost",
+        colorBadge: "bg-red-100 text-red-900 border-red-300",
+        collect: "Almighty God, on this day you opened the way of eternal life to every race and nation by the promised gift of your Holy Spirit: Shed abroad this gift throughout the world by the preaching of the gospel, that it may reach to the ends of the earth; through Jesus Christ our Lord, who lives and reigns with you, in the unity of the Holy Spirit, one God, for ever and ever. Amen.",
+        prayerOverGifts: "Giver of life, receive all we offer you this day. Let the Spirit you bestow on your Church continue to work in the world through the hearts of all who believe. We ask this in the name of Jesus Christ the Lord. Amen.",
+        prayerAfterCommunion: "Father, may we who have received this eucharist live in the unity of your Holy Spirit, that we may show forth his gifts to all the world. We ask this in the name of Jesus Christ our Lord. Amen.",
+        psalmPrayer: "Creator Spirit, send forth your breath upon your whole creation and renew the face of the earth, that all peoples may praise your glorious name; through Jesus Christ our Lord. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Acts 2:1-21",
+                citation: "Acts 2:1-21",
+                text: "When the day of Pentecost had come, they were all together in one place. And suddenly from heaven there came a sound like the rush of a violent wind, and it filled the entire house where they were sitting. Divided tongues, as of fire, appeared among them, and a tongue rested on each of them. All of them were filled with the Holy Spirit and began to speak in other languages, as the Spirit gave them ability."
+              },
+              {
+                label: "Alternate: Ezekiel 37:1-14 (Valley of Dry Bones)",
+                citation: "Ezekiel 37:1-14",
+                text: "The hand of the Lord came upon me, and he brought me out by the spirit of the Lord and set me down in the middle of a valley; it was full of bones... He said to me, 'Mortal, can these bones live?' I answered, 'O Lord God, you know.' Then he said to me, 'Prophesy to these bones, and say to them: O dry bones, hear the word of the Lord... I will cause breath to enter you, and you shall live.'"
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 104:24-34, 35b",
+            verses: [
+              { leader: "O Lord, how manifold are your works! *", people: "in wisdom you have made them all; the earth is full of your creatures." },
+              { leader: "Yonder is the great and wide sea with its living things too many to number, *", people: "creatures both small and great." },
+              { leader: "All of them look to you *", people: "to give them their food in due season." },
+              { leader: "You send forth your Spirit, and they are created; *", people: "and so you renew the face of the earth." },
+              { leader: "May the glory of the Lord endure for ever; *", people: "may the Lord rejoice in all his works." }
+            ]
+          },
+          reading2: {
+            citation: "Romans 8:22-27",
+            text: "We know that the whole creation has been groaning in labor pains until now; and not only the creation, but we ourselves, who have the first fruits of the Spirit, groan inwardly while we wait for adoption, the redemption of our bodies... Likewise the Spirit helps us in our weakness; for we do not know how to pray as we ought, but that very Spirit intercedes with sighs too deep for words."
+          },
+          gospel: {
+            citation: "John 15:26-27; 16:4b-15",
+            text: "Jesus said, 'When the Advocate comes, whom I will send to you from the Father, the Spirit of truth who comes from the Father, he will testify on my behalf. You also are to testify, because you have been with me from the beginning... When the Spirit of truth comes, he will guide you into all the truth.'"
+          }
+        }
+      },
+      trinity: {
+        name: "Trinity Sunday (First Sunday after Pentecost)",
+        season: "Trinity Sunday (White/Gold)",
+        prefaceKey: "trinity",
+        colorBadge: "bg-amber-100 text-amber-900 border-amber-300",
+        collect: "Father, we praise you: through your Word and Holy Spirit you created all things. You reveal your salvation in all the world by sending to us Jesus Christ, the Word made flesh. Through your Holy Spirit you give us a share in your life and love. Fill us with the vision of your glory, that we may always serve and praise you, Father, Son, and Holy Spirit, one God, for ever and ever. Amen.",
+        prayerOverGifts: "Living God, receive all we offer you this day. Grant that hearing your word and responding to your Spirit, we may share in your divine life. We ask this in the name of Jesus Christ the Lord. Amen.",
+        prayerAfterCommunion: "Almighty and eternal God, may we who have received this eucharist worship you in all we do, and proclaim the glory of your Majesty. We ask this in the name of Jesus Christ the Lord. Amen.",
+        psalmPrayer: "Triune God of majesty and splendour, how glorious is your name in all the earth! Receive our awe and adoration, Father, Son, and Holy Spirit, now and for ever. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Isaiah 6:1-8 (Vision in the Temple)",
+                citation: "Isaiah 6:1-8",
+                text: "In the year that King Uzziah died, I saw the Lord sitting on a throne, high and lofty; and the hem of his robe filled the temple. Seraphs were in attendance above him... And one called to another and said: 'Holy, holy, holy is the Lord of hosts; the whole earth is full of his glory.' ... Then I heard the voice of the Lord saying, 'Whom shall I send, and who will go for us?' And I said, 'Here am I; send me!'"
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 29",
+            verses: [
+              { leader: "Ascribe to the Lord, you gods, *", people: "ascribe to the Lord glory and strength." },
+              { leader: "Ascribe to the Lord the glory due his name; *", people: "worship the Lord in the beauty of holiness." },
+              { leader: "The voice of the Lord is upon the waters; *", people: "the God of glory thunders; the Lord is upon the mighty waters." },
+              { leader: "The Lord shall give strength to his people; *", people: "the Lord shall give his people the blessing of peace." }
+            ]
+          },
+          reading2: {
+            citation: "Romans 8:12-17",
+            text: "For all who are led by the Spirit of God are children of God. For you did not receive a spirit of slavery to fall back into fear, but you have received a spirit of adoption. When we cry, 'Abba! Father!' it is that very Spirit bearing witness with our spirit that we are children of God, and if children, then heirs, heirs of God and joint heirs with Christ."
+          },
+          gospel: {
+            citation: "John 3:1-17",
+            text: "Jesus answered Nicodemus, 'Very truly, I tell you, no one can see the kingdom of God without being born from above.' ... 'For God so loved the world that he gave his only Son, so that everyone who believes in him may not perish but may have eternal life. Indeed, God did not send the Son into the world to condemn the world, but in order that the world might be saved through him.'"
+          }
+        }
+      },
+      reign_of_christ: {
+        name: "The Reign of Christ (Last Sunday after Pentecost)",
+        season: "Reign of Christ (White/Gold)",
+        prefaceKey: "lords_day",
+        colorBadge: "bg-amber-100 text-amber-900 border-amber-300",
+        collect: "Almighty and everlasting God, whose will it is to restore all things in your well-beloved Son, our Lord and King, grant that the peoples of the earth, now divided and enslaved by sin, may be freed and brought together under his gentle and loving rule; who lives and reigns with you and the Holy Spirit, one God, now and for ever. Amen.",
+        prayerOverGifts: "Eternal God, by your grace you have raised us up and enthroned us with Christ in the heavenly realms. Receive all we offer you this day, and lead us in those good works for which you have created us. We ask this in the name of Jesus Christ the Lord. Amen.",
+        prayerAfterCommunion: "Almighty God, you have made your Son the universal ruler and the centre of all creation. May we who have shared this table rejoice in his peace and serve him in our neighbours; through Jesus Christ our Lord. Amen.",
+        psalmPrayer: "Sovereign God, you are robed in majesty and your throne is established from of old. Rule in our hearts by your truth and love; through Jesus Christ our Sovereign and Saviour. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Daniel 7:9-10, 13-14",
+                citation: "Daniel 7:9-10, 13-14",
+                text: "As I watched, thrones were set in place, and an Ancient One took his throne... I saw one like a human being coming with the clouds of heaven. And he came to the Ancient One and was presented before him. To him was given dominion and glory and kingship, that all peoples, nations, and languages should serve him. His dominion is an everlasting dominion that shall not pass away."
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 93",
+            verses: [
+              { leader: "The Lord is King; he has put on splendid apparel; *", people: "the Lord has put on his apparel and girded himself with strength." },
+              { leader: "He has made the whole world so sure *", people: "that it cannot be moved;" },
+              { leader: "Ever since the world began, your throne has been established; *", people: "you are from everlasting." },
+              { leader: "Holiness adorns your house, O Lord, *", people: "for ever and for evermore." }
+            ]
+          },
+          reading2: {
+            citation: "Revelation 1:4b-8",
+            text: "Grace to you and peace from him who is and who was and who is to come, and from the seven spirits who are before his throne, and from Jesus Christ, the faithful witness, the firstborn of the dead, and the ruler of the kings of the earth. To him who loves us and freed us from our sins by his blood, and made us to be a kingdom, priests serving his God and Father, to him be glory and dominion forever and ever. Amen."
+          },
+          gospel: {
+            citation: "John 18:33-37",
+            text: "Pilate asked Jesus, 'Are you the King of the Jews?' ... Jesus answered, 'My kingdom is not from this world. If my kingdom were from this world, my followers would be fighting to keep me from being handed over to the Jews. But as it is, my kingdom is not from here.' Pilate asked him, 'So you are a king?' Jesus answered, 'You say that I am a king. For this I was born, and for this I came into the world, to testify to the truth. Everyone who belongs to the truth listens to my voice.'"
+          }
+        }
+      },
+      healing: {
+        name: "Pastoral Liturgy of Healing & Wholeness (BAS p. 551)",
+        season: "Pastoral Ministry (Green/White)",
+        prefaceKey: "lords_day",
+        colorBadge: "bg-teal-100 text-teal-900 border-teal-300",
+        collect: "God of peace, you have taught us that in returning and rest we shall be saved, in quietness and confidence shall be our strength. By the power of your Spirit lift us to your presence, where we may be still and know that you are God; through Jesus Christ our Lord, who lives and reigns with you and the Holy Spirit, one God, now and for ever. Amen.",
+        prayerOverGifts: "God of compassion and wholeness, receive the gifts we bring to your table. As Jesus healed the sick and restored the broken, make this eucharist a medicine of immortality for all who seek your touch; through Jesus Christ our Lord. Amen.",
+        prayerAfterCommunion: "Gracious God, you have strengthened us with the body and blood of your Son. Pour out your healing grace upon all who suffer in body, mind, or spirit, that they may know your peace; through Jesus Christ our Lord. Amen.",
+        psalmPrayer: "Compassionate Lord, you heal the broken-hearted and bind up all their wounds. Grant us your comfort and strength in every time of trouble; through Jesus Christ our Lord. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Isaiah 40:27-31 (Renewing Strength)",
+                citation: "Isaiah 40:27-31",
+                text: "Have you not known? Have you not heard? The Lord is the everlasting God, the Creator of the ends of the earth. He does not faint or grow weary; his understanding is unsearchable. He gives power to the faint, and strengthens the powerless. Even youths will faint and be weary, and the young will fall exhausted; but those who wait for the Lord shall renew their strength, they shall mount up with wings like eagles, they shall run and not be weary, they shall walk and not faint."
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 103:1-5",
+            verses: [
+              { leader: "Bless the Lord, O my soul, *", people: "and all that is within me, bless his holy name." },
+              { leader: "Bless the Lord, O my soul, *", people: "and forget not all his benefits." },
+              { leader: "He forgives all your sins *", people: "and heals all your infirmities;" },
+              { leader: "He redeems your life from the grave *", people: "and crowns you with mercy and loving-kindness." }
+            ]
+          },
+          reading2: {
+            citation: "James 5:13-16",
+            text: "Are any among you suffering? They should pray. Are any cheerful? They should sing songs of praise. Are any among you sick? They should call for the elders of the church and have them pray over them, anointing them with oil in the name of the Lord. The prayer of faith will save the sick, and the Lord will raise them up; and anyone who has committed sins will be forgiven."
+          },
+          gospel: {
+            citation: "Matthew 11:28-30",
+            text: "Jesus said, 'Come to me, all you that are weary and are carrying heavy burdens, and I will give you rest. Take my yoke upon you, and learn from me; for I am gentle and humble in heart, and you will find rest for your souls. For my yoke is easy, and my burden is light.'"
+          }
+        }
+      },
+      custom: {
+        name: "Custom Service / Parish Occasion",
+        season: "General Liturgy",
+        prefaceKey: "lords_day",
+        colorBadge: "bg-stone-200 text-stone-800 border-stone-400",
+        collect: "Lord God of our salvation, hear us as we gather in your holy presence. Grant us hearts open to your word, minds ready to receive your grace, and lives dedicated to the praise of your glory; through Jesus Christ our Lord. Amen.",
+        prayerOverGifts: "Gracious God, accept the offerings we bring this day, and sustain us by the gift of your presence; through Jesus Christ our Lord. Amen.",
+        prayerAfterCommunion: "Almighty God, may we who have been nourished at this table grow in love and holiness, and serve you faithfully in the world; through Jesus Christ our Lord. Amen.",
+        psalmPrayer: "Good Shepherd of your people, you lead us beside still waters and restore our souls. Guide us in the paths of righteousness for your name's sake; through Jesus Christ our Lord. Amen.",
+        readings: {
+          reading1: {
+            tracks: [
+              {
+                label: "Custom First Reading",
+                citation: "Old Testament Reading",
+                text: "Insert scripture reading text here or click 'Edit text' to customize."
+              }
+            ],
+            selectedTrack: 0
+          },
+          psalm: {
+            citation: "Psalm 23",
+            verses: [
+              { leader: "The Lord is my shepherd; *", people: "I shall not want." },
+              { leader: "He makes me lie down in green pastures *", people: "and leads me beside still waters." },
+              { leader: "He revives my soul *", people: "and guides me along right pathways for his name's sake." },
+              { leader: "Surely your goodness and mercy shall follow me all the days of my life, *", people: "and I will dwell in the house of the Lord for ever." }
+            ]
+          },
+          reading2: {
+            citation: "New Testament Epistle",
+            text: "Insert Epistle or New Testament lesson text here."
+          },
+          gospel: {
+            citation: "The Holy Gospel",
+            text: "Insert Holy Gospel passage text here."
+          }
+        }
+      }
+    };
+
+    const PROPER_PREFACES = {
+      lords_day: "For you are the source of light and life; you made us in your image, and called us to new life in Jesus Christ our Lord.",
+      advent: "Because you sent your beloved Son to redeem us from sin and death, and to make us heirs in him of everlasting life; that when he shall come again in power and great triumph to judge the world, we may without shame or fear rejoice to behold his appearing.",
+      incarnation: "Because you gave Jesus Christ your only Son to be born at this time for us; who, by the operation of the Holy Spirit, was made incarnate of the Virgin Mary, to make us clean from all sin.",
+      epiphany: "Because in the mystery of the Word made flesh, you have caused a new light to shine in our hearts, to give the knowledge of your glory in the face of your Son Jesus Christ our Lord.",
+      lent: "Because you bid your faithful people cleanse their hearts, and prepare with joy for the paschal feast; that, fervent in prayer and in works of mercy, and renewed by your word and sacraments, they may come to the fullness of grace which you have prepared for those who love you.",
+      easter: "But chiefly are we bound to praise you for the glorious resurrection of your Son Jesus Christ our Lord; for he is the true paschal lamb, who was offered for us, and has taken away the sin of the world; who by his death has destroyed death, and by his rising to life again has won for us everlasting life.",
+      pentecost: "Because by the mystery of the Holy Spirit, poured out upon the apostles, you have brought the Church into being and led it into all truth, giving it power to proclaim your gospel to every nation.",
+      trinity: "For with your co-eternal Son and Holy Spirit, you are one God, one Lord, in Trinity of Persons and in Unity of Being; and we celebrate the one and equal glory of you, O Father, and of the Son, and of the Holy Spirit.",
+      allsaints: "For in the multitude of your saints you have surrounded us with so great a cloud of witnesses, that we, rejoicing in their fellowship, may run with patience the race that is set before us, and together with them may receive the crown of glory that never fades away."
+    };
+
+    const CUSTOM_TEMPLATES = {
+      hymn: {
+        heading: "Congregational Hymn (Common Praise)",
+        speaker: "All",
+        rubric: "All stand as able and join in singing the appointed hymn.",
+        body: "Hymn #384: Praise to the Holiest in the Height\n1. Praise to the Holiest in the height, and in the depth be praise;\nin all his words most wonderful, most sure in all his ways.",
+        response: ""
+      },
+      land_ack: {
+        heading: "Territorial Land Acknowledgement",
+        speaker: "Officiant",
+        rubric: "The officiating leader acknowledges the traditional territory and covenant relationship.",
+        body: "We gather today on the traditional territory of the Michi Saagiig Anishinaabeg, covered by the Williams Treaties and Treaty 20. As followers of Christ called to the ministry of reconciliation, we give thanks for the Indigenous stewards of this land across generations, and we commit ourselves to walking together in truth, respect, and right relationship.",
+        response: "May we walk together in peace and justice."
+      },
+      announcements: {
+        heading: "Welcome & Parish Announcements",
+        speaker: "Leader",
+        rubric: "The congregation is seated for brief parish notices and community updates.",
+        body: "Welcome to our worship service today. Coffee and fellowship follow the service in the Parish Hall. Please note our upcoming mid-week study and community outreach opportunities.",
+        response: ""
+      },
+      childrens_talk: {
+        heading: "Children's Focus / All-Age Homily",
+        speaker: "Leader",
+        rubric: "Children and youth are invited forward to the chancel steps.",
+        body: "Let us pray together: Loving God, thank you for welcoming children into your arms. Open our ears to hear your story and our hands to share your love.",
+        response: "Amen."
+      },
+      healing_rite: {
+        heading: "Laying on of Hands & Anointing (BAS p. 555)",
+        speaker: "Celebrant",
+        rubric: "Those desiring prayer for healing for themselves or others come forward. The minister lays hands upon each person and may anoint them with oil.",
+        body: "N., I lay my hands upon you [and anoint you with oil] in the name of the Father, and of the Son, and of the Holy Spirit, beseeching our Lord Jesus Christ to sustain you with his presence, to drive away all sickness of body and spirit, and to give you that victory of life and peace which will enable you to serve him both now and evermore.",
+        response: "Amen."
+      },
+      baptism_renewal: {
+        heading: "The Baptismal Covenant (BAS p. 158)",
+        speaker: "Celebrant & People",
+        rubric: "All stand as the celebrant leads the renewal of baptismal promises.",
+        body: "Celebrant: Will you continue in the apostles' teaching and fellowship, in the breaking of bread, and in the prayers?\nPeople: I will, with God's help.\nCelebrant: Will you persevere in resisting evil and, whenever you fall into sin, repent and return to the Lord?\nPeople: I will, with God's help.\nCelebrant: Will you proclaim by word and example the good news of God in Christ?\nPeople: I will, with God's help.\nCelebrant: Will you seek and serve Christ in all persons, loving your neighbour as yourself?\nPeople: I will, with God's help.\nCelebrant: Will you strive for justice and peace among all people, and respect the dignity of every human being?\nPeople: I will, with God's help.",
+        response: ""
+      },
+      pastoral_blessing: {
+        heading: "Pastoral Blessing (Birthdays & Anniversaries)",
+        speaker: "Celebrant",
+        rubric: "Those celebrating birthdays, anniversaries, or milestones are invited to stand.",
+        body: "Watch over your children, O Lord, as their days increase; bless and guide them wherever they may be. Strengthen them when they stand; comfort them when discouraged or sorrowful; raise them up if they fall; and in their hearts may your peace which passes understanding abide all the days of their lives; through Jesus Christ our Lord.",
+        response: "Amen."
+      },
+      banns: {
+        heading: "Publication of the Banns of Marriage (BAS p. 549)",
+        speaker: "Officiant",
+        rubric: "Published after the notices or lessons.",
+        body: "I publish the banns of marriage between N. of [place] and N. of [place]. If any of you know cause or just impediment why these two persons should not be joined together in holy matrimony, you are to declare it. This is the [first / second / third] time of asking.",
+        response: ""
+      },
+      custom_reading: {
+        heading: "Additional Reading / Canticle",
+        speaker: "Reader",
+        rubric: "The people sit for the reading.",
+        body: "Enter the citation and text of the additional reading or canticle here.",
+        response: "Thanks be to God."
+      },
+      custom_prayer: {
+        heading: "Special Parish Collect or Prayer",
+        speaker: "Celebrant",
+        rubric: "The community prays together.",
+        body: "Gracious God, pour out your Spirit upon this parish family, and guide us in our ministry to our neighbours; through Jesus Christ our Lord.",
+        response: "Amen."
+      }
+    };
+
+    const RITE_SEQUENCES = {
+      eucharist: [
+        { id: "processional_hymn", type: "custom", enabled: false, customData: { heading: "Processional Hymn", speaker: "All", rubric: "The people stand as the ministers process in.", body: "Processional Hymn: CP #___", response: "" } },
+        { id: "land_ack", type: "custom", enabled: false, customData: Object.assign({}, CUSTOM_TEMPLATES.land_ack) },
+        { id: "greeting", type: "builtin", label: "Gathering Greeting (BAS p. 185)", section: "The Gathering of the Community", enabled: true },
+        { id: "collect_purity", type: "builtin", label: "Collect for Purity (BAS p. 185)", section: "The Gathering of the Community", enabled: true },
+        { id: "canticle_praise", type: "builtin", label: "Hymn of Praise / Gloria / Kyrie", section: "The Gathering of the Community", enabled: true },
+        { id: "collect_day", type: "builtin", label: "The Collect of the Day", section: "The Gathering of the Community", enabled: true },
+        { id: "reading1", type: "builtin", label: "The First Reading (Old Testament)", section: "The Proclamation of the Word", enabled: true },
+        { id: "psalm", type: "builtin", label: "The Psalm (Responsive + Psalm Prayer)", section: "The Proclamation of the Word", enabled: true },
+        { id: "reading2", type: "builtin", label: "The Second Reading (Epistle)", section: "The Proclamation of the Word", enabled: true },
+        { id: "gradual_gospel", type: "builtin", label: "Gospel Acclamation & The Holy Gospel", section: "The Proclamation of the Word", enabled: true },
+        { id: "sermon", type: "builtin", label: "The Sermon / Homily", section: "The Proclamation of the Word", enabled: true },
+        { id: "creed", type: "builtin", label: "Affirmation of Faith (Creed / Shema)", section: "The Proclamation of the Word", enabled: true },
+        { id: "prayers_people", type: "builtin", label: "The Prayers of the People (Litany)", section: "The Proclamation of the Word", enabled: true },
+        { id: "confession", type: "builtin", label: "Confession and Absolution (BAS p. 191)", section: "The Proclamation of the Word", enabled: true },
+        { id: "peace", type: "builtin", label: "The Peace (BAS p. 192)", section: "The Proclamation of the Word", enabled: true },
+        { id: "offertory_gifts", type: "builtin", label: "Offertory & Prayer over the Gifts", section: "The Celebration of the Eucharist", enabled: true },
+        { id: "eucharistic_prayer", type: "builtin", label: "The Great Thanksgiving (Eucharistic Prayer)", section: "The Celebration of the Eucharist", enabled: true },
+        { id: "lords_prayer", type: "builtin", label: "The Lord's Prayer (BAS p. 211)", section: "The Celebration of the Eucharist", enabled: true },
+        { id: "fraction_communion", type: "builtin", label: "Breaking of the Bread & Communion", section: "The Celebration of the Eucharist", enabled: true },
+        { id: "post_communion", type: "builtin", label: "Prayer after Communion", section: "The Sending Forth of the Community", enabled: true },
+        { id: "doxology", type: "builtin", label: "The Doxology (BAS p. 214)", section: "The Sending Forth of the Community", enabled: true },
+        { id: "blessing_dismissal", type: "builtin", label: "The Blessing & Dismissal", section: "The Sending Forth of the Community", enabled: true }
+      ],
+      lenten_eucharist: [
+        { id: "greeting", type: "builtin", label: "Lenten Gathering Greeting (BAS p. 185)", section: "The Gathering of the Community", enabled: true },
+        { id: "collect_purity", type: "builtin", label: "Collect for Purity (BAS p. 185)", section: "The Gathering of the Community", enabled: true },
+        { id: "confession", type: "builtin", label: "Penitential Rite: Confession & Absolution (BAS p. 188)", section: "The Gathering of the Community", enabled: true },
+        { id: "canticle_praise", type: "builtin", label: "Kyrie Eleison / Trisagion (BAS p. 186)", section: "The Gathering of the Community", enabled: true },
+        { id: "collect_day", type: "builtin", label: "The Collect of the Day", section: "The Gathering of the Community", enabled: true },
+        { id: "reading1", type: "builtin", label: "The First Reading", section: "The Proclamation of the Word", enabled: true },
+        { id: "psalm", type: "builtin", label: "The Psalm", section: "The Proclamation of the Word", enabled: true },
+        { id: "reading2", type: "builtin", label: "The Second Reading", section: "The Proclamation of the Word", enabled: true },
+        { id: "gradual_gospel", type: "builtin", label: "Lenten Tract & The Holy Gospel", section: "The Proclamation of the Word", enabled: true },
+        { id: "sermon", type: "builtin", label: "The Sermon / Homily", section: "The Proclamation of the Word", enabled: true },
+        { id: "creed", type: "builtin", label: "The Nicene or Apostles' Creed", section: "The Proclamation of the Word", enabled: true },
+        { id: "prayers_people", type: "builtin", label: "The Prayers of the People", section: "The Proclamation of the Word", enabled: true },
+        { id: "peace", type: "builtin", label: "The Peace", section: "The Proclamation of the Word", enabled: true },
+        { id: "offertory_gifts", type: "builtin", label: "Prayer over the Gifts", section: "The Celebration of the Eucharist", enabled: true },
+        { id: "eucharistic_prayer", type: "builtin", label: "The Great Thanksgiving", section: "The Celebration of the Eucharist", enabled: true },
+        { id: "lords_prayer", type: "builtin", label: "The Lord's Prayer", section: "The Celebration of the Eucharist", enabled: true },
+        { id: "fraction_communion", type: "builtin", label: "Breaking of the Bread & Communion", section: "The Celebration of the Eucharist", enabled: true },
+        { id: "post_communion", type: "builtin", label: "Prayer after Communion", section: "The Sending Forth of the Community", enabled: true },
+        { id: "blessing_dismissal", type: "builtin", label: "Solemn Prayer over the People & Dismissal", section: "The Sending Forth of the Community", enabled: true }
+      ],
+      word_lay: [
+        { id: "greeting", type: "builtin", label: "Opening Greeting", section: "The Gathering of the Community", enabled: true },
+        { id: "collect_purity", type: "builtin", label: "Collect for Purity", section: "The Gathering of the Community", enabled: true },
+        { id: "canticle_praise", type: "builtin", label: "Opening Praise (Gloria / Venite / Jubilate)", section: "The Gathering of the Community", enabled: true },
+        { id: "collect_day", type: "builtin", label: "The Collect of the Day", section: "The Gathering of the Community", enabled: true },
+        { id: "reading1", type: "builtin", label: "The First Reading", section: "The Proclamation of the Word", enabled: true },
+        { id: "psalm", type: "builtin", label: "The Psalm (Responsive)", section: "The Proclamation of the Word", enabled: true },
+        { id: "reading2", type: "builtin", label: "The Second Reading", section: "The Proclamation of the Word", enabled: true },
+        { id: "gradual_gospel", type: "builtin", label: "The Holy Gospel", section: "The Proclamation of the Word", enabled: true },
+        { id: "sermon", type: "builtin", label: "The Sermon / Homily", section: "The Proclamation of the Word", enabled: true },
+        { id: "creed", type: "builtin", label: "Affirmation of Faith (Apostles' Creed / Shema)", section: "The Response to the Word", enabled: true },
+        { id: "prayers_people", type: "builtin", label: "The Prayers of the People & Thanksgiving", section: "The Response to the Word", enabled: true },
+        { id: "confession", type: "builtin", label: "Confession of Sin & Assurance of Pardon", section: "The Response to the Word", enabled: true },
+        { id: "peace", type: "builtin", label: "The Peace", section: "The Response to the Word", enabled: true },
+        { id: "lords_prayer", type: "builtin", label: "The Lord's Prayer", section: "The Sending Forth", enabled: true },
+        { id: "doxology", type: "builtin", label: "The Doxology & Grace", section: "The Sending Forth", enabled: true },
+        { id: "blessing_dismissal", type: "builtin", label: "Concluding Grace & Dismissal", section: "The Sending Forth", enabled: true }
+      ],
+      morning_prayer: [
+        { id: "greeting", type: "builtin", label: "Opening Sentence & Invitatory (BAS p. 47)", section: "The Approach", enabled: true },
+        { id: "confession", type: "builtin", label: "Penitential Introduction (BAS p. 46)", section: "The Approach", enabled: true },
+        { id: "canticle_praise", type: "builtin", label: "Invitatory Psalm: Venite or Jubilate (BAS p. 49)", section: "The Approach", enabled: true },
+        { id: "psalm", type: "builtin", label: "The Appointed Psalmody & Psalm Prayer", section: "The Proclamation of the Word", enabled: true },
+        { id: "reading1", type: "builtin", label: "The First Reading (Old Testament)", section: "The Proclamation of the Word", enabled: true },
+        { id: "reading2", type: "builtin", label: "The Second Reading (New Testament)", section: "The Proclamation of the Word", enabled: true },
+        { id: "gradual_gospel", type: "builtin", label: "Gospel Canticle (Benedictus) & Gospel", section: "The Proclamation of the Word", enabled: true },
+        { id: "sermon", type: "builtin", label: "Homily or Reflection", section: "The Proclamation of the Word", enabled: true },
+        { id: "creed", type: "builtin", label: "Affirmation of Faith: Hear, O Israel or Apostles' Creed", section: "The Affirmation & Prayer", enabled: true },
+        { id: "prayers_people", type: "builtin", label: "Intercessions and Thanksgivings (Litany)", section: "The Affirmation & Prayer", enabled: true },
+        { id: "collect_day", type: "builtin", label: "The Collect of the Day", section: "The Affirmation & Prayer", enabled: true },
+        { id: "lords_prayer", type: "builtin", label: "The Lord's Prayer (BAS p. 54)", section: "The Affirmation & Prayer", enabled: true },
+        { id: "blessing_dismissal", type: "builtin", label: "Dismissal & The Grace (BAS p. 55)", section: "The Sending Forth", enabled: true }
+      ],
+      evening_prayer: [
+        { id: "greeting", type: "builtin", label: "Service of Light & Greeting (BAS p. 62)", section: "The Service of Light", enabled: true },
+        { id: "canticle_praise", type: "builtin", label: "O Gracious Light (Phos Hilaron, BAS p. 62)", section: "The Service of Light", enabled: true },
+        { id: "psalm", type: "builtin", label: "The Appointed Psalmody & Psalm Prayer", section: "The Proclamation of the Word", enabled: true },
+        { id: "reading1", type: "builtin", label: "The First Reading", section: "The Proclamation of the Word", enabled: true },
+        { id: "gradual_gospel", type: "builtin", label: "The Song of Mary (Magnificat) & Gospel", section: "The Proclamation of the Word", enabled: true },
+        { id: "sermon", type: "builtin", label: "Evening Reflection", section: "The Proclamation of the Word", enabled: true },
+        { id: "creed", type: "builtin", label: "Affirmation of Faith (Hear, O Israel / Creed)", section: "The Prayers", enabled: true },
+        { id: "prayers_people", type: "builtin", label: "Evening Litany & Thanksgiving", section: "The Prayers", enabled: true },
+        { id: "collect_day", type: "builtin", label: "The Collect of the Day & Collect for Peace", section: "The Prayers", enabled: true },
+        { id: "lords_prayer", type: "builtin", label: "The Lord's Prayer (BAS p. 72)", section: "The Prayers", enabled: true },
+        { id: "blessing_dismissal", type: "builtin", label: "Dismissal & The Grace", section: "The Sending Forth", enabled: true }
+      ]
+    };
+
+    let appState = {
+      riteKey: 'eucharist',
+      selectedDayKey: 'proper28',
+      includeReading1: true,
+      includePsalm: true,
+      includePsalmPrayer: true,
+      includeReading2: true,
+      includeGospel: true,
+      greeting: 'standard',
+      includeCollectPurity: true,
+      includeGloria: true,
+      canticle: 'gloria',
+      gospelAcclamation: 'alleluia',
+      creed: 'nicene',
+      prayers: 'litany1',
+      eucharisticPrayer: 'prayer1',
+      preface: 'auto',
+      lordsPrayer: 'contemporary',
+      fraction: 'fraction1',
+      showRubrics: true,
+      showInlineControls: true,
+      fontSize: 'font-size-md',
+      isFullServiceView: false,
+      blocks: [],
+      overrides: {},
+      editingBlockId: null
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadRiteSequence(appState.riteKey, false);
+      initListeners();
+      loadDayData(appState.selectedDayKey);
+      renderAll();
+    });
+
+    function cloneBlocks(templateList) {
+      return templateList.map(b => ({
+        id: b.id,
+        type: b.type,
+        label: b.label || (b.customData ? b.customData.heading : 'Custom Element'),
+        section: b.section || 'Liturgical Element',
+        enabled: b.enabled,
+        customData: b.customData ? Object.assign({}, b.customData) : null
+      }));
+    }
+
+    function loadRiteSequence(riteKey, applyRiteDefaults = true) {
+      appState.riteKey = riteKey;
+      appState.blocks = cloneBlocks(RITE_SEQUENCES[riteKey] || RITE_SEQUENCES.eucharist);
+
+      if (applyRiteDefaults) {
+        if (riteKey === 'lenten_eucharist') {
+          appState.greeting = 'lent';
+          appState.canticle = 'kyrie';
+          appState.gospelAcclamation = 'lenten';
+          appState.fraction = 'fraction5';
+        } else if (riteKey === 'morning_prayer') {
+          appState.greeting = 'morning_office';
+          appState.canticle = 'venite';
+          appState.gospelAcclamation = 'benedictus';
+          appState.creed = 'shema';
+        } else if (riteKey === 'evening_prayer') {
+          appState.greeting = 'evening_office';
+          appState.canticle = 'phos_hilaron';
+          appState.gospelAcclamation = 'magnificat';
+          appState.creed = 'shema';
+        } else if (riteKey === 'word_lay') {
+          appState.greeting = 'standard';
+          appState.canticle = 'gloria';
+          appState.creed = 'apostles';
+        } else {
+          appState.greeting = 'standard';
+          appState.canticle = 'gloria';
+          appState.gospelAcclamation = 'alleluia';
+          appState.creed = 'nicene';
+        }
+        syncFormSelectsFromState();
+      }
+      syncBlockCheckboxesFromBlocks();
+    }
+
+    function syncFormSelectsFromState() {
+      document.getElementById('greetingSelect').value = appState.greeting;
+      document.getElementById('canticleSelect').value = appState.canticle;
+      document.getElementById('gospelAcclamationSelect').value = appState.gospelAcclamation;
+      document.getElementById('creedSelect').value = appState.creed;
+      document.getElementById('prayersSelect').value = appState.prayers;
+      document.getElementById('eucharisticPrayerSelect').value = appState.eucharisticPrayer;
+      document.getElementById('prefaceSelect').value = appState.preface;
+      document.getElementById('lordsPrayerSelect').value = appState.lordsPrayer;
+      document.getElementById('fractionSelect').value = appState.fraction;
+    }
+
+    function syncBlockCheckboxesFromBlocks() {
+      const getEn = (id) => {
+        const b = appState.blocks.find(x => x.id === id);
+        return b ? b.enabled : false;
+      };
+      appState.includeReading1 = getEn('reading1');
+      appState.includePsalm = getEn('psalm');
+      appState.includeReading2 = getEn('reading2');
+      appState.includeGospel = getEn('gradual_gospel');
+      appState.includeCollectPurity = getEn('collect_purity');
+      appState.includeGloria = getEn('canticle_praise');
+
+      document.getElementById('includeReading1').checked = appState.includeReading1;
+      document.getElementById('includePsalm').checked = appState.includePsalm;
+      document.getElementById('includeReading2').checked = appState.includeReading2;
+      document.getElementById('includeGospel').checked = appState.includeGospel;
+      document.getElementById('includeCollectPurity').checked = appState.includeCollectPurity;
+      document.getElementById('includeGloria').checked = appState.includeGloria;
+    }
+
+    function setBlockEnabled(blockId, isEnabled) {
+      const b = appState.blocks.find(x => x.id === blockId);
+      if (b) b.enabled = isEnabled;
+      syncBlockCheckboxesFromBlocks();
+    }
+
+    function initListeners() {
+      document.getElementById('ritePreset').addEventListener('change', (e) => {
+        loadRiteSequence(e.target.value, true);
+        renderAll();
+        showToast('Updated service structure to ' + e.target.options[e.target.selectedIndex].text.split(' (')[0]);
+      });
+
+      document.getElementById('feastPreset').addEventListener('change', (e) => {
+        appState.selectedDayKey = e.target.value;
+        loadDayData(appState.selectedDayKey);
+        renderAll();
+      });
+
+      document.getElementById('includeReading1').addEventListener('change', (e) => {
+        setBlockEnabled('reading1', e.target.checked);
+        renderAll();
+      });
+      document.getElementById('includePsalm').addEventListener('change', (e) => {
+        setBlockEnabled('psalm', e.target.checked);
+        renderAll();
+      });
+      document.getElementById('includePsalmPrayer').addEventListener('change', (e) => {
+        appState.includePsalmPrayer = e.target.checked;
+        renderService();
+      });
+      document.getElementById('includeReading2').addEventListener('change', (e) => {
+        setBlockEnabled('reading2', e.target.checked);
+        renderAll();
+      });
+      document.getElementById('includeGospel').addEventListener('change', (e) => {
+        setBlockEnabled('gradual_gospel', e.target.checked);
+        renderAll();
+      });
+      document.getElementById('includeCollectPurity').addEventListener('change', (e) => {
+        setBlockEnabled('collect_purity', e.target.checked);
+        renderAll();
+      });
+      document.getElementById('includeGloria').addEventListener('change', (e) => {
+        setBlockEnabled('canticle_praise', e.target.checked);
+        renderAll();
+      });
+
+      document.getElementById('greetingSelect').addEventListener('change', (e) => {
+        appState.greeting = e.target.value;
+        renderService();
+      });
+      document.getElementById('canticleSelect').addEventListener('change', (e) => {
+        appState.canticle = e.target.value;
+        renderService();
+      });
+      document.getElementById('gospelAcclamationSelect').addEventListener('change', (e) => {
+        appState.gospelAcclamation = e.target.value;
+        renderService();
+      });
+      document.getElementById('creedSelect').addEventListener('change', (e) => {
+        appState.creed = e.target.value;
+        setBlockEnabled('creed', e.target.value !== 'none');
+        renderAll();
+      });
+      document.getElementById('prayersSelect').addEventListener('change', (e) => {
+        appState.prayers = e.target.value;
+        renderService();
+      });
+      document.getElementById('eucharisticPrayerSelect').addEventListener('change', (e) => {
+        appState.eucharisticPrayer = e.target.value;
+        renderService();
+      });
+      document.getElementById('prefaceSelect').addEventListener('change', (e) => {
+        appState.preface = e.target.value;
+        renderService();
+      });
+      document.getElementById('lordsPrayerSelect').addEventListener('change', (e) => {
+        appState.lordsPrayer = e.target.value;
+        renderService();
+      });
+      document.getElementById('fractionSelect').addEventListener('change', (e) => {
+        appState.fraction = e.target.value;
+        renderService();
+      });
+
+      document.getElementById('parishTitle').addEventListener('input', () => renderService());
+      document.getElementById('serviceDateInput').addEventListener('input', () => renderService());
+
+      setupEditToggle('toggleReading1Edit', 'reading1EditArea');
+      setupEditToggle('togglePsalmEdit', 'psalmEditArea');
+      setupEditToggle('toggleReading2Edit', 'reading2EditArea');
+      setupEditToggle('toggleGospelEdit', 'gospelEditArea');
+      setupEditToggle('togglePropersEdit', 'propersEditArea');
+
+      document.getElementById('reading1Citation').addEventListener('input', (e) => {
+        const cur = getCurrentDay();
+        const selIdx = cur.readings.reading1.selectedTrack;
+        cur.readings.reading1.tracks[selIdx].citation = e.target.value;
+        renderService();
+      });
+      document.getElementById('reading1Text').addEventListener('input', (e) => {
+        const cur = getCurrentDay();
+        const selIdx = cur.readings.reading1.selectedTrack;
+        cur.readings.reading1.tracks[selIdx].text = e.target.value;
+        renderService();
+      });
+
+      document.getElementById('psalmCitation').addEventListener('input', (e) => {
+        const cur = getCurrentDay();
+        cur.readings.psalm.citation = e.target.value;
+        document.getElementById('psalmCitationLabel').textContent = e.target.value;
+        renderService();
+      });
+      document.getElementById('psalmText').addEventListener('input', (e) => {
+        const cur = getCurrentDay();
+        const lines = e.target.value.split('\n').filter(l => l.trim().length > 0);
+        cur.readings.psalm.verses = lines.map(line => {
+          const parts = line.split('/');
+          return {
+            leader: (parts[0] || '').trim(),
+            people: (parts.slice(1).join('/') || '').trim()
+          };
+        });
+        renderService();
+      });
+
+      document.getElementById('reading2Citation').addEventListener('input', (e) => {
+        const cur = getCurrentDay();
+        cur.readings.reading2.citation = e.target.value;
+        document.getElementById('reading2CitationLabel').textContent = e.target.value;
+        renderService();
+      });
+      document.getElementById('reading2Text').addEventListener('input', (e) => {
+        const cur = getCurrentDay();
+        cur.readings.reading2.text = e.target.value;
+        renderService();
+      });
+
+      document.getElementById('gospelCitation').addEventListener('input', (e) => {
+        const cur = getCurrentDay();
+        cur.readings.gospel.citation = e.target.value;
+        document.getElementById('gospelCitationLabel').textContent = e.target.value;
+        renderService();
+      });
+      document.getElementById('gospelText').addEventListener('input', (e) => {
+        const cur = getCurrentDay();
+        cur.readings.gospel.text = e.target.value;
+        renderService();
+      });
+
+      document.getElementById('collectInput').addEventListener('input', (e) => {
+        getCurrentDay().collect = e.target.value;
+        renderService();
+      });
+      document.getElementById('giftsPrayerInput').addEventListener('input', (e) => {
+        getCurrentDay().prayerOverGifts = e.target.value;
+        renderService();
+      });
+      document.getElementById('postCommunionInput').addEventListener('input', (e) => {
+        getCurrentDay().prayerAfterCommunion = e.target.value;
+        renderService();
+      });
+
+      document.getElementById('resetOrderBtn').addEventListener('click', () => {
+        appState.overrides = {};
+        loadRiteSequence(appState.riteKey, false);
+        renderAll();
+        showToast('Service sequence reset to Rite default.');
+      });
+
+      document.getElementById('openInsertModalBtn').addEventListener('click', () => {
+        openBlockModal(null);
+      });
+      document.getElementById('closeModalBtn').addEventListener('click', closeBlockModal);
+      document.getElementById('cancelModalBtn').addEventListener('click', closeBlockModal);
+      document.getElementById('modalBlockCategory').addEventListener('change', (e) => {
+        if (!appState.editingBlockId) {
+          populateModalFromTemplate(e.target.value);
+        }
+      });
+      document.getElementById('saveModalBtn').addEventListener('click', saveBlockFromModal);
+
+      document.getElementById('toggleRubricsBtn').addEventListener('click', () => {
+        appState.showRubrics = !appState.showRubrics;
+        const statusEl = document.getElementById('rubricStatusText');
+        statusEl.textContent = appState.showRubrics ? 'Visible' : 'Hidden';
+        statusEl.className = appState.showRubrics ? 'font-semibold text-rubric' : 'font-semibold text-stone-500';
+        renderService();
+      });
+
+      document.getElementById('toggleInlineControlsBtn').addEventListener('click', () => {
+        appState.showInlineControls = !appState.showInlineControls;
+        const statusEl = document.getElementById('inlineControlsStatusText');
+        statusEl.textContent = appState.showInlineControls ? 'On' : 'Off';
+        statusEl.className = appState.showInlineControls ? 'font-semibold text-amber-800' : 'font-semibold text-stone-500';
+        renderService();
+      });
+
+      document.getElementById('fontSmBtn').addEventListener('click', () => setFontSize('font-size-sm'));
+      document.getElementById('fontMdBtn').addEventListener('click', () => setFontSize('font-size-md'));
+      document.getElementById('fontLgBtn').addEventListener('click', () => setFontSize('font-size-lg'));
+
+      document.getElementById('viewToggleBtn').addEventListener('click', () => {
+        appState.isFullServiceView = !appState.isFullServiceView;
+        const sidebar = document.getElementById('builderSidebar');
+        const serviceCol = document.getElementById('servicePreviewSection');
+        const toggleText = document.getElementById('viewToggleText');
+
+        if (appState.isFullServiceView) {
+          sidebar.classList.add('hidden');
+          serviceCol.classList.remove('lg:col-span-7');
+          serviceCol.classList.add('lg:col-span-12', 'max-w-4xl', 'mx-auto');
+          toggleText.textContent = 'Show Liturgy Builder';
+        } else {
+          sidebar.classList.remove('hidden');
+          serviceCol.classList.remove('lg:col-span-12', 'max-w-4xl', 'mx-auto');
+          serviceCol.classList.add('lg:col-span-7');
+          toggleText.textContent = 'Full Service View';
+        }
+      });
+
+      document.getElementById('printBtn').addEventListener('click', () => window.print());
+      document.getElementById('copyLitBtn').addEventListener('click', copyLiturgyToClipboard);
+      document.getElementById('exportJsonBtn').addEventListener('click', exportServiceJson);
+    }
+
+    function setupEditToggle(btnId, containerId) {
+      document.getElementById(btnId).addEventListener('click', () => {
+        document.getElementById(containerId).classList.toggle('hidden');
+      });
+    }
+
+    function setFontSize(sizeClass) {
+      appState.fontSize = sizeClass;
+      const sheet = document.getElementById('serviceSheet');
+      sheet.classList.remove('font-size-sm', 'font-size-md', 'font-size-lg', 'font-size-xl');
+      sheet.classList.add(sizeClass);
+    }
+
+    function getCurrentDay() {
+      return LECTIONARY_DATA[appState.selectedDayKey];
+    }
+
+    function loadDayData(key) {
+      const day = LECTIONARY_DATA[key];
+      const badge = document.getElementById('seasonBadge');
+      badge.textContent = day.season;
+      badge.className = `px-2 py-0.5 text-xs font-medium rounded-full border ${day.colorBadge}`;
+
+      if (key === 'easter') appState.greeting = 'easter';
+      else if (key === 'epiphany') appState.greeting = 'epiphany';
+      else if (key === 'ash_wednesday' || key === 'good_friday') appState.greeting = 'lent';
+      syncFormSelectsFromState();
+
+      const r1List = document.getElementById('reading1OptionsList');
+      r1List.innerHTML = '';
+      day.readings.reading1.tracks.forEach((track, idx) => {
+        const row = document.createElement('label');
+        row.className = 'flex items-center space-x-2 text-xs text-stone-700 cursor-pointer p-1 rounded hover:bg-stone-200/50';
+        row.innerHTML = `
+          <input type="radio" name="reading1TrackRadio" value="${idx}" ${idx === day.readings.reading1.selectedTrack ? 'checked' : ''} class="text-amber-700 focus:ring-amber-600">
+          <span class="font-medium">${track.label}</span>
+        `;
+        row.querySelector('input').addEventListener('change', (e) => {
+          day.readings.reading1.selectedTrack = parseInt(e.target.value, 10);
+          syncEditFields();
+          renderService();
+        });
+        r1List.appendChild(row);
+      });
+
+      syncEditFields();
+    }
+
+    function syncEditFields() {
+      const day = getCurrentDay();
+      const r1Sel = day.readings.reading1.tracks[day.readings.reading1.selectedTrack];
+      document.getElementById('reading1Citation').value = r1Sel.citation;
+      document.getElementById('reading1Text').value = r1Sel.text;
+
+      document.getElementById('psalmCitation').value = day.readings.psalm.citation;
+      document.getElementById('psalmCitationLabel').textContent = day.readings.psalm.citation;
+      document.getElementById('psalmText').value = day.readings.psalm.verses.map(v => `${v.leader} / ${v.people}`).join('\n');
+
+      document.getElementById('reading2Citation').value = day.readings.reading2.citation;
+      document.getElementById('reading2CitationLabel').textContent = day.readings.reading2.citation;
+      document.getElementById('reading2Text').value = day.readings.reading2.text;
+
+      document.getElementById('gospelCitation').value = day.readings.gospel.citation;
+      document.getElementById('gospelCitationLabel').textContent = day.readings.gospel.citation;
+      document.getElementById('gospelText').value = day.readings.gospel.text;
+
+      document.getElementById('collectInput').value = day.collect || '';
+      document.getElementById('giftsPrayerInput').value = day.prayerOverGifts || '';
+      document.getElementById('postCommunionInput').value = day.prayerAfterCommunion || '';
+    }
+
+    function renderAll() {
+      renderSequencerList();
+      renderService();
+    }
+
+    function moveBlock(index, direction) {
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= appState.blocks.length) return;
+      const temp = appState.blocks[index];
+      appState.blocks[index] = appState.blocks[targetIndex];
+      appState.blocks[targetIndex] = temp;
+      renderAll();
+    }
+
+    function removeOrDisableBlock(index) {
+      const blk = appState.blocks[index];
+      if (!blk) return;
+      if (blk.type === 'custom') {
+        appState.blocks.splice(index, 1);
+      } else {
+        blk.enabled = false;
+        syncBlockCheckboxesFromBlocks();
+      }
+      renderAll();
+    }
+
+    function renderSequencerList() {
+      const container = document.getElementById('sequencerList');
+      container.innerHTML = '';
+
+      appState.blocks.forEach((blk, idx) => {
+        const row = document.createElement('div');
+        row.className = `flex items-center justify-between gap-2 px-2.5 py-1.5 rounded border text-xs transition ${
+          blk.enabled ? 'bg-white border-stone-200 text-stone-800 shadow-sm' : 'bg-stone-100/70 border-stone-200/60 text-stone-400'
+        }`;
+
+        const left = document.createElement('div');
+        left.className = 'flex items-center space-x-2 min-w-0 flex-1';
+
+        const chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.checked = blk.enabled;
+        chk.className = 'rounded text-amber-700 focus:ring-amber-600 w-3.5 h-3.5 flex-shrink-0 cursor-pointer';
+        chk.addEventListener('change', (e) => {
+          blk.enabled = e.target.checked;
+          syncBlockCheckboxesFromBlocks();
+          renderAll();
+        });
+
+        const titleSpan = document.createElement('span');
+        titleSpan.className = `truncate ${blk.enabled ? 'font-medium' : 'line-through'}`;
+        titleSpan.textContent = `${idx + 1}. ${blk.customData ? blk.customData.heading : blk.label}`;
+
+        left.appendChild(chk);
+        left.appendChild(titleSpan);
+
+        const actions = document.createElement('div');
+        actions.className = 'flex items-center space-x-1 flex-shrink-0';
+
+        const upBtn = document.createElement('button');
+        upBtn.type = 'button';
+        upBtn.className = 'px-1.5 py-0.5 rounded hover:bg-stone-200 text-stone-600 disabled:opacity-30';
+        upBtn.disabled = idx === 0;
+        upBtn.title = 'Move Up';
+        upBtn.textContent = '↑';
+        upBtn.addEventListener('click', () => moveBlock(idx, -1));
+
+        const downBtn = document.createElement('button');
+        downBtn.type = 'button';
+        downBtn.className = 'px-1.5 py-0.5 rounded hover:bg-stone-200 text-stone-600 disabled:opacity-30';
+        downBtn.disabled = idx === appState.blocks.length - 1;
+        downBtn.title = 'Move Down';
+        downBtn.textContent = '↓';
+        downBtn.addEventListener('click', () => moveBlock(idx, 1));
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'px-1.5 py-0.5 rounded hover:bg-amber-100 text-amber-800';
+        editBtn.title = 'Customize / Edit Block';
+        editBtn.textContent = '✎';
+        editBtn.addEventListener('click', () => openBlockModal(blk.id));
+
+        actions.appendChild(upBtn);
+        actions.appendChild(downBtn);
+        actions.appendChild(editBtn);
+
+        if (blk.type === 'custom') {
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'px-1.5 py-0.5 rounded hover:bg-red-100 text-red-700 font-bold';
+          delBtn.title = 'Delete Custom Element';
+          delBtn.textContent = '×';
+          delBtn.addEventListener('click', () => {
+            appState.blocks.splice(idx, 1);
+            renderAll();
+          });
+          actions.appendChild(delBtn);
+        }
+
+        row.appendChild(left);
+        row.appendChild(actions);
+        container.appendChild(row);
+      });
+    }
+
+    function openBlockModal(blockId = null, insertAfterId = null) {
+      appState.editingBlockId = blockId;
+      const modal = document.getElementById('blockModal');
+      const modalTitle = document.getElementById('blockModalTitle');
+      const posWrapper = document.getElementById('modalInsertPositionWrapper');
+      const insertSelect = document.getElementById('modalInsertAfter');
+
+      insertSelect.innerHTML = '<option value="__start__">At the very beginning of the service</option>';
+      appState.blocks.forEach((b, i) => {
+        const name = b.customData ? b.customData.heading : b.label;
+        const opt = document.createElement('option');
+        opt.value = b.id;
+        opt.textContent = `After ${i + 1}. ${name}`;
+        insertSelect.appendChild(opt);
+      });
+
+      if (blockId) {
+        const blk = appState.blocks.find(x => x.id === blockId);
+        if (!blk) return;
+        modalTitle.textContent = `Customize Element: ${blk.customData ? blk.customData.heading : blk.label}`;
+        posWrapper.classList.add('hidden');
+
+        const data = blk.customData || appState.overrides[blockId] || getDefaultOverrideForBuiltin(blockId);
+        document.getElementById('modalBlockHeading').value = data.heading || blk.label;
+        document.getElementById('modalBlockSpeaker').value = data.speaker || 'Celebrant';
+        document.getElementById('modalBlockRubric').value = data.rubric || '';
+        document.getElementById('modalBlockBody').value = data.body || '';
+        document.getElementById('modalBlockResponse').value = data.response || '';
+      } else {
+        modalTitle.textContent = 'Insert Liturgical Element into Service Order';
+        posWrapper.classList.remove('hidden');
+        const cat = document.getElementById('modalBlockCategory').value;
+        populateModalFromTemplate(cat);
+        if (insertAfterId) {
+          insertSelect.value = insertAfterId;
+        } else if (appState.blocks.length > 0) {
+          insertSelect.value = appState.blocks[0].id;
+        }
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function populateModalFromTemplate(catKey) {
+      const tpl = CUSTOM_TEMPLATES[catKey] || CUSTOM_TEMPLATES.custom_prayer;
+      document.getElementById('modalBlockHeading').value = tpl.heading;
+      document.getElementById('modalBlockSpeaker').value = tpl.speaker;
+      document.getElementById('modalBlockRubric').value = tpl.rubric;
+      document.getElementById('modalBlockBody').value = tpl.body;
+      document.getElementById('modalBlockResponse').value = tpl.response;
+    }
+
+    function getDefaultOverrideForBuiltin(blockId) {
+      const day = getCurrentDay();
+      if (blockId === 'collect_day') {
+        return {
+          heading: 'The Collect of the Day',
+          speaker: 'Celebrant',
+          rubric: 'The community prays silently for a short period.',
+          body: day.collect,
+          response: 'Amen.'
+        };
+      }
+      if (blockId === 'sermon') {
+        return {
+          heading: 'The Sermon / Homily',
+          speaker: 'Preacher',
+          rubric: 'A sermon is preached, followed by a period of silent reflection.',
+          body: '',
+          response: ''
+        };
+      }
+      if (blockId === 'peace') {
+        return {
+          heading: 'The Peace (BAS p. 192)',
+          speaker: 'Celebrant',
+          rubric: 'All stand. The celebrant greets the people with the peace.',
+          body: 'The peace of the Lord be always with you.',
+          response: 'And also with you.'
+        };
+      }
+      return {
+        heading: '',
+        speaker: 'Celebrant',
+        rubric: 'Enter custom rubric instruction if desired.',
+        body: 'Enter custom replacement liturgical text here (leave blank to use dynamic BAS text).',
+        response: 'Amen.'
+      };
+    }
+
+    function closeBlockModal() {
+      const modal = document.getElementById('blockModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      appState.editingBlockId = null;
+    }
+
+    function saveBlockFromModal() {
+      const heading = document.getElementById('modalBlockHeading').value.trim() || 'Liturgical Element';
+      const speaker = document.getElementById('modalBlockSpeaker').value.trim();
+      const rubricTxt = document.getElementById('modalBlockRubric').value.trim();
+      const bodyTxt = document.getElementById('modalBlockBody').value.trim();
+      const respTxt = document.getElementById('modalBlockResponse').value.trim();
+
+      if (appState.editingBlockId) {
+        const blk = appState.blocks.find(x => x.id === appState.editingBlockId);
+        if (blk) {
+          if (blk.type === 'custom') {
+            blk.label = heading;
+            blk.customData = { heading, speaker, rubric: rubricTxt, body: bodyTxt, response: respTxt };
+          } else {
+            blk.label = heading;
+            appState.overrides[blk.id] = { heading, speaker, rubric: rubricTxt, body: bodyTxt, response: respTxt };
+          }
+          blk.enabled = true;
+        }
+        showToast('Updated "' + heading + '"');
+      } else {
+        const newId = 'custom_' + Date.now();
+        const newBlock = {
+          id: newId,
+          type: 'custom',
+          label: heading,
+          section: 'Custom Insertion',
+          enabled: true,
+          customData: { heading, speaker, rubric: rubricTxt, body: bodyTxt, response: respTxt }
+        };
+        const afterId = document.getElementById('modalInsertAfter').value;
+        if (afterId === '__start__') {
+          appState.blocks.unshift(newBlock);
+        } else {
+          const idx = appState.blocks.findIndex(x => x.id === afterId);
+          if (idx >= 0) {
+            appState.blocks.splice(idx + 1, 0, newBlock);
+          } else {
+            appState.blocks.push(newBlock);
+          }
+        }
+        showToast('Inserted "' + heading + '" into service order');
+      }
+
+      closeBlockModal();
+      renderAll();
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = message;
+      toast.classList.remove('opacity-0', 'translate-y-12');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-12');
+      }, 2800);
+    }
+
+    function copyLiturgyToClipboard() {
+      const sheet = document.getElementById('serviceSheet');
+      const clone = sheet.cloneNode(true);
+      clone.querySelectorAll('.no-print').forEach(el => el.remove());
+      const text = clone.innerText;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Service text copied to clipboard!');
+        }).catch(() => fallbackCopyText(text));
+      } else {
+        fallbackCopyText(text);
+      }
+    }
+
+    function fallbackCopyText(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('Service text copied to clipboard!');
+      } catch (err) {
+        showToast('Failed to copy. Please select text manually.');
+      }
+      document.body.removeChild(textArea);
+    }
+
+    function exportServiceJson() {
+      const payload = {
+        parish: document.getElementById('parishTitle').value,
+        serviceDate: document.getElementById('serviceDateInput').value,
+        state: appState,
+        dayData: getCurrentDay()
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `digitalbas-service-${appState.selectedDayKey}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Saved service configuration JSON!');
+    }
+
+    function rubric(text) {
+      if (!appState.showRubrics || !text) return '';
+      return `<p class="liturgical-rubric">${text}</p>`;
+    }
+
+    function dialogue(speaker, text, isPeople = false) {
+      if (!text) return '';
+      return `
+        <div class="my-1.5 flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-2">
+          <span class="text-xs uppercase tracking-wider font-sans font-semibold text-stone-500 min-w-[6rem]">${speaker}</span>
+          <div class="flex-1 ${isPeople ? 'response-people' : 'text-stone-900'} whitespace-pre-line">${text}</div>
+        </div>
+      `;
+    }
+
+    function getProperPrefaceText(day) {
+      const key = appState.preface === 'auto' ? (day.prefaceKey || 'lords_day') : appState.preface;
+      return PROPER_PREFACES[key] || PROPER_PREFACES.lords_day;
+    }
+
+    function renderCustomBlockHtml(data) {
+      let out = `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-amber-900 mb-1">${data.heading}</div>`;
+      if (data.rubric) out += rubric(data.rubric);
+      if (data.body) {
+        if (data.speaker) {
+          out += dialogue(data.speaker, data.body, data.speaker.toLowerCase() === 'all' || data.speaker.toLowerCase() === 'people');
+        } else {
+          out += `<div class="my-2 text-stone-900 whitespace-pre-line">${data.body}</div>`;
+        }
+      }
+      if (data.response) {
+        out += dialogue('People', data.response, true);
+      }
+      return out;
+    }
+
+    function renderSingleBlockContent(blk, day) {
+      if (blk.type === 'custom' && blk.customData) {
+        return renderCustomBlockHtml(blk.customData);
+      }
+      if (appState.overrides[blk.id] && appState.overrides[blk.id].body && !appState.overrides[blk.id].body.startsWith('Enter custom replacement')) {
+        return renderCustomBlockHtml(appState.overrides[blk.id]);
+      }
+
+      const id = blk.id;
+      let h = '';
+
+      if (id === 'greeting') {
+        h += rubric('The people stand as able. The officiating minister greets the community.');
+        if (appState.greeting === 'easter') {
+          h += dialogue('Celebrant', 'Alleluia! Christ is risen.');
+          h += dialogue('People', 'The Lord is risen indeed. Alleluia!', true);
+          h += dialogue('Celebrant', 'May his grace and peace be with you.');
+          h += dialogue('People', 'May he fill our hearts with joy.', true);
+        } else if (appState.greeting === 'lent') {
+          h += dialogue('Celebrant', 'Bless the Lord who forgives all our sins.');
+          h += dialogue('People', 'His mercy endures for ever.', true);
+        } else if (appState.greeting === 'epiphany') {
+          h += dialogue('Celebrant', 'I will make you as a light for the nations,');
+          h += dialogue('People', 'That my salvation may reach to the end of the earth.', true);
+        } else if (appState.greeting === 'morning_office') {
+          h += dialogue('Officiant', 'Lord, open our lips,');
+          h += dialogue('People', 'And our mouth shall proclaim your praise.', true);
+          h += dialogue('Officiant', 'O God, make speed to save us.');
+          h += dialogue('People', 'O Lord, make haste to help us.', true);
+          h += dialogue('All', 'Glory to the Father, and to the Son, and to the Holy Spirit: as it was in the beginning, is now, and will be for ever. Amen.', true);
+        } else if (appState.greeting === 'evening_office') {
+          h += dialogue('Officiant', 'Jesus Christ is the light of the world,');
+          h += dialogue('People', 'A light no darkness can extinguish.', true);
+        } else {
+          h += dialogue('Celebrant', 'The grace of our Lord Jesus Christ, and the love of God, and the fellowship of the Holy Spirit, be with you all.');
+          h += dialogue('People', 'And also with you.', true);
+        }
+        return h;
+      }
+
+      if (id === 'collect_purity') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Collect for Purity (BAS p. 185)</div>`;
+        h += rubric('The celebrant says');
+        h += dialogue('Celebrant', 'Almighty God, to you all hearts are open, all desires known, and from you no secrets are hidden. Cleanse the thoughts of our hearts by the inspiration of your Holy Spirit, that we may perfectly love you, and worthily magnify your holy name; through Christ our Lord.');
+        h += dialogue('People', 'Amen.', true);
+        return h;
+      }
+
+      if (id === 'canticle_praise') {
+        if (appState.canticle === 'kyrie') {
+          h += `<div class="bg-stone-50/70 p-3.5 rounded border border-stone-200/70">`;
+          h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Kyrie Eleison (BAS p. 186)</div>`;
+          h += dialogue('Leader', 'Lord, have mercy.');
+          h += dialogue('People', 'Christ, have mercy.', true);
+          h += dialogue('Leader', 'Lord, have mercy.');
+          h += `</div>`;
+        } else if (appState.canticle === 'trisagion') {
+          h += `<div class="bg-stone-50/70 p-3.5 rounded border border-stone-200/70">`;
+          h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Trisagion (BAS p. 187)</div>`;
+          h += dialogue('Celebrant', 'Holy God, holy and mighty, holy and immortal,');
+          h += dialogue('People', 'Have mercy on us. (Repeated three times)', true);
+          h += `</div>`;
+        } else if (appState.canticle === 'venite') {
+          h += `<div class="bg-stone-50/70 p-4 rounded border border-stone-200/70">`;
+          h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-2">Venite • Psalm 95:1-7 (BAS p. 49)</div>`;
+          h += `<div class="space-y-1.5 text-stone-800">
+            <p><strong>Come, let us sing to the Lord; let us shout for joy to the rock of our salvation.</strong></p>
+            <p><strong>Let us come before his presence with thanksgiving and raise a loud shout to him with psalms.</strong></p>
+            <p><strong>For the Lord is a great God, and a great king above all gods.</strong></p>
+            <p><strong>Come, let us bow down, and bend the knee, and kneel before the Lord our Maker.</strong></p>
+            <p><strong>For he is our God, and we are the people of his pasture and the sheep of his hand. Oh, that today you would hearken to his voice!</strong></p>
+          </div></div>`;
+        } else if (appState.canticle === 'jubilate') {
+          h += `<div class="bg-stone-50/70 p-4 rounded border border-stone-200/70">`;
+          h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-2">Jubilate • Psalm 100 (BAS p. 50)</div>`;
+          h += `<div class="space-y-1.5 text-stone-800">
+            <p><strong>Be joyful in the Lord, all you lands; serve the Lord with gladness and come before his presence with a song.</strong></p>
+            <p><strong>Know this: The Lord himself is God; he himself has made us, and we are his; we are his people and the sheep of his pasture.</strong></p>
+            <p><strong>Enter his gates with thanksgiving; go into his courts with praise; give thanks to him and call upon his name.</strong></p>
+            <p><strong>For the Lord is good; his mercy is everlasting; and his faithfulness endures from age to age.</strong></p>
+          </div></div>`;
+        } else if (appState.canticle === 'phos_hilaron') {
+          h += `<div class="bg-stone-50/70 p-4 rounded border border-stone-200/70">`;
+          h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-2">O Gracious Light • Phos Hilaron (BAS p. 62)</div>`;
+          h += `<div class="space-y-1.5 text-stone-800">
+            <p><strong>O gracious Light, pure brightness of the everliving Father in heaven,</strong></p>
+            <p><strong>O Jesus Christ, holy and blessed!</strong></p>
+            <p><strong>Now as we come to the setting of the sun, and our eyes behold the vesper light, we sing your praises, O God: Father, Son, and Holy Spirit.</strong></p>
+            <p><strong>You are worthy at all times to be praised by happy voices, O Son of God, O Giver of life, and to be glorified through all the worlds.</strong></p>
+          </div></div>`;
+        } else {
+          h += `<div class="bg-stone-50/70 p-4 rounded border border-stone-200/70">`;
+          h += rubric('When appointed, the following hymn of praise is sung or said.');
+          h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-2">Glory to God • Gloria in Excelsis (BAS p. 186)</div>`;
+          h += `<div class="space-y-2 text-stone-800">
+            <p><strong>Glory to God in the highest, and peace to his people on earth.</strong></p>
+            <p><strong>Lord God, heavenly King, almighty God and Father, we worship you, we give you thanks, we praise you for your glory.</strong></p>
+            <p><strong>Lord Jesus Christ, only Son of the Father, Lord God, Lamb of God, you take away the sin of the world: have mercy on us; you are seated at the right hand of the Father: receive our prayer.</strong></p>
+            <p><strong>For you alone are the Holy One, you alone are the Lord, you alone are the Most High, Jesus Christ, with the Holy Spirit, in the glory of God the Father. Amen.</strong></p>
+          </div></div>`;
+        }
+        return h;
+      }
+
+      if (id === 'collect_day') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Collect of the Day</div>`;
+        h += dialogue('Celebrant', 'Let us pray.');
+        h += rubric('The community prays silently for a short period.');
+        h += `<p class="my-2 text-stone-900">${day.collect}</p>`;
+        h += dialogue('People', 'Amen.', true);
+        return h;
+      }
+
+      if (id === 'reading1') {
+        const r1 = day.readings.reading1.tracks[day.readings.reading1.selectedTrack];
+        h += `<div class="flex items-baseline justify-between mb-1">
+          <span class="text-xs uppercase font-sans font-bold text-stone-600 tracking-wider">The First Reading</span>
+          <span class="text-xs font-sans font-semibold text-amber-900">${r1.citation}</span>
+        </div>`;
+        h += rubric('The people sit for the readings.');
+        h += dialogue('Reader', `A reading from ${r1.citation.split(' ')[0]}.`);
+        h += `<div class="my-2.5 text-stone-900 text-justify leading-relaxed whitespace-pre-line pl-3 border-l-2 border-stone-300">${r1.text}</div>`;
+        h += dialogue('Reader', 'The Word of the Lord.');
+        h += dialogue('People', 'Thanks be to God.', true);
+        return h;
+      }
+
+      if (id === 'psalm') {
+        const psm = day.readings.psalm;
+        h += `<div class="flex items-baseline justify-between mb-1">
+          <span class="text-xs uppercase font-sans font-bold text-stone-600 tracking-wider">The Psalm</span>
+          <span class="text-xs font-sans font-semibold text-amber-900">${psm.citation}</span>
+        </div>`;
+        h += rubric('The psalm is sung or said responsively.');
+        h += `<div class="my-2.5 space-y-1.5 pl-2">`;
+        psm.verses.forEach(v => {
+          h += `<div class="text-stone-800">
+            <span class="text-stone-700">${v.leader}</span><br>
+            <span class="response-people pl-4">${v.people}</span>
+          </div>`;
+        });
+        h += `</div>`;
+        if (appState.includePsalmPrayer && day.psalmPrayer) {
+          h += `<div class="mt-3 pt-2 border-t border-stone-200/50">`;
+          h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-0.5">Psalm Prayer (BAS Psalter)</div>`;
+          h += `<p class="text-stone-800 italic">${day.psalmPrayer}</p>`;
+          h += `</div>`;
+        }
+        return h;
+      }
+
+      if (id === 'reading2') {
+        const r2 = day.readings.reading2;
+        h += `<div class="flex items-baseline justify-between mb-1">
+          <span class="text-xs uppercase font-sans font-bold text-stone-600 tracking-wider">The Second Reading</span>
+          <span class="text-xs font-sans font-semibold text-amber-900">${r2.citation}</span>
+        </div>`;
+        h += dialogue('Reader', `A reading from ${r2.citation.split(' ')[0]}.`);
+        h += `<div class="my-2.5 text-stone-900 text-justify leading-relaxed whitespace-pre-line pl-3 border-l-2 border-stone-300">${r2.text}</div>`;
+        h += dialogue('Reader', 'The Word of the Lord.');
+        h += dialogue('People', 'Thanks be to God.', true);
+        return h;
+      }
+
+      if (id === 'gradual_gospel') {
+        const gsp = day.readings.gospel;
+        h += rubric('The people stand as able for the Gospel proclamation.');
+        if (appState.gospelAcclamation === 'lenten') {
+          h += `<div class="text-center my-2.5 py-1.5 px-3 bg-purple-50/60 rounded border border-purple-200/60 text-stone-700 font-sans text-xs uppercase tracking-wider font-semibold">
+            Praise to you, Lord Jesus Christ, King of endless glory!
+          </div>`;
+        } else if (appState.gospelAcclamation === 'benedictus') {
+          h += `<div class="bg-stone-50/70 p-3 rounded border border-stone-200/70 my-2.5 text-sm">
+            <div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Song of Zechariah • Benedictus (Luke 1:68-79, BAS p. 88)</div>
+            <p><strong>Blessed be the Lord, the God of Israel; he has come to his people and set them free. He has raised up for us a mighty Saviour, born of the house of his servant David... In the tender compassion of our God, the dawn from on high shall break upon us, to shine on those who dwell in darkness and the shadow of death, and to guide our feet into the way of peace.</strong></p>
+          </div>`;
+        } else if (appState.gospelAcclamation === 'magnificat') {
+          h += `<div class="bg-stone-50/70 p-3 rounded border border-stone-200/70 my-2.5 text-sm">
+            <div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Song of Mary • Magnificat (Luke 1:46-55, BAS p. 86)</div>
+            <p><strong>My soul proclaims the greatness of the Lord, my spirit rejoices in God my Saviour; for he has looked with favour on his lowly servant. From this day all generations will call me blessed: the Almighty has done great things for me, and holy is his name.</strong></p>
+          </div>`;
+        } else {
+          h += `<div class="text-center my-2.5 py-1.5 px-3 bg-amber-50/60 rounded border border-amber-200/60 text-stone-700 font-sans text-xs uppercase tracking-wider font-semibold">
+            Alleluia! Speak, Lord, for your servant is listening; you have the words of eternal life. Alleluia!
+          </div>`;
+        }
+
+        h += `<div class="flex items-baseline justify-between mb-1">
+          <span class="text-xs uppercase font-sans font-bold text-stone-600 tracking-wider">The Holy Gospel</span>
+          <span class="text-xs font-sans font-semibold text-amber-900">${gsp.citation}</span>
+        </div>`;
+        h += dialogue('Gospeller', 'The Lord be with you.');
+        h += dialogue('People', 'And also with you.', true);
+        h += dialogue('Gospeller', `The Holy Gospel of our Lord Jesus Christ according to ${gsp.citation.split(' ')[0]}.`);
+        h += dialogue('People', 'Glory to you, Lord Jesus Christ.', true);
+        h += `<div class="my-3 text-stone-900 text-justify leading-relaxed whitespace-pre-line pl-3 border-l-2 border-amber-600/60">${gsp.text}</div>`;
+        h += dialogue('Gospeller', 'The Gospel of Christ.');
+        h += dialogue('People', 'Praise to you, Lord Jesus Christ.', true);
+        return h;
+      }
+
+      if (id === 'sermon') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Sermon / Homily</div>`;
+        h += rubric('The people sit. A sermon or homily is preached, followed by a period of silent reflection.');
+        return h;
+      }
+
+      if (id === 'creed') {
+        if (appState.creed === 'none') return '';
+        h += rubric('The people stand as able to affirm the faith of the Church.');
+        if (appState.creed === 'apostles') {
+          h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-2">The Apostles' Creed (BAS p. 189)</div>`;
+          h += dialogue('Celebrant', 'Let us confess the faith of our baptism, as we say,');
+          h += `<div class="space-y-2 text-stone-800 mt-2">
+            <p><strong>I believe in God, the Father almighty, creator of heaven and earth.</strong></p>
+            <p><strong>I believe in Jesus Christ, his only Son, our Lord. He was conceived by the power of the Holy Spirit and born of the Virgin Mary. He suffered under Pontius Pilate, was crucified, died, and was buried. He descended to the dead. On the third day he rose again. He ascended into heaven, and is seated at the right hand of the Father. He will come again to judge the living and the dead.</strong></p>
+            <p><strong>I believe in the Holy Spirit, the holy catholic Church, the communion of saints, the forgiveness of sins, the resurrection of the body, and the life everlasting. Amen.</strong></p>
+          </div>`;
+        } else if (appState.creed === 'shema') {
+          h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-2">Hear, O Israel • The Shema (BAS p. 53)</div>`;
+          h += `<div class="bg-stone-50/70 p-3.5 rounded border border-stone-200/70 text-stone-800">
+            <p><strong>Hear, O Israel, the Lord our God, the Lord is one. Love the Lord your God with all your heart, with all your soul, with all your mind, and with all your strength.</strong></p>
+            <p class="mt-2"><strong>This is the first and great commandment. The second is like it: Love your neighbour as yourself. There is no commandment greater than these.</strong></p>
+          </div>`;
+        } else {
+          h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-2">The Nicene Creed (BAS p. 188)</div>`;
+          h += dialogue('Celebrant', 'Let us confess our faith, as we say,');
+          h += `<div class="space-y-2 text-stone-800 mt-2">
+            <p><strong>We believe in one God, the Father, the Almighty, maker of heaven and earth, of all that is, seen and unseen.</strong></p>
+            <p><strong>We believe in one Lord, Jesus Christ, the only Son of God, eternally begotten of the Father, God from God, Light from Light, true God from true God, begotten, not made, of one being with the Father; through him all things were made.</strong></p>
+            <p><strong>For us and for our salvation he came down from heaven, was incarnate of the Holy Spirit and the Virgin Mary and became truly human. For our sake he was crucified under Pontius Pilate; he suffered death and was buried. On the third day he rose again in accordance with the scriptures; he ascended into heaven and is seated at the right hand of the Father. He will come again in glory to judge the living and the dead, and his kingdom will have no end.</strong></p>
+            <p><strong>We believe in the Holy Spirit, the Lord, the giver of life, who proceeds from the Father and the Son, who with the Father and the Son is worshipped and glorified, who has spoken through the prophets.</strong></p>
+            <p><strong>We believe in one holy catholic and apostolic Church. We acknowledge one baptism for the forgiveness of sins. We look for the resurrection of the dead, and the life of the world to come. Amen.</strong></p>
+          </div>`;
+        }
+        return h;
+      }
+
+      if (id === 'prayers_people') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-2">The Prayers of the People</div>`;
+        h += rubric('The intercessor leads the prayers of the community. The people may stand, sit, or kneel.');
+        if (appState.prayers === 'litany2') {
+          h += `<div class="space-y-1.5">
+            ${dialogue('Leader', 'Let us pray with confidence to the Lord, saying, "Lord, hear our prayer."')}
+            ${dialogue('Leader', 'O Lord, guard and direct your Church in the way of unity, service, and praise.')}
+            ${dialogue('People', 'Lord, hear our prayer.', true)}
+            ${dialogue('Leader', 'Give to all nations an awareness of the unity of the human family.')}
+            ${dialogue('People', 'Lord, hear our prayer.', true)}
+            ${dialogue('Leader', 'Cleanse our hearts of prejudice and selfishness, and inspire us to clothe the naked and feed the hungry.')}
+            ${dialogue('People', 'Lord, hear our prayer.', true)}
+            ${dialogue('Leader', 'Teach us to enjoy the fruits of the earth in wisdom and gratitude.')}
+            ${dialogue('People', 'Lord, hear our prayer.', true)}
+            ${dialogue('Leader', 'Comfort and heal all those who suffer in body, mind, or spirit.')}
+            ${dialogue('People', 'Lord, hear our prayer.', true)}
+          </div>`;
+        } else if (appState.prayers === 'litany3') {
+          h += `<div class="space-y-1.5">
+            ${dialogue('Leader', 'Father, we pray for your holy catholic Church;')}
+            ${dialogue('People', 'That we all may be one.', true)}
+            ${dialogue('Leader', 'Grant that every member of the Church may truly and humbly serve you;')}
+            ${dialogue('People', 'That your name may be glorified by all people.', true)}
+            ${dialogue('Leader', 'We pray for all bishops, priests, and deacons;')}
+            ${dialogue('People', 'That they may be faithful ministers of your word and sacraments.', true)}
+            ${dialogue('Leader', 'We pray for all who govern and hold authority in the nations of the world;')}
+            ${dialogue('People', 'That there may be justice and peace on the earth.', true)}
+            ${dialogue('Leader', 'Have compassion on those who suffer from any grief or trouble;')}
+            ${dialogue('People', 'That they may be delivered from their distress.', true)}
+            ${dialogue('Leader', 'Give to the departed eternal rest;')}
+            ${dialogue('People', 'Let light perpetual shine upon them.', true)}
+          </div>`;
+        } else if (appState.prayers === 'litany4') {
+          h += `<div class="space-y-1.5">
+            ${dialogue('Leader', 'In peace let us pray to the Lord, saying, "Lord, have mercy."')}
+            ${dialogue('Leader', 'For the peace from above, for the loving-kindness of God, and for the salvation of our souls, let us pray to the Lord.')}
+            ${dialogue('People', 'Lord, have mercy.', true)}
+            ${dialogue('Leader', 'For the good earth which God has given us, and for the wisdom and will to conserve it, let us pray to the Lord.')}
+            ${dialogue('People', 'Lord, have mercy.', true)}
+            ${dialogue('Leader', 'For the poor and the oppressed, for the unemployed and the destitute, for prisoners and captives, and for all who remember and care for them, let us pray to the Lord.')}
+            ${dialogue('People', 'Lord, have mercy.', true)}
+          </div>`;
+        } else if (appState.prayers === 'litany14') {
+          h += `<div class="space-y-1.5">
+            ${dialogue('Leader', 'Let us give thanks to God our Father for all his gifts so freely bestowed upon us:')}
+            ${dialogue('Leader', 'For the beauty and wonder of your creation, in earth and sky and sea,')}
+            ${dialogue('People', 'We thank you, Lord.', true)}
+            ${dialogue('Leader', 'For all that is gracious in the lives of men and women, revealing the image of Christ,')}
+            ${dialogue('People', 'We thank you, Lord.', true)}
+            ${dialogue('Leader', 'For the communion of saints, in all times and places,')}
+            ${dialogue('People', 'We thank you, Lord.', true)}
+          </div>`;
+        } else if (appState.prayers === 'pastoral') {
+          h += `<div class="space-y-1.5">
+            ${dialogue('Leader', 'In communion with the saints of every age, let us offer our prayers to God, saying: "Lord, in your mercy, hear our prayer."')}
+            ${dialogue('Leader', 'For the peace of the world, for reconciliation with Indigenous peoples across Canada, and for faithful stewardship of creation.')}
+            ${dialogue('People', 'Lord, in your mercy, hear our prayer.', true)}
+            ${dialogue('Leader', 'For the Anglican Church of Canada, our Diocese, our Bishop, clergy, and lay pastoral assistants.')}
+            ${dialogue('People', 'Lord, in your mercy, hear our prayer.', true)}
+            ${dialogue('Leader', 'For our local community, for students and faculty at our universities and colleges, and for all who serve those in need.')}
+            ${dialogue('People', 'Lord, in your mercy, hear our prayer.', true)}
+            ${dialogue('Leader', 'For the sick, the grieving, and all who have asked for our prayers.')}
+            ${dialogue('People', 'Lord, in your mercy, hear our prayer.', true)}
+          </div>`;
+        } else {
+          h += `<div class="space-y-1.5">
+            ${dialogue('Leader', 'In peace let us pray to the Lord, saying, "Lord, have mercy."')}
+            ${dialogue('Leader', 'For peace from on high and for our salvation, let us pray to the Lord.')}
+            ${dialogue('People', 'Lord, have mercy.', true)}
+            ${dialogue('Leader', 'For the peace of the whole world, for the well-being of the Church of God, and for the unity of all, let us pray to the Lord.')}
+            ${dialogue('People', 'Lord, have mercy.', true)}
+            ${dialogue('Leader', 'For our bishops, and for all the clergy and people, let us pray to the Lord.')}
+            ${dialogue('People', 'Lord, have mercy.', true)}
+            ${dialogue('Leader', 'For this city and community, for every city and community, and for those who live in them in faith, let us pray to the Lord.')}
+            ${dialogue('People', 'Lord, have mercy.', true)}
+            ${dialogue('Leader', 'For the poor, the sick, the lonely, and for all who suffer, let us pray to the Lord.')}
+            ${dialogue('People', 'Lord, have mercy.', true)}
+          </div>`;
+        }
+        return h;
+      }
+
+      if (id === 'confession') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Confession and Absolution (BAS p. 191)</div>`;
+        h += rubric('The officiating minister invites the people to confession.');
+        h += dialogue('Celebrant', 'Dear friends in Christ, God is steadfast in love and infinite in mercy; he welcomes sinners and invites them to his table. Let us confess our sins, confident in God\'s forgiveness.');
+        h += rubric('Silence is kept.');
+        h += `<div class="my-2 text-stone-800 bg-stone-50/70 p-3.5 rounded border border-stone-200/70">
+          ${dialogue('All', 'Most merciful God, we confess that we have sinned against you in thought, word, and deed, by what we have done, and by what we have left undone. We have not loved you with our whole heart; we have not loved our neighbours as ourselves. We are truly sorry and we humbly repent. For the sake of your Son Jesus Christ, have mercy on us and forgive us, that we may delight in your will, and walk in your ways, to the glory of your name. Amen.', true)}
+        </div>`;
+        if (appState.riteKey === 'word_lay' || appState.riteKey === 'morning_prayer' || appState.riteKey === 'evening_prayer') {
+          h += rubric('A lay officiant prays for pardon including themselves ("us"):');
+          h += dialogue('Officiant', 'Almighty God have mercy upon us, pardon and deliver us from all our sins, confirm and strengthen us in all goodness, and keep us in eternal life; through Jesus Christ our Lord.');
+        } else {
+          h += rubric('The bishop or priest pronounces the absolution:');
+          h += dialogue('Celebrant', 'Almighty God have mercy upon you, pardon and deliver you from all your sins, confirm and strengthen you in all goodness, and keep you in eternal life; through Jesus Christ our Lord.');
+        }
+        h += dialogue('People', 'Amen.', true);
+        return h;
+      }
+
+      if (id === 'peace') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Peace (BAS p. 192)</div>`;
+        h += rubric('All stand. The presiding celebrant addresses the people.');
+        h += dialogue('Celebrant', 'The peace of the Lord be always with you.');
+        h += dialogue('People', 'And also with you.', true);
+        h += rubric('The members of the community greet one another in the name of the Lord.');
+        return h;
+      }
+
+      if (id === 'offertory_gifts') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Preparation of the Gifts &amp; Prayer over the Gifts</div>`;
+        h += rubric('The bread and wine, and the offerings of the people, are presented at the holy table.');
+        h += dialogue('Celebrant', 'Let us pray.');
+        h += `<p class="my-2 text-stone-900">${day.prayerOverGifts || 'Gracious God, accept the offerings we bring this day, and sustain us by the gift of your presence; through Jesus Christ our Lord. Amen.'}</p>`;
+        h += dialogue('People', 'Amen.', true);
+        return h;
+      }
+
+      if (id === 'eucharistic_prayer') {
+        const prefaceText = getProperPrefaceText(day);
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Great Thanksgiving (${appState.eucharisticPrayer.replace('prayer', 'Eucharistic Prayer ')})</div>`;
+        h += rubric('The people remain standing.');
+        h += `<div class="space-y-1 mb-4">
+          ${dialogue('Celebrant', 'The Lord be with you.')}
+          ${dialogue('People', 'And also with you.', true)}
+          ${dialogue('Celebrant', 'Lift up your hearts.')}
+          ${dialogue('People', 'We lift them to the Lord.', true)}
+          ${dialogue('Celebrant', 'Let us give thanks to the Lord our God.')}
+          ${dialogue('People', 'It is right to give our thanks and praise.', true)}
+        </div>`;
+
+        h += `<div class="text-stone-900 leading-relaxed space-y-3">`;
+        if (appState.eucharisticPrayer === 'prayer2') {
+          h += `<p>We give thanks to you, O God, for the goodness and love which you have made known to us in creation; in the calling of Israel to be your people; in your Word spoken through the prophets; and above all in the Word made flesh, Jesus your Son.</p>`;
+        } else if (appState.eucharisticPrayer === 'prayer4') {
+          h += `<p>It is right to give you thanks and praise, O Lord, our God, sustainer of the universe, you are worthy of glory and praise. At your command all things came to be: the vast expanse of interstellar space, galaxies, suns, the planets in their courses, and this fragile earth, our island home; by your will they were created and have their being.</p>`;
+        } else if (appState.eucharisticPrayer === 'prayer5') {
+          h += `<p>We give you thanks and praise, almighty God, through your beloved Son, Jesus Christ, our Saviour and Redeemer. He is your living Word, through whom you have created all things. By the power of the Holy Spirit he took flesh of the Virgin Mary and shared our human nature. He lived and died as one of us, to reconcile us to you, the God and Father of all.</p>`;
+        } else if (appState.eucharisticPrayer === 'prayer6') {
+          h += `<p>It is right to glorify you, Father, and to give you thanks; for you alone are God, living and true, dwelling in light inaccessible from before time and for ever. Fountain of life and source of all goodness, you made all things and fill them with your blessing.</p>`;
+        } else {
+          h += `<p>Blessed are you, gracious God, creator of heaven and earth; we give you thanks and praise through Jesus Christ our Lord. <span class="italic text-amber-950">${prefaceText}</span></p>`;
+          h += `<p>Therefore we praise you, joining our voices with angels and archangels and with all the company of heaven, who for ever sing this hymn to proclaim the glory of your name:</p>`;
+        }
+
+        h += `<div class="bg-stone-50/70 p-3.5 rounded border border-stone-200/70 my-3">
+          <div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Sanctus and Benedictus</div>
+          <p><strong>Holy, holy, holy Lord, God of power and might, heaven and earth are full of your glory. Hosanna in the highest. Blessed is he who comes in the name of the Lord. Hosanna in the highest.</strong></p>
+        </div>`;
+
+        h += `<p>On the night he was handed over to suffering and death, our Lord Jesus Christ took bread; and when he had given thanks to you, he broke it, and gave it to his disciples, and said, "Take, eat: this is my body which is given for you. Do this for the remembrance of me."</p>`;
+        h += `<p>After supper he took the cup of wine; and when he had given thanks, he gave it to them, and said, "Drink this, all of you: this is my blood of the new covenant, which is shed for you and for many for the forgiveness of sins. Whenever you drink it, do this for the remembrance of me."</p>`;
+        h += `<p class="font-sans text-xs uppercase font-bold text-stone-500 tracking-wider my-1.5">Memorial Acclamation</p>`;
+        h += `<p><strong>Christ has died. Christ is risen. Christ will come again.</strong></p>`;
+        h += `<p>Recalling his death, resurrection, and ascension, we offer you these gifts. Sanctify them by your Holy Spirit to be for your people the Body and Blood of your Son, the holy food and drink of new and unending life in him. Sanctify us also that we may faithfully receive this holy sacrament, and serve you in unity, constancy, and peace.</p>`;
+        h += `<p>Through Christ, with Christ, and in Christ, in the unity of the Holy Spirit, all glory and honour are yours, almighty Father, now and for ever.</p>`;
+        h += dialogue('People', 'Amen.', true);
+        h += `</div>`;
+        return h;
+      }
+
+      if (id === 'lords_prayer') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Lord's Prayer (BAS p. 211)</div>`;
+        if (appState.lordsPrayer === 'traditional') {
+          h += dialogue('Celebrant', 'And now, as our Saviour Christ hath taught us, we are bold to say,');
+          h += `<div class="my-2 space-y-1 text-stone-800">
+            <p><strong>Our Father, who art in heaven, hallowed be thy name, thy kingdom come, thy will be done, on earth as it is in heaven.</strong></p>
+            <p><strong>Give us this day our daily bread.</strong></p>
+            <p><strong>And forgive us our trespasses, as we forgive them that trespass against us.</strong></p>
+            <p><strong>And lead us not into temptation, but deliver us from evil.</strong></p>
+            <p><strong>For thine is the kingdom, the power, and the glory, for ever and ever. Amen.</strong></p>
+          </div>`;
+        } else {
+          h += dialogue('Celebrant', 'As our Saviour taught us, let us pray,');
+          h += `<div class="my-2 space-y-1 text-stone-800">
+            <p><strong>Our Father in heaven, hallowed be your name, your kingdom come, your will be done, on earth as in heaven.</strong></p>
+            <p><strong>Give us today our daily bread.</strong></p>
+            <p><strong>Forgive us our sins as we forgive those who sin against us.</strong></p>
+            <p><strong>Save us from the time of trial, and deliver us from evil.</strong></p>
+            <p><strong>For the kingdom, the power, and the glory are yours, now and for ever. Amen.</strong></p>
+          </div>`;
+        }
+        return h;
+      }
+
+      if (id === 'fraction_communion') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Breaking of the Bread (BAS pp. 212-213)</div>`;
+        h += rubric('The celebrant breaks the consecrated bread for distribution.');
+        if (appState.fraction === 'fraction2') {
+          h += dialogue('Celebrant', 'Creator of all, you gave us golden fields of wheat, whose many grains we have gathered and made into this one bread.');
+          h += dialogue('People', 'So may your Church be gathered from the ends of the earth into your kingdom.', true);
+        } else if (appState.fraction === 'fraction3') {
+          h += dialogue('Celebrant', 'God of promise, you have prepared a banquet for us.');
+          h += dialogue('People', 'Happy are those who are called to the supper of the Lamb.', true);
+        } else if (appState.fraction === 'fraction5') {
+          h += dialogue('Celebrant', 'We break this bread,');
+          h += dialogue('People', 'Communion in Christ\'s body once broken.', true);
+          h += dialogue('Celebrant', 'Let your Church be the wheat which bears its fruit in dying.');
+          h += dialogue('People', 'If we have died with him, we shall live with him; if we hold firm, we shall reign with him.', true);
+        } else if (appState.fraction === 'fraction6') {
+          h += dialogue('Celebrant', 'Lord, we died with you on the cross.');
+          h += dialogue('People', 'Now we are raised to new life.', true);
+          h += dialogue('Celebrant', 'We were buried in your tomb.');
+          h += dialogue('People', 'Now we share in your resurrection.', true);
+          h += dialogue('Celebrant', 'Live in us, that we may live in you.');
+        } else {
+          h += dialogue('Celebrant', 'We break this bread to share in the body of Christ.');
+          h += dialogue('People', 'We, being many, are one body, for we all share in the one bread.', true);
+        }
+        h += `<div class="mt-3 pt-2 border-t border-stone-200/50">
+          <div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Communion</div>
+          ${dialogue('Celebrant', 'The gifts of God for the People of God.')}
+          ${dialogue('People', 'Thanks be to God.', true)}
+          ${rubric('The celebrant and people receive communion.')}
+        </div>`;
+        return h;
+      }
+
+      if (id === 'post_communion') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Prayer after Communion</div>`;
+        h += rubric('The people stand as the celebrant leads the post-communion prayer.');
+        h += dialogue('Celebrant', 'Let us pray.');
+        h += `<p class="my-2 text-stone-900">${day.prayerAfterCommunion || 'Almighty God, may we who have been nourished at this table grow in love and holiness, and serve you faithfully in the world; through Jesus Christ our Lord. Amen.'}</p>`;
+        h += dialogue('People', 'Amen.', true);
+        return h;
+      }
+
+      if (id === 'doxology') {
+        h += `<div class="bg-stone-50/70 p-3.5 rounded border border-stone-200/70">
+          <div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Doxology (BAS p. 214)</div>
+          ${dialogue('All', 'Glory to God, whose power, working in us, can do infinitely more than we can ask or imagine. Glory to God from generation to generation, in the Church and in Christ Jesus, for ever and ever. Amen.', true)}
+        </div>`;
+        return h;
+      }
+
+      if (id === 'blessing_dismissal') {
+        if (appState.riteKey === 'word_lay' || appState.riteKey === 'morning_prayer' || appState.riteKey === 'evening_prayer') {
+          h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Grace &amp; Dismissal (BAS p. 55)</div>`;
+          h += dialogue('All', 'The grace of our Lord Jesus Christ, and the love of God, and the fellowship of the Holy Spirit, be with us all evermore. Amen.', true);
+        } else {
+          h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Blessing &amp; Dismissal</div>`;
+          h += rubric('The bishop or priest blesses the people.');
+          h += dialogue('Celebrant', 'The peace of God, which passes all understanding, keep your hearts and minds in the knowledge and love of God, and of his Son Jesus Christ our Lord; and the blessing of God Almighty, the Father, the Son, and the Holy Spirit, be amongst you and remain with you always.');
+          h += dialogue('People', 'Amen.', true);
+        }
+        h += `<div class="mt-3">`;
+        h += rubric('The deacon or leader dismisses the community.');
+        if (appState.greeting === 'easter') {
+          h += dialogue('Leader', 'Go in peace to love and serve the Lord. Alleluia!');
+          h += dialogue('People', 'Thanks be to God. Alleluia!', true);
+        } else {
+          h += dialogue('Leader', 'Go forth in the name of Christ.');
+          h += dialogue('People', 'Thanks be to God.', true);
+        }
+        h += `</div>`;
+        return h;
+      }
+
+      return '';
+    }
+
+    function renderService() {
+      const day = getCurrentDay();
+      const parish = document.getElementById('parishTitle').value || "All Saints' Anglican Church";
+      const dateNote = document.getElementById('serviceDateInput').value || "";
+      const riteSelect = document.getElementById('ritePreset');
+      const riteTitle = riteSelect.options[riteSelect.selectedIndex].text.split(' (')[0];
+      const sheet = document.getElementById('serviceSheet');
+
+      let html = '';
+
+      html += `
+        <div class="text-center pb-6 border-b border-stone-300/80 mb-6">
+          <div class="text-xs uppercase tracking-widest font-sans font-semibold text-stone-500 mb-1">${parish}</div>
+          <h1 class="text-2xl sm:text-3xl font-cinzel font-bold text-stone-900 tracking-wide">${riteTitle}</h1>
+          <div class="text-sm font-sans font-medium text-amber-900 mt-1">${day.name}</div>
+          ${dateNote ? `<div class="text-xs font-sans text-stone-600 mt-0.5">${dateNote}</div>` : ''}
+          <div class="text-xs text-stone-500 italic mt-0.5">The Book of Alternative Services (1985) • Anglican Church of Canada</div>
+        </div>
+      `;
+
+      let currentSection = '';
+      const activeBlocks = appState.blocks.map((b, idx) => ({ block: b, index: idx })).filter(x => x.block.enabled);
+
+      activeBlocks.forEach(({ block, index }) => {
+        const blockHtml = renderSingleBlockContent(block, day);
+        if (!blockHtml) return;
+
+        if (block.section && block.section !== currentSection && block.section !== 'Custom Insertion') {
+          currentSection = block.section;
+          html += `
+            <div class="mt-7 mb-3">
+              <h2 class="text-lg font-cinzel font-bold text-stone-800 uppercase tracking-wider border-b border-stone-300 pb-1">
+                ${currentSection}
+              </h2>
+            </div>
+          `;
+        }
+
+        const inlineToolbar = appState.showInlineControls ? `
+          <div class="block-hover-controls no-print opacity-0 transition-opacity flex items-center space-x-1 bg-stone-100 border border-stone-300 rounded px-1.5 py-0.5 text-xs font-sans">
+            <button type="button" onclick="window.moveBlockGlobal(${index}, -1)" class="px-1 hover:text-amber-800" title="Move Up">↑</button>
+            <button type="button" onclick="window.moveBlockGlobal(${index}, 1)" class="px-1 hover:text-amber-800" title="Move Down">↓</button>
+            <button type="button" onclick="window.editBlockGlobal('${block.id}')" class="px-1 hover:text-amber-800" title="Edit Text/Rubric">✎ Edit</button>
+            <button type="button" onclick="window.insertAfterGlobal('${block.id}')" class="px-1 hover:text-emerald-700" title="Insert Element Below">+ Insert Below</button>
+            <button type="button" onclick="window.removeBlockGlobal(${index})" class="px-1 text-red-700 hover:text-red-900" title="Remove from Service">×</button>
+          </div>
+        ` : '';
+
+        html += `
+          <div class="service-block-wrapper relative py-3 border-b border-stone-200/60 group">
+            <div class="flex items-center justify-end mb-0.5">
+              ${inlineToolbar}
+            </div>
+            ${blockHtml}
+          </div>
+        `;
+      });
+
+      sheet.innerHTML = html;
+    }
+
+    window.moveBlockGlobal = function(idx, dir) { moveBlock(idx, dir); };
+    window.editBlockGlobal = function(id) { openBlockModal(id); };
+    window.insertAfterGlobal = function(id) { openBlockModal(null, id); };
+    window.removeBlockGlobal = function(idx) { removeOrDisableBlock(idx); };
+  </script>
+</body>
+</html>
