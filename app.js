@@ -1,7 +1,3 @@
-/**
- * digitalbas - Application State & Sequencer Logic
- */
-
 let appState = {
       riteKey: 'eucharist',
       selectedDayKey: 'proper28',
@@ -53,6 +49,22 @@ let appState = {
       appState.blocks = cloneBlocks(RITE_SEQUENCES[riteKey] || RITE_SEQUENCES.eucharist);
 
       if (applyRiteDefaults) {
+        const riteToOccasion = {
+          baptism: 'baptism_occasion',
+          confirmation: 'confirmation_occasion',
+          marriage: 'marriage_occasion',
+          funeral: 'funeral_occasion',
+          ordination: 'ordination_occasion',
+          new_ministry: 'new_ministry_occasion',
+          reconciliation_sick: 'healing'
+        };
+        if (riteToOccasion[riteKey] && LECTIONARY_DATA[riteToOccasion[riteKey]]) {
+          appState.selectedDayKey = riteToOccasion[riteKey];
+          const feastEl = document.getElementById('feastPreset');
+          if (feastEl) feastEl.value = appState.selectedDayKey;
+          loadDayData(appState.selectedDayKey);
+        }
+
         if (riteKey === 'lenten_eucharist') {
           appState.greeting = 'lent';
           appState.canticle = 'kyrie';
@@ -72,11 +84,27 @@ let appState = {
           appState.greeting = 'standard';
           appState.canticle = 'gloria';
           appState.creed = 'apostles';
+        } else if (riteKey === 'funeral') {
+          appState.greeting = 'easter';
+          appState.creed = 'apostles';
+          appState.preface = 'commemoration_dead';
+          appState.fraction = 'fraction6';
+        } else if (riteKey === 'marriage') {
+          appState.greeting = 'standard';
+          appState.preface = 'marriage';
+        } else if (riteKey === 'baptism') {
+          appState.greeting = 'easter';
+          appState.preface = 'baptism';
+        } else if (riteKey === 'ordination') {
+          appState.greeting = 'standard';
+          appState.creed = 'nicene';
+          appState.preface = 'apostles_ordination';
         } else {
           appState.greeting = 'standard';
           appState.canticle = 'gloria';
           appState.gospelAcclamation = 'alleluia';
           appState.creed = 'nicene';
+          appState.preface = 'auto';
         }
         syncFormSelectsFromState();
       }
@@ -718,7 +746,7 @@ let appState = {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `digitalbas-service-${appState.selectedDayKey}.json`;
+      a.download = `bas-service-${appState.selectedDayKey}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -772,6 +800,397 @@ let appState = {
 
       const id = blk.id;
       let h = '';
+
+
+      if (id === 'baptism_presentation') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Presentation and Examination of the Candidates (BAS p. 153)</div>`;
+        h += rubric('The celebrant, candidates, parents, and sponsors gather at the baptismal font.');
+        h += dialogue('Celebrant', 'The candidate(s) for Holy Baptism will now be presented.');
+        h += rubric('For Adult & Older Child Candidates:');
+        h += dialogue('Sponsor', 'I present N. to receive the sacrament of baptism.');
+        h += dialogue('Celebrant', 'Do you desire to be baptized?');
+        h += dialogue('Candidate', 'I do.');
+        h += rubric('For Infants and Young Children, the parents and sponsors say:');
+        h += dialogue('Parents & Sponsors', 'I present N. to receive the sacrament of baptism.');
+        h += dialogue('Celebrant', 'Will you be responsible for seeing that the child you present is nurtured in the faith and life of the Christian community?');
+        h += dialogue('Parents & Sponsors', 'I will, with God\'s help.', true);
+        h += dialogue('Celebrant', 'Will you by your prayers and witness help this child to grow into the full stature of Christ?');
+        h += dialogue('Parents & Sponsors', 'I will, with God\'s help.', true);
+        h += `<div class="mt-3 pt-2 border-t border-stone-200/60">`;
+        h += rubric('Then the celebrant asks the candidates, or the parents and sponsors who speak on behalf of infants:');
+        h += dialogue('Celebrant', 'Do you renounce Satan and all the spiritual forces of wickedness that rebel against God?');
+        h += dialogue('Answer', 'I renounce them.', true);
+        h += dialogue('Celebrant', 'Do you renounce the evil powers of this world which corrupt and destroy the creatures of God?');
+        h += dialogue('Answer', 'I renounce them.', true);
+        h += dialogue('Celebrant', 'Do you renounce all sinful desires that draw you from the love of God?');
+        h += dialogue('Answer', 'I renounce them.', true);
+        h += dialogue('Celebrant', 'Do you turn to Jesus Christ and accept him as your Saviour?');
+        h += dialogue('Answer', 'I do.', true);
+        h += dialogue('Celebrant', 'Do you put your whole trust in his grace and love?');
+        h += dialogue('Answer', 'I do.', true);
+        h += dialogue('Celebrant', 'Do you promise to obey him as your Lord?');
+        h += dialogue('Answer', 'I do.', true);
+        h += rubric('The celebrant addresses the congregation:');
+        h += dialogue('Celebrant', 'Will you who witness these vows do all in your power to support these persons in their life in Christ?');
+        h += dialogue('People', 'We will.', true);
+        h += `</div>`;
+        return h;
+      }
+
+      if (id === 'baptism_prayers_covenant') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Prayers for the Candidates &amp; The Baptismal Covenant (BAS pp. 156–159)</div>`;
+        h += rubric('All stand as the celebrant invites the people to pray for the candidates and renew the Baptismal Covenant.');
+        h += dialogue('Leader', 'Let us now pray for these persons who are to receive the sacrament of new birth [or renew their baptismal commitment].');
+        h += dialogue('Leader', 'Deliver them, O Lord, from the way of sin and death.');
+        h += dialogue('People', 'Lord, hear our prayer.', true);
+        h += dialogue('Leader', 'Open their hearts to your grace and truth.');
+        h += dialogue('People', 'Lord, hear our prayer.', true);
+        h += dialogue('Leader', 'Fill them with your holy and life-giving Spirit.');
+        h += dialogue('People', 'Lord, hear our prayer.', true);
+        h += dialogue('Leader', 'Teach them to love others in the power of the Spirit.');
+        h += dialogue('People', 'Lord, hear our prayer.', true);
+        h += dialogue('Leader', 'Send them into the world in witness to your love.');
+        h += dialogue('People', 'Lord, hear our prayer.', true);
+        h += dialogue('Leader', 'Bring them to the fullness of your peace and glory.');
+        h += dialogue('People', 'Lord, hear our prayer.', true);
+        h += `<div class="my-3 bg-stone-50/70 p-3.5 rounded border border-stone-200/70 space-y-1.5">`;
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Baptismal Covenant (BAS p. 158)</div>`;
+        h += dialogue('Celebrant', 'Do you believe in God the Father?');
+        h += dialogue('People', 'I believe in God, the Father almighty, creator of heaven and earth.', true);
+        h += dialogue('Celebrant', 'Do you believe in Jesus Christ, the Son of God?');
+        h += dialogue('People', 'I believe in Jesus Christ, his only Son, our Lord. He was conceived by the power of the Holy Spirit and born of the Virgin Mary. He suffered under Pontius Pilate, was crucified, died, and was buried. He descended to the dead. On the third day he rose again. He ascended into heaven, and is seated at the right hand of the Father. He will come again to judge the living and the dead.', true);
+        h += dialogue('Celebrant', 'Do you believe in God the Holy Spirit?');
+        h += dialogue('People', 'I believe in the Holy Spirit, the holy catholic Church, the communion of saints, the forgiveness of sins, the resurrection of the body, and the life everlasting.', true);
+        h += dialogue('Celebrant', 'Will you continue in the apostles\' teaching and fellowship, in the breaking of bread, and in the prayers?');
+        h += dialogue('People', 'I will, with God\'s help.', true);
+        h += dialogue('Celebrant', 'Will you persevere in resisting evil and, whenever you fall into sin, repent and return to the Lord?');
+        h += dialogue('People', 'I will, with God\'s help.', true);
+        h += dialogue('Celebrant', 'Will you proclaim by word and example the good news of God in Christ?');
+        h += dialogue('People', 'I will, with God\'s help.', true);
+        h += dialogue('Celebrant', 'Will you seek and serve Christ in all persons, loving your neighbour as yourself?');
+        h += dialogue('People', 'I will, with God\'s help.', true);
+        h += dialogue('Celebrant', 'Will you strive for justice and peace among all people, and respect the dignity of every human being?');
+        h += dialogue('People', 'I will, with God\'s help.', true);
+        h += dialogue('Celebrant', 'Will you strive to safeguard the integrity of God\'s creation, and respect, sustain, and renew the life of the earth?');
+        h += dialogue('People', 'I will, with God\'s help.', true);
+        h += `</div>`;
+        return h;
+      }
+
+      if (id === 'baptism_water_thanksgiving') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Thanksgiving over the Water (BAS p. 160)</div>`;
+        h += rubric('Water is poured into the font. The celebrant leads the Thanksgiving over the Water.');
+        h += dialogue('Celebrant', 'The Lord be with you.');
+        h += dialogue('People', 'And also with you.', true);
+        h += dialogue('Celebrant', 'Let us give thanks to the Lord our God.');
+        h += dialogue('People', 'It is right to give our thanks and praise.', true);
+        h += `<div class="my-2 space-y-2 text-stone-900">
+          <p>We thank you, Almighty God, for the gift of water. Over water the Holy Spirit moved in the beginning of creation. Through water you led the children of Israel out of their bondage in Egypt into the land of promise. In water your Son Jesus received the baptism of John and was anointed by the Holy Spirit as the Messiah, the Christ, to lead us, through his death and resurrection, from the bondage of sin into everlasting life.</p>
+          <p>We thank you, Father, for the water of baptism. In it we are buried with Christ in his death. By it we share in his resurrection. Through it we are reborn by the Holy Spirit. Therefore in joyful obedience to your Son, we bring into his fellowship those who come to him in faith, baptizing them in the name of the Father, and of the Son, and of the Holy Spirit.</p>
+          <p>Now sanctify this water by the power of your Holy Spirit, that those who here are cleansed from sin and born again may continue for ever in the risen life of Jesus Christ our Saviour. To him, to you, and to the Holy Spirit, be all honour and glory, now and for ever.</p>
+        </div>`;
+        h += dialogue('People', 'Amen.', true);
+        return h;
+      }
+
+      if (id === 'baptism_act_welcome') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Baptism, Chrismation, Giving of the Light &amp; Welcome (BAS pp. 161–162)</div>`;
+        h += rubric('Each candidate is presented by name to the celebrant, who pours water upon them three times, saying:');
+        h += dialogue('Celebrant', 'N., I baptize you in the name of the Father, and of the Son, and of the Holy Spirit.');
+        h += dialogue('People', 'Amen.', true);
+        h += rubric('The celebrant makes the sign of the cross on the forehead of the newly baptized (using Chrism if desired), saying:');
+        h += dialogue('Celebrant', 'I sign you with the cross, and mark you as Christ\'s own for ever.');
+        h += dialogue('People', 'Amen.', true);
+        h += rubric('The celebrant gives to each of the newly baptized (or a sponsor) a lighted candle from the Paschal Candle, saying:');
+        h += dialogue('Celebrant', 'Receive the light of Christ, to show that you have passed from darkness to light.');
+        h += dialogue('People', 'Let your light so shine before others that they may see your good works and glorify your Father in heaven.', true);
+        h += `<div class="mt-3 pt-2 border-t border-stone-200/60">`;
+        h += dialogue('Celebrant', 'Let us welcome the newly baptized.');
+        h += dialogue('All', 'We receive you into the household of God. Confess the faith of Christ crucified, proclaim his resurrection, and share with us in his eternal priesthood.', true);
+        h += `</div>`;
+        return h;
+      }
+
+      if (id === 'confirmation_presentation') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Presentation of Candidates for Confirmation, Reception &amp; Reaffirmation (BAS p. 625)</div>`;
+        h += rubric('The candidates and presenters stand before the Bishop.');
+        h += dialogue('Presenter', 'I present these persons for Confirmation [or to be received into this Communion / to reaffirm their baptismal vows].');
+        h += dialogue('Bishop', 'Do you reaffirm your renunciation of evil?');
+        h += dialogue('Candidates', 'I do.', true);
+        h += dialogue('Bishop', 'Do you renew your commitment to Jesus Christ?');
+        h += dialogue('Candidates', 'I do, and with God\'s grace I will follow him as my Saviour and Lord.', true);
+        h += rubric('The Bishop addresses the congregation:');
+        h += dialogue('Bishop', 'Will you who witness these vows do all in your power to support these persons in their life in Christ?');
+        h += dialogue('People', 'We will.', true);
+        return h;
+      }
+
+      if (id === 'confirmation_laying_hands') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Prayer for the Spirit &amp; The Laying on of Hands (BAS pp. 627–628)</div>`;
+        h += rubric('The Bishop stands and extends hands towards the candidates.');
+        h += dialogue('Bishop', 'Almighty God, we thank you that by the death and resurrection of your Son Jesus Christ you have overcome sin and brought us to yourself, and that by the sealing of your Holy Spirit you have bound us to your service. Renew in these your servants the covenant you made with them at their baptism. Send them forth in the power of that Spirit to perform the service you set before them; through Jesus Christ your Son our Lord, who lives and reigns with you and the Holy Spirit, one God, now and for ever.');
+        h += dialogue('People', 'Amen.', true);
+        h += rubric('For Confirmation, the Bishop lays hands upon each candidate and says:');
+        h += `<div class="my-2 bg-stone-50/70 p-3 rounded border border-stone-200/70 space-y-2">
+          ${dialogue('Bishop', 'Strengthen, O Lord, your servant N. with your Holy Spirit; empower him/her for your service; and sustain him/her all the days of his/her life.')}
+          <div class="text-xs text-stone-500 italic">or</div>
+          ${dialogue('Bishop', 'Defend, O Lord, your servant N. with your heavenly grace, that he/she may continue yours for ever, and daily increase in your Holy Spirit more and more, until he/she comes to your everlasting kingdom.')}
+          ${dialogue('People', 'Amen.', true)}
+        </div>`;
+        h += rubric('For Reception into the Anglican Communion:');
+        h += dialogue('Bishop', 'N., we recognize you as a member of the one, holy, catholic, and apostolic Church, and we receive you into the fellowship of this Communion. God, the Father, Son, and Holy Spirit, bless, preserve, and keep you.');
+        h += rubric('For Reaffirmation of Baptismal Vows:');
+        h += dialogue('Bishop', 'N., may the Holy Spirit, who has begun a good work in you, direct and uphold you in the service of Christ and his kingdom.');
+        h += dialogue('People', 'Amen.', true);
+        return h;
+      }
+
+      if (id === 'marriage_exhortation') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Gathering &amp; Address on Christian Marriage (BAS p. 528)</div>`;
+        h += rubric('The bride and groom stand before the celebrant with their witnesses.');
+        h += dialogue('Celebrant', 'The grace of our Lord Jesus Christ, and the love of God, and the fellowship of the Holy Spirit, be with you all.');
+        h += dialogue('People', 'And also with you.', true);
+        h += `<div class="my-2 space-y-2 text-stone-900">
+          <p>Dear friends, we have come together in the presence of God to witness the marriage of N. and N., and to rejoice with them. Marriage is a gift of God and a means of his grace, in which man and woman become one flesh. It is God's purpose that, as husband and wife give themselves to each other in love, they shall grow together and be united in that love, as Christ is united with his Church.</p>
+          <p>Therefore, marriage is not to be entered into lightly or selfishly, but reverently, responsibly, and after serious thought. Into this holy union N. and N. now come to be joined. If anyone present knows of any reason why these persons may not lawfully marry, they must declare it now.</p>
+        </div>`;
+        return h;
+      }
+
+      if (id === 'marriage_declaration') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Declaration of Intent (BAS p. 529)</div>`;
+        h += rubric('The celebrant addresses the woman and the man individually:');
+        h += dialogue('Celebrant', 'N., will you give yourself to N. to be her husband / his wife: to live together in the covenant of marriage? Will you love him/her, comfort him/her, honour and keep him/her, in sickness and in health; and, forsaking all others, be faithful to him/her so long as you both shall live?');
+        h += dialogue('Bride / Groom', 'I will.', true);
+        h += rubric('The celebrant addresses the families and congregation:');
+        h += dialogue('Celebrant', 'Will all of you who witness these vows do all in your power to support these two persons in their marriage?');
+        h += dialogue('People', 'We will.', true);
+        return h;
+      }
+
+      if (id === 'marriage_vows') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Exchange of Vows (BAS p. 533)</div>`;
+        h += rubric('The bride and groom face each other and join hands.');
+        h += `<div class="my-2 bg-stone-50/70 p-3.5 rounded border border-stone-200/70 space-y-2 text-stone-900">
+          ${dialogue('Groom', 'In the presence of God and before this community, I, N., take you, N., to be my wife; to have and to hold from this day forward, for better, for worse, for richer, for poorer, in sickness and in health, to love and to cherish, for the rest of our lives, according to God\'s holy law. This is my solemn vow.', true)}
+          ${dialogue('Bride', 'In the presence of God and before this community, I, N., take you, N., to be my husband; to have and to hold from this day forward, for better, for worse, for richer, for poorer, in sickness and in health, to love and to cherish, for the rest of our lives, according to God\'s holy law. This is my solemn vow.', true)}
+        </div>`;
+        return h;
+      }
+
+      if (id === 'marriage_rings') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Giving of Rings &amp; Proclamation of Marriage (BAS p. 534)</div>`;
+        h += rubric('The celebrant blesses the rings:');
+        h += dialogue('Celebrant', 'Bless, O Lord, these rings to be signs of the vows by which this man and this woman have bound themselves to each other; through Jesus Christ our Lord.');
+        h += dialogue('People', 'Amen.', true);
+        h += rubric('The giver places the ring on the ring-finger of the other\'s hand and says:');
+        h += dialogue('Each', 'N., I give you this ring as a symbol of my vow, and with all that I am, and all that I have, I honour you, in the name of the Father, and of the Son, and of the Holy Spirit.', true);
+        h += rubric('The bride and groom join hands. The celebrant proclaims:');
+        h += dialogue('Celebrant', 'N. and N. have joined themselves to each other by solemn vows, signified by the joining of hands and the giving and receiving of rings. I declare that they are husband and wife, in the name of the Father, and of the Son, and of the Holy Spirit. Those whom God has joined together let no one put asunder.');
+        h += dialogue('People', 'Amen.', true);
+        return h;
+      }
+
+      if (id === 'marriage_blessing') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Nuptial Blessing (BAS p. 536)</div>`;
+        h += rubric('The husband and wife kneel or stand before the celebrant.');
+        h += `<div class="my-2 space-y-2 text-stone-900">
+          <p>Most gracious God, we give you thanks for your tender love in making us in your image, and calling us to mutual love and service. We thank you for setting the covenant of marriage in the heart of your creation as a sign of Christ's faithful love for his Church.</p>
+          <p>Look with favour upon N. and N., whom you have united in marriage this day. Give them wisdom and devotion in the ordering of their common life, that each may be to the other a strength in need, a counsellor in perplexity, a comfort in sorrow, and a companion in joy. Grant that their wills may be so knit together in your will, and their spirits in your Spirit, that they may grow in love and peace with you and one another all the days of their life.</p>
+          <p>God the Father, God the Son, God the Holy Spirit, bless, preserve, and keep you; the Lord mercifully with his favour look upon you, and fill you with all spiritual benediction and grace; that you may faithfully live together in this life, and in the age to come have life everlasting.</p>
+        </div>`;
+        h += dialogue('People', 'Amen.', true);
+        return h;
+      }
+
+      if (id === 'marriage_signing') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Signing of the Marriage Register</div>`;
+        h += rubric('The bride, groom, witnesses, and officiating minister sign the marriage register while music or an anthem is offered.');
+        return h;
+      }
+
+      if (id === 'funeral_reception') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Reception of the Body &amp; Opening Sentences (BAS p. 571)</div>`;
+        h += rubric('The minister meets the body at the entrance of the church. A pall may be placed upon the coffin, and the Paschal Candle stands near it.');
+        h += `<div class="my-2 bg-stone-50/70 p-3.5 rounded border border-stone-200/70 space-y-2 text-stone-900">
+          <p><strong>I am the resurrection and the life, says the Lord; whoever lives and believes in me shall never die, andatus though they die, yet shall they live.</strong> (John 11:25-26)</p>
+          <p><strong>For none of us lives to himself, and none of us dies to himself. If we live, we live to the Lord, and if we die, we die to the Lord; so then, whether we live or whether we die, we are the Lord's.</strong> (Romans 14:7-8)</p>
+          <p><strong>Blessed are the dead who die in the Lord; even so, says the Spirit, for they rest from their labours.</strong> (Revelation 14:13)</p>
+        </div>`.replace("andatus ", "");
+        return h;
+      }
+
+      if (id === 'funeral_eulogy') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Words of Remembrance / Tribute</div>`;
+        h += rubric('A family member or friend may offer brief words of remembrance and thanksgiving for the life of N.');
+        return h;
+      }
+
+      if (id === 'funeral_prayers') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Funeral Litany &amp; Thanksgiving (BAS p. 579)</div>`;
+        h += rubric('The people stand or kneel as able.');
+        h += dialogue('Leader', 'Let us pray to our Lord Jesus Christ who said, "I am the resurrection and the life."');
+        h += dialogue('Leader', 'Lord, you consoled Martha and Mary in their distress; draw near to us who mourn for N., and dry the tears of those who weep.');
+        h += dialogue('People', 'Hear us, Lord.', true);
+        h += dialogue('Leader', 'You wept at the grave of Lazarus, your friend; comfort us in our sorrow.');
+        h += dialogue('People', 'Hear us, Lord.', true);
+        h += dialogue('Leader', 'You raised the dead to life; give to our brother/sister eternal life.');
+        h += dialogue('People', 'Hear us, Lord.', true);
+        h += dialogue('Leader', 'You promised paradise to the repentant thief; bring N. to the joys of heaven.');
+        h += dialogue('People', 'Hear us, Lord.', true);
+        h += dialogue('Leader', 'Our brother/sister was washed in baptism and anointed with the Holy Spirit; give him/her fellowship with all your saints.');
+        h += dialogue('People', 'Hear us, Lord.', true);
+        h += dialogue('Leader', 'Comfort us in our sorrow at the death of our brother/sister; let our faith be our consolation, and eternal life our hope.');
+        h += dialogue('People', 'Amen.', true);
+        return h;
+      }
+
+      if (id === 'funeral_commendation') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Commendation (BAS p. 582)</div>`;
+        h += rubric('The celebrant and assisting ministers take their places at the coffin. All stand.');
+        h += `<div class="my-2 bg-stone-50/70 p-3.5 rounded border border-stone-200/70 space-y-1.5 text-stone-900">
+          ${dialogue('Celebrant', 'Give rest, O Christ, to your servant with your saints,')}
+          ${dialogue('People', 'Where sorrow and pain are no more, neither sighing, but life everlasting.', true)}
+          ${dialogue('Celebrant', 'You only are immortal, the creator and maker of all; and we are mortal, formed of the earth, and to earth shall we return. For so did you ordain when you created me, saying, "You are dust, and to dust you shall return." All of us go down to the dust; yet even at the grave we make our song: Alleluia, alleluia, alleluia.')}
+          ${dialogue('People', 'Give rest, O Christ, to your servant with your saints, where sorrow and pain are no more, neither sighing, but life everlasting.', true)}
+        </div>`;
+        h += rubric('The celebrant faces the body and says the Prayer of Commendation:');
+        h += `<p class="my-2 text-stone-900">Into your hands, O merciful Saviour, we commend your servant N. Acknowledge, we humbly beseech you, a sheep of your own fold, a lamb of your own flock, a sinner of your own redeeming. Receive him/her into the arms of your mercy, into the blessed rest of everlasting peace, and into the glorious company of the saints in light.</p>`;
+        h += dialogue('People', 'Amen.', true);
+        h += rubric('As the body is borne from the church, the Song of Simeon (Nunc Dimittis) or "In Paradisum" may be sung or said:');
+        h += `<p class="italic text-stone-800 mt-2">"May the angels lead you into paradise; may the martyrs come to welcome you and take you to the holy city, the new and eternal Jerusalem."</p>`;
+        return h;
+      }
+
+      if (id === 'funeral_committal') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Committal (BAS p. 585)</div>`;
+        h += rubric('At the graveside, columbarium, or crematorium, the celebrant says:');
+        h += `<p class="my-2 text-stone-900">In the midst of life we are in death; from whom can we seek help? From you alone, O Lord, who by our sins are justly angered.<strong> Holy God, holy and mighty, holy and merciful Saviour, deliver us not into the bitterness of eternal death.</strong></p>`;
+        h += rubric('Earth may be cast upon the coffin as the celebrant says the Words of Committal:');
+        h += `<div class="my-2 bg-stone-50/70 p-3.5 rounded border border-stone-200/70 text-stone-900">
+          <p>In sure and certain hope of the resurrection to eternal life through our Lord Jesus Christ, we commend to Almighty God our brother/sister N., and we commit his/her body to the ground [or the deep / the elements / its resting place]; <strong>earth to earth, ashes to ashes, dust to dust.</strong> The Lord bless him/her and keep him/her, the Lord make his face to shine upon him/her and be gracious to him/her, the Lord lift up his countenance upon him/her and give him/her peace.</p>
+        </div>`;
+        h += dialogue('People', 'Amen.', true);
+        h += dialogue('Celebrant', 'Rest eternal grant unto him/her, O Lord.');
+        h += dialogue('People', 'And let light perpetual shine upon him/her.', true);
+        h += dialogue('Celebrant', 'May his/her soul, and the souls of all the departed, through the mercy of God, rest in peace.');
+        h += dialogue('People', 'Amen.', true);
+        return h;
+      }
+
+      if (id === 'ordination_presentation') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Presentation of the Candidate(s) (BAS p. 644 / p. 653)</div>`;
+        h += rubric('The Bishop sits in the episcopal chair. Clerical and lay presenters stand before the Bishop with the candidate(s).');
+        h += dialogue('Presenters', 'N., Bishop in the Church of God, on behalf of the clergy and people of the Diocese of ______, we ask you to ordain N. to the office of priest [or deacon].');
+        h += dialogue('Bishop', 'Have you seen to it that he/she is a suitable person to be ordained?');
+        h += dialogue('Presenters', 'We have inquired about him/her and examined him/her, and we believe that he/she is a person of prayer and sound learning, and of godly life and character.');
+        h += dialogue('Bishop', 'Knowing this, do you believe that N. has been called by God to the ministry of a priest [or deacon]?');
+        h += dialogue('Presenters', 'We believe that he/she has been so called.');
+        h += rubric('The candidate makes and signs the Oaths and Subscriptions. The Bishop then addresses the people:');
+        h += dialogue('Bishop', 'Dear friends in Christ, you know the importance of this ministry, and you have heard the judgment of those who have commended N. Is it your will that he/she be ordained?');
+        h += dialogue('People', 'It is.', true);
+        h += dialogue('Bishop', 'Will you uphold him/her in this ministry?');
+        h += dialogue('People', 'We will.', true);
+        return h;
+      }
+
+      if (id === 'ordination_examination') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Examination of the Candidate (BAS p. 645 / p. 654)</div>`;
+        h += rubric('All sit except the Bishop and the candidate(s), who stand before the Bishop.');
+        h += `<div class="my-2 space-y-2 text-stone-900">
+          <p><strong>Bishop:</strong> My brother/sister, the Church is the family of God, the body of Christ, and the temple of the Holy Spirit. All baptized people are called to make Christ known as Saviour and Lord, and to share in the renewing of his world. Now you are called to work as a pastor, priest, and teacher [or as a deacon in the Church], together with your bishop and fellow presbyters.</p>
+          ${dialogue('Bishop', 'Do you believe that you are truly called by God and his Church to this ministry?')}
+          ${dialogue('Candidate', 'I believe I am so called.', true)}
+          ${dialogue('Bishop', 'Do you now in the presence of the Church commit yourself to this trust and responsibility?')}
+          ${dialogue('Candidate', 'I do.', true)}
+          ${dialogue('Bishop', 'Will you be guided by the pastoral direction and leadership of your bishop?')}
+          ${dialogue('Candidate', 'I will, by the grace of God.', true)}
+          ${dialogue('Bishop', 'Will you be faithful in prayer, and in the reading and study of the holy scriptures, that you may nourish Christ\'s people from the riches of his grace?')}
+          ${dialogue('Candidate', 'I will, by the grace of God.', true)}
+          ${dialogue('Bishop', 'Will you pattern your life and that of your household in accordance with the teachings of Christ, so that you may be a wholesome example to all people?')}
+          ${dialogue('Candidate', 'I will, by the grace of God.', true)}
+          ${dialogue('Bishop', 'May the Lord who has given you the will to do these things give you the grace and power to perform them.')}
+          ${dialogue('People', 'Amen.', true)}
+        </div>`;
+        return h;
+      }
+
+      if (id === 'ordination_litany') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Litany for Ordinations &amp; Veni Creator Spiritus (BAS p. 660)</div>`;
+        h += rubric('All kneel as able, and the candidate(s) lie prostrate or kneel during the Litany for Ordinations and the hymn Veni Creator Spiritus.');
+        h += `<div class="my-2 space-y-1.5">
+          ${dialogue('Leader', 'In peace let us pray to the Lord.')}
+          ${dialogue('People', 'Lord, have mercy.', true)}
+          ${dialogue('Leader', 'For all bishops, priests, and deacons, that they may be filled with your Holy Spirit to preach the word and serve your people, let us pray to the Lord.')}
+          ${dialogue('People', 'Lord, have mercy.', true)}
+          ${dialogue('Leader', 'For N., chosen to be a priest [or deacon] in the Church, that he/she may faithfully fulfill the duties of this ministry, let us pray to the Lord.')}
+          ${dialogue('People', 'Lord, have mercy.', true)}
+        </div>`;
+        h += `<div class="bg-stone-50/70 p-3.5 rounded border border-stone-200/70 my-2 text-stone-800">
+          <div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Veni Creator Spiritus (Come, Holy Ghost)</div>
+          <p><strong>Come, Holy Ghost, our souls inspire, and lighten with celestial fire. Thou the anointing Spirit art, who dost thy sevenfold gifts impart.</strong></p>
+        </div>`;
+        return h;
+      }
+
+      if (id === 'ordination_consecration') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Consecration of the Ordinand (BAS p. 647 / p. 656)</div>`;
+        h += rubric('The candidate kneels before the Bishop. In silence, the Bishop (and presbyters at the ordination of a priest) lays hands upon the head of the ordinand.');
+        h += `<div class="my-2 space-y-2 text-stone-900">
+          <p>God and Father of all, we praise you for your infinite love in calling us to be a holy people in the kingdom of your Son Jesus our Lord, who is the image of your eternal and invisible glory, the firstborn among many brethren, and the head of the Church.</p>
+          <p class="font-semibold text-amber-950">Therefore, Father, through Jesus Christ your Son, give your Holy Spirit to N.; fill him/her with grace and power, and make him/her a priest [or deacon] in your Church.</p>
+          <p>May he/she exalt you, O Lord, in the midst of your people; offer spiritual sacrifices acceptable to you; boldly proclaim the gospel of salvation; and preside at the sacraments of the new covenant with reverent and joyful heart. Through Jesus Christ our Lord, who lives and reigns with you and the Holy Spirit, one God, now and for ever.</p>
+        </div>`;
+        h += dialogue('People', 'Amen. (Acclaimed by all)', true);
+        return h;
+      }
+
+      if (id === 'ordination_vesting') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">The Vesting &amp; Giving of the Bible and Symbols of Ministry (BAS p. 650)</div>`;
+        h += rubric('The newly ordained is vested according to their order. The Bishop presents the Bible (and chalice/paten for a priest), saying:');
+        h += dialogue('Bishop', 'Receive this Bible as a sign of the authority given you to preach the Word of God and to administer his holy sacraments. Do not forget the trust committed to you as a priest [or deacon] of the Church of God.');
+        h += dialogue('People', 'Amen.', true);
+        return h;
+      }
+
+      if (id === 'ministry_presentation') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Presentation &amp; Covenant of New Ministry (BAS p. 668)</div>`;
+        h += rubric('The churchwardens and presenters stand with the new incumbent or pastoral minister before the Bishop or Regional Dean.');
+        h += dialogue('Wardens', 'We present N. to be inducted [or commissioned] to the ministry of Word, Sacrament, and Pastoral Care in this parish.');
+        h += dialogue('Officiant', 'N., do you commit yourself to this new trust and responsibility, in partnership with the people of this congregation?');
+        h += dialogue('Minister', 'I do, with God\'s help.', true);
+        h += dialogue('Officiant', 'People of God, will you support and uphold N. in this shared ministry of Christ?');
+        h += dialogue('People', 'We will, with God\'s help.', true);
+        return h;
+      }
+
+      if (id === 'ministry_presentations_symbols') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Presentation of the Symbols of Ministry (BAS p. 670)</div>`;
+        h += rubric('Representatives of the congregation present symbols of ministry:');
+        h += `<div class="my-2 space-y-1.5 text-stone-800">
+          <p><strong>The Bible:</strong> "N., accept this Bible, and be among us as one who proclaims the Word of God." — <strong>Amen.</strong></p>
+          <p><strong>Water:</strong> "N., take this water, and help us to be a household of faith reborn in baptism." — <strong>Amen.</strong></p>
+          <p><strong>Book of Alternative Services &amp; Canons:</strong> "N., receive this book of prayer and order, and lead us in the worship and fellowship of the Church." — <strong>Amen.</strong></p>
+          <p><strong>Oil of Healing:</strong> "N., use this oil of healing, and be among us as a reconciler and healer." — <strong>Amen.</strong></p>
+          <p><strong>Keys of the Church:</strong> "N., receive the keys of this church, and let the doors of this place be open to all people." — <strong>Amen.</strong></p>
+          <p><strong>Bread and Wine:</strong> "N., take this bread and wine, and preside among us at the breaking of the bread." — <strong>Amen.</strong></p>
+        </div>`;
+        return h;
+      }
+
+      if (id === 'reconciliation_confession') {
+        h += `<div class="text-xs uppercase font-sans font-semibold tracking-wider text-stone-500 mb-1">Ministry of Healing, Anointing &amp; Reconciliation (BAS pp. 555, 614)</div>`;
+        h += rubric('For the Reconciliation of a Penitent (BAS p. 614):');
+        h += dialogue('Penitent', 'Bless me, for I have sinned. I confess to Almighty God, to his Church, and to you, that I have sinned by my own fault in thought, word, and deed... For these and all other sins which I cannot now remember, I am truly sorry, I pray God to have mercy on me, and I ask for your counsel, direction, and absolution.');
+        h += dialogue('Priest', 'Our Lord Jesus Christ, who has left power to his Church to absolve all sinners who truly repent and believe in him, of his great mercy forgive you all your offences; and by his authority committed to me, I absolve you from all your sins: in the name of the Father, and of the Son, and of the Holy Spirit.');
+        h += dialogue('Penitent', 'Amen.', true);
+        h += `<div class="mt-3 pt-2 border-t border-stone-200/60">`;
+        h += rubric('For the Laying on of Hands and Anointing of the Sick (BAS p. 555):');
+        h += dialogue('Minister', 'N., I lay my hands upon you and anoint you with oil in the name of the Father, and of the Son, and of the Holy Spirit, beseeching our Lord Jesus Christ to sustain you with his presence, to drive away all sickness of body and spirit, and to give you that victory of life and peace which will enable you to serve him both now and evermore.');
+        h += dialogue('People', 'Amen.', true);
+        h += `</div>`;
+        return h;
+      }
 
       if (id === 'greeting') {
         h += rubric('The people stand as able. The officiating minister greets the community.');

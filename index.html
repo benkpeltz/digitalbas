@@ -123,6 +123,11 @@
             <option value="baptism_renewal">Renewal of Baptismal Covenant (BAS p. 158)</option>
             <option value="pastoral_blessing">Pastoral Blessing (Birthdays, Anniversaries, Commissioning)</option>
             <option value="banns">Banns of Marriage (BAS p. 549)</option>
+            <option value="commissioning_lay">Commissioning of Lay Ministries / LPAs / Lay Readers</option>
+            <option value="home_communion">Communion under Special Circumstances (Home / Hospital, BAS p. 557)</option>
+            <option value="thanksgiving_child">Thanksgiving for the Gift of a Child (BAS p. 519)</option>
+            <option value="emergency_baptism">Emergency Baptism (BAS p. 166)</option>
+            <option value="prayers_dying">Prayers with the Dying &amp; Commendation (BAS p. 562)</option>
             <option value="custom_reading">Additional Scripture Lesson or Canticle</option>
             <option value="custom_prayer">Custom Prayer, Collect, or Liturgical Text</option>
           </select>
@@ -191,30 +196,51 @@
         <div>
           <label for="ritePreset" class="block text-xs font-medium text-stone-600 mb-1">BAS Service Rite / Liturgical Form:</label>
           <select id="ritePreset" class="w-full text-xs sm:text-sm bg-amber-50/60 border border-amber-300 rounded px-2.5 py-2 text-stone-900 font-medium focus:ring-2 focus:ring-amber-600 focus:outline-none">
-            <option value="eucharist">The Holy Eucharist (BAS p. 185 – Standard Order)</option>
-            <option value="lenten_eucharist">Penitential / Lenten Eucharist (BAS p. 188 – Confession at Gathering)</option>
-            <option value="word_lay">Service of the Word / Lay-Led Liturgy (BAS p. 130 – For LPAs &amp; Lay Readers)</option>
-            <option value="morning_prayer">Morning Prayer: The Daily Office (BAS p. 47 – Venite, Readings, Benedictus)</option>
-            <option value="evening_prayer">Evening Prayer: Service of Light (BAS p. 62 – Phos Hilaron, Magnificat)</option>
+            <optgroup label="Sunday &amp; Daily Worship">
+              <option value="eucharist">The Holy Eucharist (BAS p. 185 – Standard Order)</option>
+              <option value="lenten_eucharist">Penitential / Lenten Eucharist (BAS p. 188 – Confession at Gathering)</option>
+              <option value="word_lay">Service of the Word / Lay-Led Liturgy (BAS p. 130 – For LPAs &amp; Lay Readers)</option>
+              <option value="morning_prayer">Morning Prayer: The Daily Office (BAS p. 47 – Venite, Readings, Benedictus)</option>
+              <option value="evening_prayer">Evening Prayer: Service of Light (BAS p. 62 – Phos Hilaron, Magnificat)</option>
+            </optgroup>
+            <optgroup label="Special Services: Sacramental, Pastoral &amp; Episcopal Rites">
+              <option value="baptism">Holy Baptism with Eucharist (BAS p. 150 – Presentation, Covenant &amp; Water)</option>
+              <option value="confirmation">Confirmation, Reception &amp; Reaffirmation of Vows (BAS p. 622 – Episcopal Rite)</option>
+              <option value="marriage">Celebration &amp; Blessing of a Marriage (BAS p. 528 – Vows, Rings &amp; Blessing)</option>
+              <option value="funeral">The Funeral Liturgy &amp; Commendation (BAS p. 571 – Reception, Eucharist &amp; Committal)</option>
+              <option value="ordination">The Ordination of a Priest, Deacon, or Bishop (BAS p. 634 – Presentation &amp; Consecration)</option>
+              <option value="new_ministry">Celebration of a New Ministry / Induction / Commissioning (BAS p. 667)</option>
+              <option value="reconciliation_sick">Ministry to the Sick &amp; Reconciliation of a Penitent (BAS pp. 551, 613)</option>
+            </optgroup>
           </select>
         </div>
 
         <div>
           <label for="feastPreset" class="block text-xs font-medium text-stone-600 mb-1">Select Lectionary Sunday, Feast, or Pastoral Occasion:</label>
           <select id="feastPreset" class="w-full text-xs sm:text-sm bg-stone-50 border border-stone-300 rounded px-2.5 py-2 text-stone-900 focus:ring-2 focus:ring-amber-600 focus:outline-none">
-            <option value="proper28">21st Sunday after Pentecost (Proper 28, Year B)</option>
-            <option value="allsaints">All Saints' Day / All Saints' Sunday (November 1)</option>
-            <option value="advent1">First Sunday of Advent (Year C)</option>
-            <option value="christmas">Christmas Day (The Nativity of our Lord)</option>
-            <option value="epiphany">The Epiphany of the Lord (January 6)</option>
-            <option value="ash_wednesday">Ash Wednesday / First Sunday in Lent</option>
-            <option value="good_friday">Good Friday (The Passion of our Lord)</option>
-            <option value="easter">Easter Day (The Resurrection of our Lord)</option>
-            <option value="pentecost">The Day of Pentecost (Whitsunday)</option>
-            <option value="trinity">Trinity Sunday (First Sunday after Pentecost)</option>
-            <option value="reign_of_christ">The Reign of Christ (Last Sunday after Pentecost)</option>
-            <option value="healing">Pastoral Liturgy of Healing &amp; Wholeness (BAS p. 551)</option>
-            <option value="custom">Custom Sunday / Parish Occasion</option>
+            <optgroup label="Liturgical Year &amp; Principal Feasts">
+              <option value="proper28">21st Sunday after Pentecost (Proper 28, Year B)</option>
+              <option value="allsaints">All Saints' Day / All Saints' Sunday (November 1)</option>
+              <option value="advent1">First Sunday of Advent (Year C)</option>
+              <option value="christmas">Christmas Day (The Nativity of our Lord)</option>
+              <option value="epiphany">The Epiphany of the Lord (January 6)</option>
+              <option value="ash_wednesday">Ash Wednesday / First Sunday in Lent</option>
+              <option value="good_friday">Good Friday (The Passion of our Lord)</option>
+              <option value="easter">Easter Day (The Resurrection of our Lord)</option>
+              <option value="pentecost">The Day of Pentecost (Whitsunday)</option>
+              <option value="trinity">Trinity Sunday (First Sunday after Pentecost)</option>
+              <option value="reign_of_christ">The Reign of Christ (Last Sunday after Pentecost)</option>
+            </optgroup>
+            <optgroup label="Special Services &amp; Pastoral Lectionary">
+              <option value="baptism_occasion">At Holy Baptism (BAS p. 163 Readings &amp; Collects)</option>
+              <option value="confirmation_occasion">At Confirmation, Reception, or Reaffirmation (BAS p. 629)</option>
+              <option value="marriage_occasion">At a Marriage / Wedding (BAS p. 531 Readings &amp; Nuptial Propers)</option>
+              <option value="funeral_occasion">At a Funeral / Memorial Service (BAS p. 575 Readings &amp; Propers)</option>
+              <option value="ordination_occasion">At an Ordination of a Bishop, Priest, or Deacon (BAS p. 663)</option>
+              <option value="new_ministry_occasion">At a Celebration of a New Ministry / Commissioning (BAS p. 667)</option>
+              <option value="healing">Pastoral Liturgy of Healing &amp; Wholeness (BAS p. 551)</option>
+              <option value="custom">Custom Sunday / Parish Occasion</option>
+            </optgroup>
           </select>
         </div>
 
@@ -494,6 +520,10 @@
             <option value="pentecost">Pentecost / Holy Spirit (BAS p. 223)</option>
             <option value="trinity">Trinity Sunday (BAS p. 224)</option>
             <option value="allsaints">All Saints &amp; Commemorations (BAS p. 225)</option>
+            <option value="baptism">Holy Baptism &amp; Christian Initiation (BAS p. 225)</option>
+            <option value="marriage">Holy Matrimony / Marriage (BAS p. 225)</option>
+            <option value="commemoration_dead">Commemoration of the Dead / Funeral (BAS p. 226)</option>
+            <option value="apostles_ordination">Apostles &amp; Ordinations (BAS p. 224)</option>
           </select>
         </div>
 
