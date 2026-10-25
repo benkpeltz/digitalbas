@@ -1,23 +1,22 @@
 /**
- * Service Worker for digitalbas on https://benkpeltz.github.io/digitalbas/
- * - Cache-isolated with CACHE_PREFIX = 'digitalbas-'
- * - Ignores any request outside '/digitalbas'
+ * Service Worker for digitalbas on https://digitalbas.benpeltz.ca/
+ * - Configured for dedicated custom subdomain origin (root scope '/')
  * - Uses Network-First (with offline cache fallback) so index.html and manifest.json never serve stale versions
  */
 
 const CACHE_PREFIX = 'digitalbas-';
-const CACHE_NAME = 'digitalbas-v2';
+const CACHE_NAME = 'digitalbas-v3';
 
 const PRECACHE_URLS = [
-  '/digitalbas/',
-  '/digitalbas/index.html',
-  '/digitalbas/manifest.json?v=2',
-  '/digitalbas/styles.css',
-  '/digitalbas/lectionary-data.js',
-  '/digitalbas/app.js',
-  '/digitalbas/icon-192.png',
-  '/digitalbas/icon-512.png',
-  '/digitalbas/icon.svg'
+  '/',
+  '/index.html',
+  '/manifest.json?v=3',
+  '/styles.css',
+  '/lectionary-data.js',
+  '/app.js',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -45,7 +44,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  if (!event.request.url.includes('/digitalbas')) return;
+  if (!event.request.url.startsWith(self.location.origin)) return;
 
   event.respondWith(
     fetch(event.request)
@@ -60,7 +59,7 @@ self.addEventListener('fetch', (event) => {
       })
       .catch(() =>
         caches.match(event.request).then((cachedResponse) => {
-          return cachedResponse || caches.match('/digitalbas/index.html');
+          return cachedResponse || caches.match('/index.html');
         })
       )
   );
