@@ -1,3 +1,7 @@
+/**
+ * digitalbas - Liturgical & Lectionary Database (BAS 1985)
+ */
+
 const LECTIONARY_DATA = {
       proper28: {
         name: "21st Sunday after Pentecost (Proper 28, Year B)",
@@ -1181,4 +1185,165 @@ const LECTIONARY_DATA = {
         { id: "post_communion", type: "builtin", label: "Prayer after Communion", section: "The Sending Forth", enabled: true },
         { id: "blessing_dismissal", type: "builtin", label: "Pastoral Blessing & Dismissal", section: "The Sending Forth", enabled: true }
       ]
+    };
+
+    const INSTRUCTIVE_GUIDE = {
+      rites: {
+        eucharist: {
+          title: "The Holy Eucharist (BAS p. 185)",
+          significance: "The principal Sunday act of Christian worship in the Book of Alternative Services. Patterned on the ancient two-fold structure described by Justin Martyr (c. 150 AD), it unites the Proclamation of the Word (Scripture, Sermon, Creed, Intercessions, Confession, Peace) with the Celebration of the Eucharist (Preparation of Gifts, Great Thanksgiving, Breaking of the Bread, and Communion).",
+          whenToUse: "Normative for Sundays, Principal Feasts, and major parish celebrations."
+        },
+        lenten_eucharist: {
+          title: "Penitential / Lenten Eucharist (BAS p. 188)",
+          significance: "Moves the Penitential Rite (Confession and Absolution) to the very beginning of the service during the Gathering, rather than after the Prayers of the People. Approaching the altar first through self-examination and God's mercy sets a solemn, reflective tone.",
+          whenToUse: "Appointed for Ash Wednesday, the Sundays in Lent, or penitential occasions."
+        },
+        word_lay: {
+          title: "Service of the Word / Lay-Led Liturgy (BAS p. 130)",
+          significance: "Designed specifically for Lay Pastoral Assistants (LPAs), Lay Readers, or congregations when a priest is not present, or for non-eucharistic worship. It preserves the full Liturgy of the Word, uses the inclusive lay pardon prayer ('Almighty God have mercy upon us...'), and concludes with the Lord's Prayer, Doxology, and Grace.",
+          whenToUse: "When a Lay Reader or LPA leads Sunday worship in the absence of a priest, or for mid-week/special Services of the Word."
+        },
+        morning_prayer: {
+          title: "Morning Prayer: The Daily Office (BAS p. 47)",
+          significance: "Rooted in the ancient cathedral and monastic daily prayer of the Church and Cranmer's Book of Common Prayer heritage. Morning Prayer sanctifies the beginning of the day with the Invitatory Psalm (Venite or Jubilate), appointed Psalmody, Scripture lessons, and the Gospel Canticle of Zechariah (Benedictus).",
+          whenToUse: "Daily morning worship, lay-led Sunday Morning Prayer, or parish study gatherings."
+        },
+        evening_prayer: {
+          title: "Evening Prayer: Service of Light (BAS p. 62)",
+          significance: "Opens with the ancient Lucernarium (Service of Light) and the 3rd-century hymn Phos Hilaron ('O Gracious Light'), giving thanks for Christ as the light that no darkness can extinguish, followed by Psalmody, Scripture, and Mary's song of justice and mercy (Magnificat).",
+          whenToUse: "Late afternoon or evening worship, Choral Evensong adaptations, or vigil services."
+        },
+        baptism: {
+          title: "Holy Baptism with Eucharist (BAS p. 150)",
+          significance: "The BAS restores Baptism to the main Sunday assembly as the foundational sacrament of Christian initiation. Candidates (or parents and godparents on behalf of infants) renounce evil, profess the Apostles' Creed, and join the whole congregation in renewing the six-fold Baptismal Covenant before the Thanksgiving over the Water, triple pouring/immersion, Chrismation (signing with oil), and receiving the lighted candle.",
+          whenToUse: "Particularly appropriate at the Easter Vigil, Easter Day, Pentecost, All Saints' Day, the Baptism of the Lord, or when the Bishop is present."
+        },
+        confirmation: {
+          title: "Confirmation, Reception & Reaffirmation of Vows (BAS p. 622)",
+          significance: "An episcopal rite presided over by the Bishop. Those baptized in infancy make a mature public affirmation of faith (Confirmation); baptized Christians from other denominations are welcomed into the Anglican Communion (Reception); or adults renew their baptismal commitment (Reaffirmation) with the laying on of the Bishop's hands and prayer for the sevenfold gift of the Holy Spirit.",
+          whenToUse: "Episcopal visitations and diocesan confirmation services."
+        },
+        marriage: {
+          title: "Celebration and Blessing of a Marriage (BAS p. 528)",
+          significance: "Presents Christian marriage as a lifelong covenant grounded in baptism. In Anglican theology, the bride and groom are the ministers of the sacrament to one another through their exchange of vows and rings, while the clergy and congregation act as witnesses and invoke God's nuptial blessing (with or without a Nuptial Eucharist).",
+          whenToUse: "Weddings and blessings of civil marriages (toggle the Nuptial Eucharist blocks on or off depending on pastoral context)."
+        },
+        funeral: {
+          title: "The Funeral Liturgy & Commendation (BAS p. 571)",
+          significance: "Framed explicitly as an Easter liturgy of resurrection hope (hence white or purple vestments and the Paschal Candle standing by the coffin). It holds together honest human grief and Christian hope, culminating in the ancient Kontakion ('Give rest, O Christ, to your servant with your saints'), the Prayer of Commendation, and the Committal.",
+          whenToUse: "Church funerals, memorial services (with ashes present or absent), and graveside committals."
+        },
+        ordination: {
+          title: "The Ordination of a Bishop, Priest, or Deacon (BAS p. 634)",
+          significance: "Grounds ordained ministry within the baptized people of God. Includes public presentation and acclamation by the assembly, the Bishop's examination, the prostration/kneeling during the Litany for Ordinations and Veni Creator Spiritus, and the epicletic Consecratory Prayer with the laying on of hands.",
+          whenToUse: "Diocesan ordinations of deacons, priests (presbyters), or bishops."
+        },
+        new_ministry: {
+          title: "Celebration of a New Ministry / Induction / Commissioning (BAS p. 667)",
+          significance: "Celebrates the mutual covenant between a newly appointed incumbent (or commissioned lay leader) and the parish community, highlighted by the procession of symbols of ministry (Bible, baptismal water, canons, healing oil, church keys, and bread and wine).",
+          whenToUse: "Parish inductions, installations, or commissioning of lay ministries."
+        },
+        reconciliation_sick: {
+          title: "Ministry to the Sick & Reconciliation of a Penitent (BAS pp. 551, 613)",
+          significance: "Provides pastoral rites for home, hospital, or chapel visitation: laying on of hands and anointing with oil for healing of body, mind, and spirit; personal confession and absolution (Reconciliation of a Penitent); and Communion from the Reserved Sacrament.",
+          whenToUse: "Pastoral care visits by clergy or licensed Lay Pastoral Assistants (note: absolution and blessing of oil are reserved to a priest, while LPAs lead prayers for healing and administer reserved communion)."
+        }
+      },
+      readingsGuide: {
+        track1VsTrack2: "<strong>Track 1 vs. Track 2 (First Reading):</strong> During the Season after Pentecost, the Revised Common Lectionary offers two Old Testament approaches. <strong>Track 1 (Continuous)</strong> reads sequentially through major Hebrew Scripture narratives (Patriarchs, Moses, David, Prophets) week by week on their own terms. <strong>Track 2 (Complementary)</strong> selects an Old Testament passage specifically chosen to echo or illuminate the theme of the day's Gospel.",
+        psalmAndPrayer: "<strong>The Psalm &amp; BAS Psalm Prayer:</strong> The Psalm is the community's lyrical meditation on the First Reading. A distinctive gift of the 1985 BAS is the <strong>Psalm Prayer</strong> (BAS pp. 705–861)—a brief collect prayed after a moment of silence that gathers up the themes of the Psalm in light of Christ's death and resurrection.",
+        epistleAndGospel: "<strong>Epistle &amp; Holy Gospel:</strong> The Second Reading offers a semi-continuous reading from the New Testament letters. The Holy Gospel is the summit of the Liturgy of the Word: all stand, face the Gospeller, and acclaim Christ speaking directly in the midst of his people."
+      },
+      greetings: {
+        standard: "<strong>Standard Apostolic Greeting (BAS p. 185):</strong> Drawn from 2 Corinthians 13:14 ('The grace of our Lord Jesus Christ, and the love of God, and the fellowship of the Holy Spirit...'). The normative Trinitarian greeting for Ordinary Time, Advent, and Epiphany.",
+        easter: "<strong>Paschal Greeting (BAS p. 185):</strong> 'Alleluia! Christ is risen / The Lord is risen indeed. Alleluia!' Used throughout the 50 days of Eastertide and at Funerals to proclaim Christ's victory over death.",
+        lent: "<strong>Lenten Penitential Greeting (BAS p. 185):</strong> 'Bless the Lord who forgives all our sins / His mercy endures for ever.' Sets a tone of humility and reliance on God's steadfast mercy during Lent and Ash Wednesday.",
+        epiphany: "<strong>Epiphany Greeting:</strong> 'I will make you as a light for the nations / That my salvation may reach to the end of the earth' (Isaiah 49:6). Highlights the manifestation of Christ to all peoples.",
+        morning_office: "<strong>Morning Prayer Versicles (BAS p. 47):</strong> 'Lord, open our lips...' (Psalm 51:15 &amp; Psalm 70:1). The classic opening dialogue of the Morning Office.",
+        evening_office: "<strong>Service of Light Greeting (BAS p. 62):</strong> 'Jesus Christ is the light of the world / A light no darkness can extinguish.' Used at the lighting of the evening taper in Evening Prayer."
+      },
+      canticles: {
+        gloria: "<strong>Gloria in Excelsis (BAS p. 186):</strong> The ancient 'Greater Doxology' expanding the angels' song at Bethlehem (Luke 2:14). Sung or said on Sundays and feasts outside Advent and Lent. (Check 'Collect for Purity' above to include Cranmer's classic 10th-century preparatory prayer).",
+        kyrie: "<strong>Kyrie Eleison (BAS p. 186):</strong> A threefold cry for Christ's mercy ('Lord, have mercy / Christ, have mercy'). Traditionally replaces the Gloria during Advent and Lent, or on quieter ferial days.",
+        trisagion: "<strong>Trisagion (BAS p. 187):</strong> The ancient Eastern hymn ('Holy God, holy and mighty, holy and immortal, have mercy on us'), echoing Isaiah's vision of the seraphim (Isaiah 6:3); especially fitting in Lent and Holy Week.",
+        venite: "<strong>Venite • Psalm 95 (BAS p. 49):</strong> The traditional Daily Office invitatory psalm calling the assembly to joyful worship and attentive listening ('Oh, that today you would hearken to his voice!').",
+        jubilate: "<strong>Jubilate • Psalm 100 (BAS p. 50):</strong> A joyful, festal alternative to the Venite in Morning Prayer or Services of the Word.",
+        phos_hilaron: "<strong>Phos Hilaron • O Gracious Light (BAS p. 62):</strong> One of the oldest known Christian hymns outside the New Testament (described by St. Basil the Great in the 4th century as already ancient), sung at the lighting of the evening lamps."
+      },
+      acclamations: {
+        alleluia: "<strong>Festal / Ordinary Gospel Acclamation:</strong> Acclaims the risen Christ present in the Gospel with 'Alleluia!' and a scripture verse (1 Samuel 3:9 &amp; John 6:68). Used in all seasons except Lent.",
+        lenten: "<strong>Lenten Tract (No Alleluia):</strong> During Lent and Holy Week, the Church fasts from the word 'Alleluia' so it may ring out with renewed joy at Easter. Replaced by 'Praise to you, Lord Jesus Christ, King of endless glory!'",
+        benedictus: "<strong>The Song of Zechariah • Benedictus (Luke 1:68-79, BAS p. 88):</strong> The Gospel Canticle of Morning Prayer, praising God for the 'dawn from on high' breaking upon those in darkness.",
+        magnificat: "<strong>The Song of Mary • Magnificat (Luke 1:46-55, BAS p. 86):</strong> The Gospel Canticle of Evening Prayer, proclaiming God's mercy and the lifting up of the lowly."
+      },
+      creeds: {
+        nicene: "<strong>The Nicene Creed (BAS p. 188):</strong> The ecumenical 'We believe' creed of the Councils of Nicaea (325) and Constantinople (381). Normative for Sundays and Principal Feasts at the Eucharist, expressing the shared faith of the universal Church across time and space.",
+        apostles: "<strong>The Apostles' Creed (BAS p. 189):</strong> The ancient baptismal 'I believe' creed of the Western Church. Normative for Holy Baptism, Funerals, Morning and Evening Prayer, and permitted at the Eucharist (especially at family or lay-led services).",
+        shema: "<strong>Hear, O Israel • The Shema (BAS p. 53):</strong> Drawn from Deuteronomy 6:4-5 and Jesus' summary of the Law in Mark 12:29-31. Introduced in the BAS as a scriptural affirmation of faith for the Daily Office and Services of the Word.",
+        none: "<strong>Omit Creed:</strong> BAS rubrics permit omitting the Creed on weekdays or at ordinary pastoral services when a shorter Liturgy of the Word is desired."
+      },
+      prayers: {
+        litany1: "<strong>Litany 1 • Litany of Peace (BAS p. 110):</strong> Modeled on the ancient Eastern Ektene (Deacon's Litany from the Liturgy of St. John Chrysostom) with the response 'Lord, have mercy.' Serene, universal, and fitting for any season of the year.",
+        litany2: "<strong>Litany 2 (BAS p. 112):</strong> Uses the response 'Lord, hear our prayer' and emphasizes human solidarity, social justice, care for the fruits of the earth, and active compassion.",
+        litany3: "<strong>Litany 3 (BAS p. 115):</strong> A participatory dialogue where the congregation completes the second half of each sentence initiated by the leader ('Father, we pray for your holy catholic Church / That we all may be one').",
+        litany4: "<strong>Litany 4 (BAS p. 116):</strong> Focuses on creation care ('the good earth which God has given us'), peace, and liberation for the poor, unemployed, and captives.",
+        litany14: "<strong>Litany 14 • Litany of Thanksgiving (BAS p. 127):</strong> Casts the Prayers of the People entirely in the form of thanksgiving ('We thank you, Lord') for creation, human grace, and the communion of saints.",
+        pastoral: "<strong>Parish Pastoral Intercessions:</strong> A local parish form incorporating prayers for Indigenous reconciliation, the Diocese and Bishop, clergy and Lay Pastoral Assistants, local schools/universities, and named intentions."
+      },
+      eucharisticPrayers: {
+        prayer1: "<strong>Eucharistic Prayer 1 (BAS p. 193):</strong> A comprehensive salvation-history prayer adapted from the West Syrian (Antiochene) tradition. It accommodates variable <strong>Proper Prefaces</strong> for seasons and feasts, making it the primary choice for major feasts and Sundays throughout the year.",
+        prayer2: "<strong>Eucharistic Prayer 2 (BAS p. 196):</strong> Adapted from the 3rd-century <em>Apostolic Tradition</em> attributed to Hippolytus of Rome (c. 215 AD)—the oldest extant text of a Christian eucharistic prayer. Concise and classic with a fixed preface; ideal for Ordinary Time and weekday celebrations.",
+        prayer3: "<strong>Eucharistic Prayer 3 (BAS p. 198):</strong> A concise eucharistic prayer that also takes a variable <strong>Proper Preface</strong>. Especially well suited for Saints' Days, Weddings, Funerals, Ordinations, or Sundays when a seasonal preface is desired in a shorter form than Prayer 1.",
+        prayer4: "<strong>Eucharistic Prayer 4 (BAS p. 201):</strong> Celebrates cosmic creation ('the vast expanse of interstellar space, galaxies, suns, the planets in their courses, and this fragile earth, our island home'), human vocation, and Christ's new creation. Fixed preface.",
+        prayer5: "<strong>Eucharistic Prayer 5 (BAS p. 204):</strong> Written in warm, direct language highlighting Jesus' friendship with children, outcasts, and the poor. Designed for all-age, family, or intergenerational Eucharists. Fixed preface.",
+        prayer6: "<strong>Eucharistic Prayer 6 (BAS p. 207):</strong> Rooted in the Alexandrian (St. Basil) and ecumenical Lima Liturgy traditions. Richly scriptural and solemn; suited for principal feasts and major celebrations. Fixed preface."
+      },
+      prefaces: {
+        auto: "<strong>Auto-Match Occasion / Season:</strong> Automatically selects the appointed BAS Proper Preface (pp. 218–226) matching your chosen Sunday, Feast, or Special Service (used in Eucharistic Prayers 1 and 3).",
+        lords_day: "<strong>Of the Lord's Day (BAS p. 218):</strong> Celebrates Sunday as the day of creation and resurrection ('source of light and life'). Used on Sundays in Ordinary Time.",
+        advent: "<strong>Advent (BAS p. 219):</strong> Gives thanks for Christ's first coming in humility and prepares the Church to rejoice at his coming again in glory.",
+        incarnation: "<strong>Christmas / The Incarnation (BAS p. 219):</strong> Celebrates the Word made flesh of the Virgin Mary to make us clean from all sin.",
+        epiphany: "<strong>Epiphany (BAS p. 220):</strong> Rejoices in the new light shining in our hearts to give knowledge of God's glory in the face of Christ.",
+        lent: "<strong>Lent &amp; Penitential (BAS p. 220):</strong> Calls the faithful to cleanse their hearts and prepare with joy for the paschal feast through prayer and works of mercy.",
+        easter: "<strong>Eastertide (BAS p. 222):</strong> Acclaims Christ as the true Paschal Lamb who by his death has destroyed death and by his rising won everlasting life.",
+        pentecost: "<strong>Pentecost / Holy Spirit (BAS p. 223):</strong> Celebrates the outpouring of the Spirit bringing the Church into being and leading it into all truth.",
+        trinity: "<strong>Trinity Sunday (BAS p. 224):</strong> Confesses the one and equal glory of Father, Son, and Holy Spirit in Trinity of Persons and Unity of Being.",
+        allsaints: "<strong>All Saints &amp; Commemorations (BAS p. 225):</strong> Rejoices in the great cloud of witnesses surrounding the Church in fellowship.",
+        baptism: "<strong>Holy Baptism &amp; Initiation (BAS p. 225):</strong> Gives thanks for adoption as God's sons and daughters and citizenship in the kingdom through water and the Spirit.",
+        marriage: "<strong>Holy Matrimony / Marriage (BAS p. 225):</strong> Celebrates covenanted love as an image of the heavenly Jerusalem and Christ's love for his Church.",
+        commemoration_dead: "<strong>Commemoration of the Dead / Funeral (BAS p. 226):</strong> Proclaims the classic Christian hope: 'For to your faithful people, O Lord, life is changed, not ended.'",
+        apostles_ordination: "<strong>Apostles &amp; Ordinations (BAS p. 224):</strong> Gives thanks for Christ the great Shepherd who sends apostles and ministers to teach and shepherd his flock."
+      },
+      lordsPrayer: {
+        contemporary: "<strong>Contemporary Text (BAS p. 211):</strong> The ecumenical 1975 International Consultation on English Texts (ICET) translation ('Our Father in heaven... Save us from the time of trial'), shared with Lutheran, Roman Catholic, and Reformed churches.",
+        traditional: "<strong>Traditional Text (BAS p. 211):</strong> The beloved 16th-century Cranmerian translation ('Our Father, who art in heaven... forgive us our trespasses'), deeply familiar for pastoral visits, funerals, and traditional worship."
+      },
+      fractions: {
+        fraction1: "<strong>Fraction 1 • Standard (BAS p. 212):</strong> Drawn from 1 Corinthians 10:16-17 ('We break this bread to share in the body of Christ / We, being many, are one body'). The standard Sunday fraction in Ordinary Time.",
+        fraction2: "<strong>Fraction 2 • Creation &amp; Harvest (BAS p. 212):</strong> Echoes the 1st-century <em>Didache</em> ('golden fields of wheat, whose many grains we have gathered and made into this one bread'). Ideal for Thanksgiving, Harvest, and Season of Creation.",
+        fraction3: "<strong>Fraction 3 • Advent &amp; Banquet (BAS p. 212):</strong> Points to the messianic banquet of Revelation 19:9 ('Happy are those who are called to the supper of the Lamb'). Appointed for Advent and Epiphany.",
+        fraction5: "<strong>Fraction 5 • Lent &amp; Passiontide (BAS p. 212):</strong> Connects the broken bread with Christ's cross and John 12:24 ('Let your Church be the wheat which bears its fruit in dying'). Appointed for Lent and Holy Week.",
+        fraction6: "<strong>Fraction 6 • Easter, Baptism &amp; Funerals (BAS p. 213):</strong> Proclaims baptismal dying and rising with Christ (Romans 6:8, 'Lord, we died with you on the cross / Now we are raised to new life'). Appointed for Eastertide, Baptisms, and Funerals."
+      },
+      sectionCommentaries: {
+        "The Gathering of the Community": "The Gathering draws dispersed individuals into one worshipping body (the ekklesia) through greeting, praise, and the Collect of the Day, which gathers the community's prayer into a single focus.",
+        "The Approach": "In the Daily Office, the Approach prepares the heart and lips for praise through penitence and the Invitatory Psalm.",
+        "The Service of Light": "Derived from the ancient Christian Lucernarium at dusk, giving thanks for Jesus Christ as the true Light who overcomes the darkness of the world.",
+        "The Proclamation of the Word": "In the Proclamation of the Word, God speaks to the assembly through Hebrew Scripture, Psalmody, Apostolic witness, and the Gospel—the living voice of Christ—followed by the homily, creed, and intercessions.",
+        "The Response to the Word": "Having heard God's Word, the community responds by confessing the faith, interceding for the world, seeking reconciliation, and exchanging Christ's Peace.",
+        "Presentation and Examination of the Candidates": "Candidates for Baptism (or their parents and sponsors) publicly renounce evil and turn to Christ, supported by the pledge of the whole congregation.",
+        "The Baptismal Covenant": "The heart of Anglican baptismal theology: the Apostles' Creed professed in question-and-answer form, followed by six lifelong commitments of discipleship, justice, peace, and care for creation.",
+        "The Baptism": "Water is blessed in a great prayer of thanksgiving recalling God's saving acts through water, followed by triple immersion or pouring in the Triune Name, anointing with chrism, and the giving of the light of Christ.",
+        "The Confirmation, Reception & Reaffirmation": "Candidates renew the Baptismal Covenant before the Bishop, who prays for the sevenfold Spirit and lays hands upon each person to strengthen them for adult Christian witness.",
+        "The Marriage": "The couple publicly declare their free intent, exchange lifelong vows, and give and receive rings as outward signs of an inward covenant of fidelity and love.",
+        "The Blessing of the Marriage": "The Church intercedes for the couple and pronounces the solemn Nuptial Blessing, asking that their life together reflect Christ's love for his Church.",
+        "The Celebration of the Eucharist": "Patterned on Christ's fourfold action at the Last Supper: he took bread and wine (Offertory), gave thanks (The Great Thanksgiving), broke the bread (Fraction), and gave it to his disciples (Communion).",
+        "The Commendation and Committal": "At the conclusion of the Funeral Liturgy, the community entrusts the departed into the merciful hands of God with the ancient Kontakion ('Give rest, O Christ') and commits the body to its resting place in sure hope of the resurrection.",
+        "The Presentation": "At an Ordination, clerical and lay representatives present the candidate to the Bishop, and the congregation acclaims their assent ('It is / We will').",
+        "The Examination": "The Bishop examines the ordinand before the people concerning their call, fidelity to Scripture, prayer life, and servant leadership.",
+        "The Consecration": "After the Litany for Ordinations and Veni Creator Spiritus, the Bishop (with priests at a presbyteral ordination) lays hands silently upon the candidate and prays the Consecratory Prayer invoking the Holy Spirit.",
+        "The Sending Forth of the Community": "Nourished by Word and Sacrament, the assembly gives thanks, receives the blessing, and is sent out by the deacon or leader ('Go forth in the name of Christ') into the world to love and serve.",
+        "The Sending Forth": "The community is blessed and sent forth to live out its baptismal vocation in daily life."
+      }
     };

@@ -64,6 +64,15 @@
 
       <!-- Quick Actions -->
       <div class="flex flex-wrap items-center gap-2">
+        <button id="openSettingsBtn" type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-amber-900/60 hover:bg-amber-800/80 text-amber-100 border border-amber-700/80 transition shadow-sm" title="Open Settings &amp; Toggle Instructive Liturgical Guide">
+          <svg class="w-4 h-4 mr-1.5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span>Settings</span>
+          <span id="headerGuideBadge" class="ml-1.5 px-1.5 py-0.2 text-[10px] font-semibold uppercase rounded bg-amber-600/80 text-white">Guide: On</span>
+        </button>
+
         <button id="viewToggleBtn" type="button" class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 transition">
           <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
@@ -101,6 +110,79 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
     </svg>
     <span id="toastMsg">Liturgy copied to clipboard!</span>
+  </div>
+
+  <!-- Settings & Instructive Guide Modal -->
+  <div id="settingsModal" class="fixed inset-0 z-50 bg-stone-900/60 hidden items-center justify-center p-4 no-print">
+    <div class="bg-white rounded-lg border border-stone-200 shadow-xl max-w-lg w-full p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-stone-200 pb-3">
+        <div class="flex items-center space-x-2">
+          <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+          </svg>
+          <h3 class="text-sm font-bold uppercase tracking-wider text-stone-800">Settings &amp; Liturgical Guide Preferences</h3>
+        </div>
+        <button type="button" id="closeSettingsModalBtn" class="text-stone-400 hover:text-stone-700 text-lg font-bold">&times;</button>
+      </div>
+
+      <p class="text-xs text-stone-600 leading-relaxed">
+        Customize how much liturgical commentary, theological context, and ceremonial instruction is displayed while preparing a service. Your preferences are saved automatically.
+      </p>
+
+      <div class="space-y-3 pt-1">
+        <!-- Setting 1: Instructive Liturgical Guide -->
+        <label class="flex items-start justify-between gap-3 p-3 rounded-lg bg-amber-50/70 border border-amber-200 cursor-pointer hover:bg-amber-50 transition">
+          <div class="space-y-0.5">
+            <div class="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+              <span>Instructive Option Guide (Sidebar Explanations)</span>
+              <span class="px-1.5 py-0.2 text-[10px] font-semibold rounded bg-amber-200 text-amber-900">Recommended for Learning</span>
+            </div>
+            <p class="text-xs text-stone-600 leading-relaxed">
+              Show historical, theological, and pastoral notes explaining the significance of each Rite, Lectionary Track, Canticle, Creed, Litany, Eucharistic Prayer (1–6), and Fraction option. Turn off for a compact builder view.
+            </p>
+          </div>
+          <input type="checkbox" id="settingsToggleGuide" checked class="mt-1 rounded text-amber-700 focus:ring-amber-600 w-4 h-4 flex-shrink-0">
+        </label>
+
+        <!-- Setting 2: Section Commentary on Service Sheet -->
+        <label class="flex items-start justify-between gap-3 p-3 rounded-lg bg-stone-50 border border-stone-200 cursor-pointer hover:bg-stone-100/70 transition">
+          <div class="space-y-0.5">
+            <div class="text-xs font-bold text-stone-900">Liturgical Movement Commentary on Service Sheet</div>
+            <p class="text-xs text-stone-600 leading-relaxed">
+              Display brief instructive introductions under major section headings on the service preview sheet explaining each movement of the rite (automatically hidden when printing a bulletin).
+            </p>
+          </div>
+          <input type="checkbox" id="settingsToggleSectionNotes" checked class="mt-1 rounded text-amber-700 focus:ring-amber-600 w-4 h-4 flex-shrink-0">
+        </label>
+
+        <!-- Setting 3: Ceremonial Rubrics -->
+        <label class="flex items-start justify-between gap-3 p-3 rounded-lg bg-stone-50 border border-stone-200 cursor-pointer hover:bg-stone-100/70 transition">
+          <div class="space-y-0.5">
+            <div class="text-xs font-bold text-stone-900">Ceremonial Rubrics (Red Italic Instructions)</div>
+            <p class="text-xs text-stone-600 leading-relaxed">
+              Include the traditional BAS red italic directions for posture (standing, sitting, kneeling) and ministerial actions in the service text.
+            </p>
+          </div>
+          <input type="checkbox" id="settingsToggleRubrics" checked class="mt-1 rounded text-amber-700 focus:ring-amber-600 w-4 h-4 flex-shrink-0">
+        </label>
+
+        <!-- Setting 4: Inline Hover Controls -->
+        <label class="flex items-start justify-between gap-3 p-3 rounded-lg bg-stone-50 border border-stone-200 cursor-pointer hover:bg-stone-100/70 transition">
+          <div class="space-y-0.5">
+            <div class="text-xs font-bold text-stone-900">Inline Hover Controls on Service Sheet</div>
+            <p class="text-xs text-stone-600 leading-relaxed">
+              Show quick action buttons (↑, ↓, ✎ Edit, + Insert Below, ×) when hovering over any block in the right-hand service preview.
+            </p>
+          </div>
+          <input type="checkbox" id="settingsToggleInlineControls" checked class="mt-1 rounded text-amber-700 focus:ring-amber-600 w-4 h-4 flex-shrink-0">
+        </label>
+      </div>
+
+      <div class="flex items-center justify-between pt-3 border-t border-stone-200">
+        <span class="text-[11px] text-stone-500 italic">Tip: You can also toggle the Instructive Guide from the Display bar.</span>
+        <button type="button" id="doneSettingsModalBtn" class="px-4 py-1.5 text-xs font-medium rounded bg-amber-700 hover:bg-amber-600 text-white shadow-sm">Done</button>
+      </div>
+    </div>
   </div>
 
   <!-- Custom Block / Item Editor Modal -->
@@ -213,6 +295,7 @@
               <option value="reconciliation_sick">Ministry to the Sick &amp; Reconciliation of a Penitent (BAS pp. 551, 613)</option>
             </optgroup>
           </select>
+          <div id="guideRiteBox" class="instructive-guide-box mt-2 p-2.5 rounded-md bg-amber-50/80 border border-amber-200/90 text-xs text-stone-700 leading-relaxed"></div>
         </div>
 
         <div>
@@ -242,6 +325,7 @@
               <option value="custom">Custom Sunday / Parish Occasion</option>
             </optgroup>
           </select>
+          <div id="guideFeastBox" class="instructive-guide-box mt-2 p-2.5 rounded-md bg-stone-50 border border-stone-200 text-xs text-stone-700 leading-relaxed"></div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-stone-100">
@@ -294,7 +378,8 @@
           </h2>
           <span class="text-xs text-stone-500">Pick suggested options</span>
         </div>
-        <p class="text-xs text-stone-500 mb-3">Choose which suggested lessons to proclaim, switch between Track 1 / Track 2, or edit full texts and proper prayers.</p>
+        <p class="text-xs text-stone-500 mb-2">Choose which suggested lessons to proclaim, switch between Track 1 / Track 2, or edit full texts and proper prayers.</p>
+        <div id="guideReadingsBox" class="instructive-guide-box mb-3 p-2.5 rounded-md bg-amber-50/70 border border-amber-200/80 text-xs text-stone-700 leading-relaxed"></div>
 
         <!-- Reading 1: First Lesson -->
         <div class="mb-3 p-3 rounded-md bg-stone-50 border border-stone-200">
@@ -432,6 +517,7 @@
             <option value="morning_office">Morning Prayer (p. 47): "Lord, open our lips..."</option>
             <option value="evening_office">Evening Prayer (p. 62): "Jesus Christ is the light of the world..."</option>
           </select>
+          <div id="guideGreetingBox" class="instructive-guide-box mt-1.5 p-2 rounded bg-stone-50 border border-stone-200 text-xs text-stone-700 leading-relaxed"></div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
@@ -456,6 +542,7 @@
             <option value="jubilate">Jubilate – Psalm 100 ("Be joyful in the Lord, all you lands", BAS p. 50)</option>
             <option value="phos_hilaron">Phos Hilaron ("O Gracious Light, pure brightness", BAS p. 62)</option>
           </select>
+          <div id="guideCanticleBox" class="instructive-guide-box mt-1.5 p-2 rounded bg-stone-50 border border-stone-200 text-xs text-stone-700 leading-relaxed"></div>
         </div>
 
         <!-- Gospel Acclamation / Office Canticle -->
@@ -467,6 +554,7 @@
             <option value="benedictus">Gospel Canticle: The Song of Zechariah (Benedictus, BAS p. 88)</option>
             <option value="magnificat">Gospel Canticle: The Song of Mary (Magnificat, BAS p. 86)</option>
           </select>
+          <div id="guideAcclamationBox" class="instructive-guide-box mt-1.5 p-2 rounded bg-stone-50 border border-stone-200 text-xs text-stone-700 leading-relaxed"></div>
         </div>
 
         <!-- Affirmation of Faith / Creed -->
@@ -478,6 +566,7 @@
             <option value="shema">Hear, O Israel / The Shema ("The Lord our God, the Lord is one", BAS p. 53)</option>
             <option value="none">Omit Creed (Weekday / Informal Service)</option>
           </select>
+          <div id="guideCreedBox" class="instructive-guide-box mt-1.5 p-2 rounded bg-stone-50 border border-stone-200 text-xs text-stone-700 leading-relaxed"></div>
         </div>
 
         <!-- Prayers of the People -->
@@ -491,6 +580,7 @@
             <option value="litany14">Litany 14 (BAS p. 127 – Litany of Thanksgiving)</option>
             <option value="pastoral">Parish Pastoral Intercessions (With local names &amp; intentions)</option>
           </select>
+          <div id="guidePrayersBox" class="instructive-guide-box mt-1.5 p-2 rounded bg-stone-50 border border-stone-200 text-xs text-stone-700 leading-relaxed"></div>
         </div>
 
         <!-- Eucharistic Prayer (1-6) -->
@@ -504,6 +594,7 @@
             <option value="prayer5">Eucharistic Prayer 5 (BAS p. 204 – For All Ages / Children &amp; Families)</option>
             <option value="prayer6">Eucharistic Prayer 6 (BAS p. 207 – Solemn / Festal)</option>
           </select>
+          <div id="guideEucharisticPrayerBox" class="instructive-guide-box mt-1.5 p-2 rounded bg-amber-50/70 border border-amber-200/80 text-xs text-stone-700 leading-relaxed"></div>
         </div>
 
         <!-- Proper Preface Selector -->
@@ -525,6 +616,7 @@
             <option value="commemoration_dead">Commemoration of the Dead / Funeral (BAS p. 226)</option>
             <option value="apostles_ordination">Apostles &amp; Ordinations (BAS p. 224)</option>
           </select>
+          <div id="guidePrefaceBox" class="instructive-guide-box mt-1.5 p-2 rounded bg-stone-50 border border-stone-200 text-xs text-stone-700 leading-relaxed"></div>
         </div>
 
         <!-- The Lord's Prayer & Breaking of the Bread -->
@@ -547,6 +639,7 @@
             </select>
           </div>
         </div>
+        <div id="guideFractionLordsPrayerBox" class="instructive-guide-box mt-1.5 p-2 rounded bg-stone-50 border border-stone-200 text-xs text-stone-700 leading-relaxed"></div>
 
       </div>
 
@@ -564,6 +657,9 @@
           </button>
           <button id="toggleInlineControlsBtn" type="button" class="px-2.5 py-1 text-xs rounded border border-stone-300 bg-stone-50 hover:bg-stone-100 text-stone-700 transition">
             Inline Controls: <span id="inlineControlsStatusText" class="font-semibold text-amber-800">On</span>
+          </button>
+          <button id="toggleGuideToolbarBtn" type="button" class="px-2.5 py-1 text-xs rounded border border-amber-300 bg-amber-50/70 hover:bg-amber-100/80 text-stone-800 transition" title="Show or hide liturgical explanations for each option">
+            Liturgical Guide: <span id="guideToolbarStatusText" class="font-semibold text-amber-900">On</span>
           </button>
         </div>
 

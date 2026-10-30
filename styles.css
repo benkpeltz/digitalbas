@@ -25,3 +25,12 @@
     .service-block-wrapper:hover .block-hover-controls {
       opacity: 1;
     }
+    .instructive-guide-box {
+      transition: all 0.2s ease-in-out;
+    }
+    body.hide-instructive-guide .instructive-guide-box {
+      display: none !important;
+    }
+    body.hide-section-commentary .section-liturgical-commentary {
+      display: none !important;
+    }

@@ -1,4 +1,10 @@
+/**
+ * digitalbas - Application State & Sequencer Logic
+ */
+
 let appState = {
+      showInstructiveGuide: true,
+      showSectionCommentary: true,
       riteKey: 'eucharist',
       selectedDayKey: 'proper28',
       includeReading1: true,
@@ -27,9 +33,16 @@ let appState = {
     };
 
     document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const savedGuide = localStorage.getItem('digitalbas_showInstructiveGuide');
+        if (savedGuide !== null) appState.showInstructiveGuide = (savedGuide === 'true');
+        const savedSec = localStorage.getItem('digitalbas_showSectionCommentary');
+        if (savedSec !== null) appState.showSectionCommentary = (savedSec === 'true');
+      } catch (e) {}
       loadRiteSequence(appState.riteKey, false);
       initListeners();
       loadDayData(appState.selectedDayKey);
+      syncSettingsUI();
       renderAll();
     });
 
@@ -193,14 +206,17 @@ let appState = {
 
       document.getElementById('greetingSelect').addEventListener('change', (e) => {
         appState.greeting = e.target.value;
+        renderInstructiveGuides();
         renderService();
       });
       document.getElementById('canticleSelect').addEventListener('change', (e) => {
         appState.canticle = e.target.value;
+        renderInstructiveGuides();
         renderService();
       });
       document.getElementById('gospelAcclamationSelect').addEventListener('change', (e) => {
         appState.gospelAcclamation = e.target.value;
+        renderInstructiveGuides();
         renderService();
       });
       document.getElementById('creedSelect').addEventListener('change', (e) => {
@@ -210,22 +226,27 @@ let appState = {
       });
       document.getElementById('prayersSelect').addEventListener('change', (e) => {
         appState.prayers = e.target.value;
+        renderInstructiveGuides();
         renderService();
       });
       document.getElementById('eucharisticPrayerSelect').addEventListener('change', (e) => {
         appState.eucharisticPrayer = e.target.value;
+        renderInstructiveGuides();
         renderService();
       });
       document.getElementById('prefaceSelect').addEventListener('change', (e) => {
         appState.preface = e.target.value;
+        renderInstructiveGuides();
         renderService();
       });
       document.getElementById('lordsPrayerSelect').addEventListener('change', (e) => {
         appState.lordsPrayer = e.target.value;
+        renderInstructiveGuides();
         renderService();
       });
       document.getElementById('fractionSelect').addEventListener('change', (e) => {
         appState.fraction = e.target.value;
+        renderInstructiveGuides();
         renderService();
       });
 
@@ -326,19 +347,67 @@ let appState = {
       });
       document.getElementById('saveModalBtn').addEventListener('click', saveBlockFromModal);
 
+      document.getElementById('openSettingsBtn').addEventListener('click', () => {
+        syncSettingsUI();
+        const modal = document.getElementById('settingsModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      });
+      document.getElementById('closeSettingsModalBtn').addEventListener('click', () => {
+        const modal = document.getElementById('settingsModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      });
+      document.getElementById('doneSettingsModalBtn').addEventListener('click', () => {
+        const modal = document.getElementById('settingsModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      });
+
+      document.getElementById('settingsToggleGuide').addEventListener('change', (e) => {
+        appState.showInstructiveGuide = e.target.checked;
+        try { localStorage.setItem('digitalbas_showInstructiveGuide', String(appState.showInstructiveGuide)); } catch (err) {}
+        syncSettingsUI();
+        renderInstructiveGuides();
+        showToast(appState.showInstructiveGuide ? 'Instructive Liturgical Guide turned ON' : 'Instructive Liturgical Guide turned OFF (compact mode)');
+      });
+
+      document.getElementById('toggleGuideToolbarBtn').addEventListener('click', () => {
+        appState.showInstructiveGuide = !appState.showInstructiveGuide;
+        try { localStorage.setItem('digitalbas_showInstructiveGuide', String(appState.showInstructiveGuide)); } catch (err) {}
+        syncSettingsUI();
+        renderInstructiveGuides();
+        showToast(appState.showInstructiveGuide ? 'Instructive Liturgical Guide turned ON' : 'Instructive Liturgical Guide turned OFF (compact mode)');
+      });
+
+      document.getElementById('settingsToggleSectionNotes').addEventListener('change', (e) => {
+        appState.showSectionCommentary = e.target.checked;
+        try { localStorage.setItem('digitalbas_showSectionCommentary', String(appState.showSectionCommentary)); } catch (err) {}
+        syncSettingsUI();
+        renderService();
+      });
+
+      document.getElementById('settingsToggleRubrics').addEventListener('change', (e) => {
+        appState.showRubrics = e.target.checked;
+        syncSettingsUI();
+        renderService();
+      });
+
+      document.getElementById('settingsToggleInlineControls').addEventListener('change', (e) => {
+        appState.showInlineControls = e.target.checked;
+        syncSettingsUI();
+        renderService();
+      });
+
       document.getElementById('toggleRubricsBtn').addEventListener('click', () => {
         appState.showRubrics = !appState.showRubrics;
-        const statusEl = document.getElementById('rubricStatusText');
-        statusEl.textContent = appState.showRubrics ? 'Visible' : 'Hidden';
-        statusEl.className = appState.showRubrics ? 'font-semibold text-rubric' : 'font-semibold text-stone-500';
+        syncSettingsUI();
         renderService();
       });
 
       document.getElementById('toggleInlineControlsBtn').addEventListener('click', () => {
         appState.showInlineControls = !appState.showInlineControls;
-        const statusEl = document.getElementById('inlineControlsStatusText');
-        statusEl.textContent = appState.showInlineControls ? 'On' : 'Off';
-        statusEl.className = appState.showInlineControls ? 'font-semibold text-amber-800' : 'font-semibold text-stone-500';
+        syncSettingsUI();
         renderService();
       });
 
@@ -441,8 +510,189 @@ let appState = {
       document.getElementById('postCommunionInput').value = day.prayerAfterCommunion || '';
     }
 
+    function syncSettingsUI() {
+      document.body.classList.toggle('hide-instructive-guide', !appState.showInstructiveGuide);
+      document.body.classList.toggle('hide-section-commentary', !appState.showSectionCommentary);
+
+      const gChk = document.getElementById('settingsToggleGuide');
+      if (gChk) gChk.checked = appState.showInstructiveGuide;
+      const sChk = document.getElementById('settingsToggleSectionNotes');
+      if (sChk) sChk.checked = appState.showSectionCommentary;
+      const rChk = document.getElementById('settingsToggleRubrics');
+      if (rChk) rChk.checked = appState.showRubrics;
+      const iChk = document.getElementById('settingsToggleInlineControls');
+      if (iChk) iChk.checked = appState.showInlineControls;
+
+      const rubricStatusEl = document.getElementById('rubricStatusText');
+      if (rubricStatusEl) {
+        rubricStatusEl.textContent = appState.showRubrics ? 'Visible' : 'Hidden';
+        rubricStatusEl.className = appState.showRubrics ? 'font-semibold text-rubric' : 'font-semibold text-stone-500';
+      }
+
+      const inlineStatusEl = document.getElementById('inlineControlsStatusText');
+      if (inlineStatusEl) {
+        inlineStatusEl.textContent = appState.showInlineControls ? 'On' : 'Off';
+        inlineStatusEl.className = appState.showInlineControls ? 'font-semibold text-amber-800' : 'font-semibold text-stone-500';
+      }
+
+      const guideToolbarEl = document.getElementById('guideToolbarStatusText');
+      if (guideToolbarEl) {
+        guideToolbarEl.textContent = appState.showInstructiveGuide ? 'On' : 'Off';
+        guideToolbarEl.className = appState.showInstructiveGuide ? 'font-semibold text-amber-900' : 'font-semibold text-stone-500';
+      }
+
+      const headerBadge = document.getElementById('headerGuideBadge');
+      if (headerBadge) {
+        headerBadge.textContent = appState.showInstructiveGuide ? 'Guide: On' : 'Guide: Off';
+        headerBadge.className = appState.showInstructiveGuide
+          ? 'ml-1.5 px-1.5 py-0.2 text-[10px] font-semibold uppercase rounded bg-amber-600/80 text-white'
+          : 'ml-1.5 px-1.5 py-0.2 text-[10px] font-semibold uppercase rounded bg-stone-700 text-stone-300';
+      }
+    }
+
+    function buildCompareDetails(title, itemsObj, activeKey) {
+      let rows = '';
+      Object.keys(itemsObj).forEach(k => {
+        const val = itemsObj[k];
+        const text = typeof val === 'string' ? val : `<strong>${val.title}:</strong> ${val.significance}`;
+        const isCurrent = k === activeKey;
+        rows += `<div class="py-1 border-b border-stone-200/60 last:border-b-0 ${isCurrent ? 'bg-amber-100/50 px-1.5 rounded' : ''}">${text}</div>`;
+      });
+      return `
+        <details class="mt-1.5 pt-1 border-t border-stone-200/70 text-[11px] text-stone-600">
+          <summary class="cursor-pointer font-semibold text-amber-900 hover:text-amber-700 select-none">${title}</summary>
+          <div class="mt-1.5 space-y-1">${rows}</div>
+        </details>
+      `;
+    }
+
+    function renderInstructiveGuides() {
+      if (!appState.showInstructiveGuide) return;
+
+      // 1. Rite Guide
+      const riteBox = document.getElementById('guideRiteBox');
+      if (riteBox) {
+        const rInfo = INSTRUCTIVE_GUIDE.rites[appState.riteKey] || INSTRUCTIVE_GUIDE.rites.eucharist;
+        riteBox.innerHTML = `
+          <div class="font-semibold text-amber-950 mb-0.5 flex items-center gap-1">
+            <span>✦ Liturgical Significance: ${rInfo.title}</span>
+          </div>
+          <p>${rInfo.significance}</p>
+          <p class="mt-1 text-[11px] text-amber-900 font-medium"><strong>When to use:</strong> ${rInfo.whenToUse}</p>
+          ${buildCompareDetails('Compare all 12 BAS Rites & Special Services', INSTRUCTIVE_GUIDE.rites, appState.riteKey)}
+        `;
+      }
+
+      // 2. Feast / Occasion Guide
+      const feastBox = document.getElementById('guideFeastBox');
+      if (feastBox) {
+        const day = getCurrentDay();
+        const prefKey = day.prefaceKey || 'lords_day';
+        const prefDesc = INSTRUCTIVE_GUIDE.prefaces[prefKey] || '';
+        feastBox.innerHTML = `
+          <div class="font-semibold text-stone-800 mb-0.5">✦ Seasonal &amp; Pastoral Context (${day.season}):</div>
+          <p>Selecting an occasion loads its appointed <strong>Collect of the Day</strong>, <strong>Lectionary Readings</strong>, <strong>Prayer over the Gifts</strong>, and <strong>Prayer after Communion</strong>, and links to the matching seasonal <strong>Proper Preface</strong>.</p>
+          ${prefDesc ? `<p class="mt-1 text-[11px] text-stone-600">${prefDesc}</p>` : ''}
+        `;
+      }
+
+      // 3. Readings Guide (Track 1 vs Track 2, Psalm Prayers, Gospel)
+      const readingsBox = document.getElementById('guideReadingsBox');
+      if (readingsBox) {
+        readingsBox.innerHTML = `
+          <div class="font-semibold text-amber-950 mb-1">✦ Understanding the BAS Lectionary Structure:</div>
+          <div class="space-y-1.5 text-[11px]">
+            <p>${INSTRUCTIVE_GUIDE.readingsGuide.track1VsTrack2}</p>
+            <p>${INSTRUCTIVE_GUIDE.readingsGuide.psalmAndPrayer}</p>
+            <p>${INSTRUCTIVE_GUIDE.readingsGuide.epistleAndGospel}</p>
+          </div>
+        `;
+      }
+
+      // 4. Greeting Guide
+      const greetingBox = document.getElementById('guideGreetingBox');
+      if (greetingBox) {
+        greetingBox.innerHTML = `
+          <div>${INSTRUCTIVE_GUIDE.greetings[appState.greeting] || INSTRUCTIVE_GUIDE.greetings.standard}</div>
+          ${buildCompareDetails('Compare all Gathering Greetings', INSTRUCTIVE_GUIDE.greetings, appState.greeting)}
+        `;
+      }
+
+      // 5. Canticle Guide
+      const canticleBox = document.getElementById('guideCanticleBox');
+      if (canticleBox) {
+        canticleBox.innerHTML = `
+          <div>${INSTRUCTIVE_GUIDE.canticles[appState.canticle] || INSTRUCTIVE_GUIDE.canticles.gloria}</div>
+          ${buildCompareDetails('Compare Gloria, Kyrie, Trisagion, Venite, Jubilate & Phos Hilaron', INSTRUCTIVE_GUIDE.canticles, appState.canticle)}
+        `;
+      }
+
+      // 6. Gospel Acclamation Guide
+      const acclBox = document.getElementById('guideAcclamationBox');
+      if (acclBox) {
+        acclBox.innerHTML = `
+          <div>${INSTRUCTIVE_GUIDE.acclamations[appState.gospelAcclamation] || INSTRUCTIVE_GUIDE.acclamations.alleluia}</div>
+          ${buildCompareDetails('Compare Gospel Acclamations & Office Canticles', INSTRUCTIVE_GUIDE.acclamations, appState.gospelAcclamation)}
+        `;
+      }
+
+      // 7. Creed Guide
+      const creedBox = document.getElementById('guideCreedBox');
+      if (creedBox) {
+        creedBox.innerHTML = `
+          <div>${INSTRUCTIVE_GUIDE.creeds[appState.creed] || INSTRUCTIVE_GUIDE.creeds.nicene}</div>
+          ${buildCompareDetails('Compare Nicene Creed, Apostles\' Creed & The Shema', INSTRUCTIVE_GUIDE.creeds, appState.creed)}
+        `;
+      }
+
+      // 8. Prayers of the People Guide
+      const prayersBox = document.getElementById('guidePrayersBox');
+      if (prayersBox) {
+        prayersBox.innerHTML = `
+          <div>${INSTRUCTIVE_GUIDE.prayers[appState.prayers] || INSTRUCTIVE_GUIDE.prayers.litany1}</div>
+          ${buildCompareDetails('Compare all BAS Litanies of the People', INSTRUCTIVE_GUIDE.prayers, appState.prayers)}
+        `;
+      }
+
+      // 9. Eucharistic Prayer Guide
+      const epBox = document.getElementById('guideEucharisticPrayerBox');
+      if (epBox) {
+        epBox.innerHTML = `
+          <div>${INSTRUCTIVE_GUIDE.eucharisticPrayers[appState.eucharisticPrayer] || INSTRUCTIVE_GUIDE.eucharisticPrayers.prayer1}</div>
+          ${buildCompareDetails('Compare BAS Eucharistic Prayers 1 through 6', INSTRUCTIVE_GUIDE.eucharisticPrayers, appState.eucharisticPrayer)}
+        `;
+      }
+
+      // 10. Proper Preface Guide
+      const prefBox = document.getElementById('guidePrefaceBox');
+      if (prefBox) {
+        const usesVarPreface = (appState.eucharisticPrayer === 'prayer1' || appState.eucharisticPrayer === 'prayer3');
+        const note = usesVarPreface
+          ? `<span class="text-emerald-800 font-medium">Active with ${appState.eucharisticPrayer.replace('prayer', 'Eucharistic Prayer ')}.</span>`
+          : `<span class="text-amber-800 font-medium">Note: ${appState.eucharisticPrayer.replace('prayer', 'Eucharistic Prayer ')} uses its own fixed preface; switch to Prayer 1 or Prayer 3 if you wish to insert this seasonal Proper Preface.</span>`;
+        prefBox.innerHTML = `
+          <div>${INSTRUCTIVE_GUIDE.prefaces[appState.preface] || INSTRUCTIVE_GUIDE.prefaces.auto}</div>
+          <div class="mt-1 text-[11px]">${note}</div>
+          ${buildCompareDetails('Compare all Seasonal & Pastoral Proper Prefaces', INSTRUCTIVE_GUIDE.prefaces, appState.preface)}
+        `;
+      }
+
+      // 11. Lord's Prayer & Fraction Guide
+      const fracBox = document.getElementById('guideFractionLordsPrayerBox');
+      if (fracBox) {
+        fracBox.innerHTML = `
+          <div class="space-y-1.5">
+            <div>${INSTRUCTIVE_GUIDE.lordsPrayer[appState.lordsPrayer] || INSTRUCTIVE_GUIDE.lordsPrayer.contemporary}</div>
+            <div class="pt-1 border-t border-stone-200/70">${INSTRUCTIVE_GUIDE.fractions[appState.fraction] || INSTRUCTIVE_GUIDE.fractions.fraction1}</div>
+          </div>
+          ${buildCompareDetails('Compare all BAS Fraction Sentences (1, 2, 3, 5, 6)', INSTRUCTIVE_GUIDE.fractions, appState.fraction)}
+        `;
+      }
+    }
+
     function renderAll() {
       renderSequencerList();
+      renderInstructiveGuides();
       renderService();
     }
 
@@ -1710,11 +1960,15 @@ let appState = {
 
         if (block.section && block.section !== currentSection && block.section !== 'Custom Insertion') {
           currentSection = block.section;
+          const secNote = (INSTRUCTIVE_GUIDE.sectionCommentaries && INSTRUCTIVE_GUIDE.sectionCommentaries[currentSection])
+            ? `<div class="section-liturgical-commentary no-print mt-1.5 px-3 py-1.5 rounded bg-amber-50/90 border-l-2 border-amber-600 text-xs font-sans text-stone-700 leading-relaxed"><strong class="text-amber-900">Liturgical Commentary:</strong> ${INSTRUCTIVE_GUIDE.sectionCommentaries[currentSection]}</div>`
+            : '';
           html += `
             <div class="mt-7 mb-3">
               <h2 class="text-lg font-cinzel font-bold text-stone-800 uppercase tracking-wider border-b border-stone-300 pb-1">
                 ${currentSection}
               </h2>
+              ${secNote}
             </div>
           `;
         }
