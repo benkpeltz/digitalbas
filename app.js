@@ -438,9 +438,54 @@ let appState = {
         }
       });
 
+      const downloadMenuBtn = document.getElementById('downloadMenuBtn');
+      const downloadDropdownMenu = document.getElementById('downloadDropdownMenu');
+      const downloadDropdownContainer = document.getElementById('downloadDropdownContainer');
+
+      function closeDownloadDropdown() {
+        if (downloadDropdownMenu) {
+          downloadDropdownMenu.classList.add('hidden');
+          if (downloadMenuBtn) downloadMenuBtn.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      if (downloadMenuBtn && downloadDropdownMenu) {
+        downloadMenuBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isHidden = downloadDropdownMenu.classList.contains('hidden');
+          if (isHidden) {
+            downloadDropdownMenu.classList.remove('hidden');
+            downloadMenuBtn.setAttribute('aria-expanded', 'true');
+          } else {
+            closeDownloadDropdown();
+          }
+        });
+
+        document.addEventListener('click', (e) => {
+          if (downloadDropdownContainer && !downloadDropdownContainer.contains(e.target)) {
+            closeDownloadDropdown();
+          }
+        });
+
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') closeDownloadDropdown();
+        });
+      }
+
       document.getElementById('printBtn').addEventListener('click', () => window.print());
       document.getElementById('copyLitBtn').addEventListener('click', copyLiturgyToClipboard);
-      document.getElementById('exportJsonBtn').addEventListener('click', exportServiceJson);
+      document.getElementById('exportJsonBtn').addEventListener('click', () => {
+        closeDownloadDropdown();
+        exportServiceJson();
+      });
+      document.getElementById('downloadDocxBtn').addEventListener('click', () => {
+        closeDownloadDropdown();
+        exportServiceDocx();
+      });
+      document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+        closeDownloadDropdown();
+        exportServicePdf();
+      });
     }
 
     function setupEditToggle(btnId, containerId) {
@@ -1062,6 +1107,667 @@ let appState = {
       URL.revokeObjectURL(url);
       showToast('Saved service configuration JSON!');
     }
+
+    /**
+     * Extracts the currently rendered service from #serviceSheet into a clean array of
+     * liturgical document items preserving BAS colouration & typography:
+     * - type: 'title' | 'subtitle' | 'meta' | 'rubric' | 'section' | 'block_header' | 'dialogue' | 'psalm_verse' | 'scripture_link' | 'paragraph'
+     */
+    function extractStructuredServiceItems() {
+      const items = [];
+      const day = getCurrentDay();
+      const parish = document.getElementById('parishTitle').value || "All Saints' Anglican Church";
+      const dateNote = document.getElementById('serviceDateInput').value || "";
+      const riteSelect = document.getElementById('ritePreset');
+      const riteTitle = riteSelect.options[riteSelect.selectedIndex].text.split(' (')[0];
+
+      items.push({ type: 'meta_parish', text: parish.toUpperCase() });
+      items.push({ type: 'title', text: riteTitle });
+      items.push({ type: 'subtitle', text: day.name });
+      if (dateNote) {
+        items.push({ type: 'meta_date', text: dateNote });
+      }
+      items.push({ type: 'rubric_center', text: 'The Book of Alternative Services (1985) • Anglican Church of Canada' });
+      items.push({ type: 'divider' });
+
+      const sheet = document.getElementById('serviceSheet');
+      if (!sheet) return items;
+
+      Array.from(sheet.children).forEach((child) => {
+        // Section header container
+        const h2 = child.querySelector && child.querySelector('h2');
+        if (h2) {
+          items.push({ type: 'section', text: h2.textContent.trim().toUpperCase() });
+          return;
+        }
+
+        if (!child.classList || !child.classList.contains('service-block-wrapper')) return;
+
+        // Walk children inside .service-block-wrapper
+        function walkBlockNodes(container) {
+          Array.from(container.children).forEach((el) => {
+            if (el.classList.contains('no-print') || el.classList.contains('block-hover-controls')) return;
+
+            // Check if it's a flex header with two .bas-header spans (e.g. THE FIRST READING | Job 38:1-7)
+            if (el.classList.contains('flex') && el.classList.contains('items-baseline') && el.querySelector('.bas-header')) {
+              const spans = el.querySelectorAll('.bas-header');
+              if (spans.length >= 2) {
+                items.push({
+                  type: 'block_header',
+                  text: `${spans[0].textContent.trim().toUpperCase()} — ${spans[1].textContent.trim()}`
+                });
+              } else if (spans.length === 1) {
+                items.push({
+                  type: 'block_header',
+                  text: spans[0].textContent.trim().toUpperCase()
+                });
+              }
+              return;
+            }
+
+            // Single .bas-header
+            if (el.classList.contains('bas-header')) {
+              items.push({ type: 'block_header', text: el.textContent.trim().toUpperCase() });
+              return;
+            }
+
+            // Rubric paragraph
+            if (el.classList.contains('liturgical-rubric')) {
+              items.push({ type: 'rubric', text: el.textContent.trim() });
+              return;
+            }
+
+            // Scripture Link Box
+            const bgLink = el.querySelector && el.querySelector('a[href*="biblegateway.com"]');
+            if (bgLink && el.classList.contains('border-black')) {
+              const citSpan = el.querySelector('span.font-bold');
+              const citationText = citSpan ? citSpan.textContent.trim() : 'Scripture Passage';
+              items.push({
+                type: 'scripture_link',
+                citation: citationText,
+                url: bgLink.getAttribute('href')
+              });
+              return;
+            }
+
+            // Dialogue row (Speaker + Spoken/People text)
+            if (el.classList.contains('my-1.5') && el.classList.contains('flex')) {
+              const spkEl = el.querySelector('span');
+              const txtEl = el.querySelector('div');
+              if (spkEl && txtEl) {
+                const isBold = txtEl.classList.contains('response-people') || txtEl.classList.contains('font-bold');
+                items.push({
+                  type: 'dialogue',
+                  speaker: spkEl.textContent.trim(),
+                  text: txtEl.textContent.trim(),
+                  bold: isBold
+                });
+                return;
+              }
+            }
+
+            // Psalm responsive container
+            if (el.classList.contains('pl-2') && el.classList.contains('space-y-1.5')) {
+              Array.from(el.children).forEach((vDiv) => {
+                const spans = vDiv.querySelectorAll('span');
+                if (spans.length >= 2) {
+                  items.push({
+                    type: 'psalm_verse',
+                    leader: spans[0].textContent.trim(),
+                    people: spans[1].textContent.trim()
+                  });
+                }
+              });
+              return;
+            }
+
+            // Direct paragraph <p>
+            if (el.tagName === 'P') {
+              const strongEl = el.querySelector('strong');
+              const isBold = Boolean(strongEl && strongEl.textContent.trim().length === el.textContent.trim().length) || el.classList.contains('font-bold');
+              items.push({
+                type: 'paragraph',
+                text: el.textContent.trim(),
+                bold: isBold
+              });
+              return;
+            }
+
+            // Centered acclamation banner
+            if (el.classList.contains('text-center') && el.classList.contains('font-bold')) {
+              items.push({
+                type: 'paragraph',
+                text: el.textContent.trim(),
+                bold: true
+              });
+              return;
+            }
+
+            // Otherwise recurse into wrapper divs
+            if (el.children && el.children.length > 0) {
+              walkBlockNodes(el);
+            } else if (el.textContent && el.textContent.trim().length > 0) {
+              items.push({
+                type: 'paragraph',
+                text: el.textContent.trim(),
+                bold: el.classList.contains('font-bold')
+              });
+            }
+          });
+        }
+
+        walkBlockNodes(child);
+        items.push({ type: 'spacer' });
+      });
+
+      return items;
+    }
+
+    /**
+     * Minimal Pure-JS Uncompressed ZIP Builder (Store Method 0x00 + CRC32)
+     * Used to package native Office Open XML (.docx) archives in the browser with zero external dependencies.
+     */
+    function createZipBlob(filesMap, mimeType) {
+      const crcTable = new Uint32Array(256);
+      for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) {
+          c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+        }
+        crcTable[n] = c >>> 0;
+      }
+      function crc32(bytes) {
+        let crc = 0xffffffff;
+        for (let i = 0; i < bytes.length; i++) {
+          crc = (crc >>> 8) ^ crcTable[(crc ^ bytes[i]) & 0xff];
+        }
+        return (crc ^ 0xffffffff) >>> 0;
+      }
+
+      const encoder = new TextEncoder();
+      const entries = [];
+      let offset = 0;
+
+      Object.keys(filesMap).forEach((name) => {
+        const nameBytes = encoder.encode(name);
+        const dataBytes = typeof filesMap[name] === 'string' ? encoder.encode(filesMap[name]) : filesMap[name];
+        const crc = crc32(dataBytes);
+        const size = dataBytes.length;
+
+        const localHeader = new Uint8Array(30 + nameBytes.length);
+        const lv = new DataView(localHeader.buffer);
+        lv.setUint32(0, 0x04034b50, true); // Local file header signature
+        lv.setUint16(4, 20, true);         // Version needed to extract (2.0)
+        lv.setUint16(6, 0x0800, true);     // UTF-8 filename flag
+        lv.setUint16(8, 0, true);          // Compression method: 0 (Stored)
+        lv.setUint16(10, 0, true);         // Last mod file time
+        lv.setUint16(12, 0x5421, true);    // Last mod file date
+        lv.setUint32(14, crc, true);       // CRC-32
+        lv.setUint32(18, size, true);      // Compressed size
+        lv.setUint32(22, size, true);      // Uncompressed size
+        lv.setUint16(26, nameBytes.length, true); // Filename length
+        lv.setUint16(28, 0, true);         // Extra field length
+        localHeader.set(nameBytes, 30);
+
+        entries.push({ nameBytes, dataBytes, crc, size, localHeader, offset });
+        offset += localHeader.length + size;
+      });
+
+      const centralParts = [];
+      let centralSize = 0;
+      entries.forEach((e) => {
+        const ch = new Uint8Array(46 + e.nameBytes.length);
+        const cv = new DataView(ch.buffer);
+        cv.setUint32(0, 0x02014b50, true); // Central directory signature
+        cv.setUint16(4, 20, true);         // Version made by
+        cv.setUint16(6, 20, true);         // Version needed
+        cv.setUint16(8, 0x0800, true);     // UTF-8 flag
+        cv.setUint16(10, 0, true);         // Compression method (0)
+        cv.setUint16(12, 0, true);
+        cv.setUint16(14, 0x5421, true);
+        cv.setUint32(16, e.crc, true);
+        cv.setUint32(20, e.size, true);
+        cv.setUint32(24, e.size, true);
+        cv.setUint16(28, e.nameBytes.length, true);
+        cv.setUint16(30, 0, true);
+        cv.setUint16(32, 0, true);
+        cv.setUint16(34, 0, true);
+        cv.setUint16(36, 0, true);
+        cv.setUint32(38, 0, true);
+        cv.setUint32(42, e.offset, true);
+        ch.set(e.nameBytes, 46);
+        centralParts.push(ch);
+        centralSize += ch.length;
+      });
+
+      const eocd = new Uint8Array(22);
+      const ev = new DataView(eocd.buffer);
+      ev.setUint32(0, 0x06054b50, true); // End of central directory signature
+      ev.setUint16(4, 0, true);
+      ev.setUint16(6, 0, true);
+      ev.setUint16(8, entries.length, true);
+      ev.setUint16(10, entries.length, true);
+      ev.setUint32(12, centralSize, true);
+      ev.setUint32(16, offset, true);
+      ev.setUint16(20, 0, true);
+
+      const blobParts = [];
+      entries.forEach((e) => {
+        blobParts.push(e.localHeader);
+        blobParts.push(e.dataBytes);
+      });
+      centralParts.forEach((cp) => blobParts.push(cp));
+      blobParts.push(eocd);
+
+      return new Blob(blobParts, { type: mimeType });
+    }
+
+    function escapeXml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+    }
+
+    /**
+     * Generates and downloads a genuine Office Open XML (.docx) document with BAS formatting:
+     * - White page, 1-inch margins, Georgia/Garamond serif typography
+     * - Bold Black headers and communal responses
+     * - Red Italicized rubrics and speaker labels (#B91C1C)
+     * - Clickable external hyperlinks to Bible Gateway (NRSV)
+     */
+    function exportServiceDocx() {
+      const items = extractStructuredServiceItems();
+      const relationships = [];
+      let relCounter = 1;
+
+      function addHyperlinkRel(url) {
+        const rId = 'rIdLink' + (relCounter++);
+        relationships.push({ Id: rId, Target: url });
+        return rId;
+      }
+
+      function makeRun(text, opts = {}) {
+        const font = opts.sans ? 'Inter' : 'Georgia';
+        const sizeHalfPt = opts.size || 23; // 11.5pt default
+        const colorHex = opts.color || '000000';
+        let rPr = `<w:rFonts w:ascii="${font}" w:hAnsi="${font}" w:cs="${font}"/>`;
+        if (opts.bold) rPr += `<w:b/><w:bCs/>`;
+        if (opts.italic) rPr += `<w:i/><w:iCs/>`;
+        if (opts.underline) rPr += `<w:u w:val="single"/>`;
+        rPr += `<w:color w:val="${colorHex}"/>`;
+        rPr += `<w:sz w:val="${sizeHalfPt}"/><w:szCs w:val="${sizeHalfPt}"/>`;
+
+        const lines = String(text || '').split('\n');
+        let inner = '';
+        lines.forEach((ln, idx) => {
+          if (idx > 0) inner += `<w:br/>`;
+          inner += `<w:t xml:space="preserve">${escapeXml(ln)}</w:t>`;
+        });
+        return `<w:r><w:rPr>${rPr}</w:rPr>${inner}</w:r>`;
+      }
+
+      let bodyXml = '';
+
+      items.forEach((item) => {
+        if (item.type === 'meta_parish') {
+          bodyXml += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="60"/></w:pPr>${makeRun(item.text, { bold: true, sans: true, size: 18, color: '000000' })}</w:p>`;
+        } else if (item.type === 'title') {
+          bodyXml += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="40" w:after="80"/></w:pPr>${makeRun(item.text, { bold: true, size: 36, color: '000000' })}</w:p>`;
+        } else if (item.type === 'subtitle') {
+          bodyXml += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="60"/></w:pPr>${makeRun(item.text, { bold: true, sans: true, size: 22, color: '000000' })}</w:p>`;
+        } else if (item.type === 'meta_date') {
+          bodyXml += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="0" w:after="60"/></w:pPr>${makeRun(item.text, { bold: true, sans: true, size: 19, color: '000000' })}</w:p>`;
+        } else if (item.type === 'rubric_center') {
+          bodyXml += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="20" w:after="160"/><w:pBdr><w:bottom w:val="single" w:sz="12" w:space="8" w:color="000000"/></w:pBdr></w:pPr>${makeRun(item.text, { italic: true, size: 19, color: 'B91C1C' })}</w:p>`;
+        } else if (item.type === 'section') {
+          bodyXml += `<w:p><w:pPr><w:keepNext/><w:spacing w:before="280" w:after="120"/><w:pBdr><w:bottom w:val="single" w:sz="12" w:space="4" w:color="000000"/></w:pBdr></w:pPr>${makeRun(item.text, { bold: true, size: 26, color: '000000' })}</w:p>`;
+        } else if (item.type === 'block_header') {
+          bodyXml += `<w:p><w:pPr><w:keepNext/><w:spacing w:before="160" w:after="60"/></w:pPr>${makeRun(item.text, { bold: true, sans: true, size: 19, color: '000000' })}</w:p>`;
+        } else if (item.type === 'rubric') {
+          bodyXml += `<w:p><w:pPr><w:spacing w:before="60" w:after="60"/></w:pPr>${makeRun(item.text, { italic: true, size: 21, color: 'B91C1C' })}</w:p>`;
+        } else if (item.type === 'dialogue') {
+          bodyXml += `<w:p><w:pPr><w:spacing w:before="60" w:after="60"/><w:ind w:left="1440" w:hanging="1440"/></w:pPr>${makeRun(item.speaker + '\t', { italic: true, size: 21, color: 'B91C1C' })}${makeRun(item.text, { bold: item.bold, size: 23, color: '000000' })}</w:p>`;
+        } else if (item.type === 'psalm_verse') {
+          bodyXml += `<w:p><w:pPr><w:spacing w:before="40" w:after="20"/></w:pPr>${makeRun(item.leader, { bold: false, size: 23, color: '000000' })}</w:p>`;
+          bodyXml += `<w:p><w:pPr><w:spacing w:before="0" w:after="60"/><w:ind w:left="480"/></w:pPr>${makeRun(item.people, { bold: true, size: 23, color: '000000' })}</w:p>`;
+        } else if (item.type === 'scripture_link') {
+          const rId = addHyperlinkRel(item.url);
+          bodyXml += `<w:p><w:pPr><w:spacing w:before="100" w:after="100"/><w:ind w:left="360"/></w:pPr>${makeRun(item.citation + ' (NRSV) — ', { bold: true, size: 22, color: '000000' })}<w:hyperlink r:id="${rId}" w:history="1">${makeRun('Read Full Passage on Bible Gateway (NRSV)', { bold: true, underline: true, size: 21, color: 'B91C1C' })}</w:hyperlink></w:p>`;
+        } else if (item.type === 'paragraph') {
+          bodyXml += `<w:p><w:pPr><w:spacing w:before="80" w:after="80"/></w:pPr>${makeRun(item.text, { bold: item.bold, size: 23, color: '000000' })}</w:p>`;
+        }
+      });
+
+      const contentTypesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+</Types>`;
+
+      const rootRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+
+      let docRelsItems = `<Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`;
+      relationships.forEach((rel) => {
+        docRelsItems += `\n  <Relationship Id="${rel.Id}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${escapeXml(rel.Target)}" TargetMode="External"/>`;
+      });
+
+      const wordRelsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  ${docRelsItems}
+</Relationships>`;
+
+      const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault>
+      <w:rPr>
+        <w:rFonts w:ascii="Georgia" w:hAnsi="Georgia" w:cs="Georgia"/>
+        <w:color w:val="000000"/>
+        <w:sz w:val="23"/>
+        <w:szCs w:val="23"/>
+      </w:rPr>
+    </w:rPrDefault>
+  </w:docDefaults>
+</w:styles>`;
+
+      const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <w:body>
+    ${bodyXml}
+    <w:sectPr>
+      <w:pgSz w:w="12240" w:h="15840"/>
+      <w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440" w:header="720" w:footer="720" w:gutter="0"/>
+    </w:sectPr>
+  </w:body>
+</w:document>`;
+
+      const blob = createZipBlob({
+        '[Content_Types].xml': contentTypesXml,
+        '_rels/.rels': rootRelsXml,
+        'word/_rels/document.xml.rels': wordRelsXml,
+        'word/styles.xml': stylesXml,
+        'word/document.xml': documentXml
+      }, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `digitalbas-service-${appState.selectedDayKey}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Downloaded Word document (.docx)!');
+    }
+
+    /**
+     * Generates and downloads a print-ready Vector PDF 1.4 document (.pdf) with BAS colouration:
+     * - Pure White US Letter pages (612 x 792 pt)
+     * - Built-in PostScript Type1 Fonts: Times-Roman (/F1), Times-Bold (/F2), Times-Italic (/F3), Helvetica-Bold (/F4)
+     * - Bold Black headers and congregational responses (0 0 0 rg)
+     * - Red Italicized rubrics and speaker labels (0.725 0.11 0.11 rg = #B91C1C)
+     * - Clickable PDF URI Link annotations for Bible Gateway (NRSV) passages
+     */
+    function exportServicePdf() {
+      const items = extractStructuredServiceItems();
+      const pageWidth = 612;
+      const pageHeight = 792;
+      const marginLeft = 54;
+      const marginRight = 54;
+      const marginTop = 54;
+      const marginBottom = 54;
+      const contentWidth = pageWidth - marginLeft - marginRight;
+
+      // Normalize Unicode punctuation to WinAnsi (Windows-1252) safe characters for Type1 PDF fonts
+      function toWinAnsiSafe(str) {
+        return String(str || '')
+          .replace(/[\u2018\u2019]/g, "'")
+          .replace(/[\u201C\u201D]/g, '"')
+          .replace(/\u2013/g, '-')
+          .replace(/\u2014/g, '--')
+          .replace(/\u2022/g, '*')
+          .replace(/\u2026/g, '...')
+          .replace(/\u2197/g, '')
+          .replace(/[^\x20-\x7E\xA0-\xFF]/g, '');
+      }
+
+      function escapePdfText(str) {
+        return toWinAnsiSafe(str)
+          .replace(/\\/g, '\\\\')
+          .replace(/\(/g, '\\(')
+          .replace(/\)/g, '\\)');
+      }
+
+      function wrapTextLines(text, fontSize, availWidth) {
+        const avgCharWidth = fontSize * 0.47;
+        const maxChars = Math.max(20, Math.floor(availWidth / avgCharWidth));
+        const paragraphs = String(text || '').split('\n');
+        const lines = [];
+        paragraphs.forEach((para) => {
+          const words = para.split(/\s+/).filter(Boolean);
+          if (words.length === 0) {
+            lines.push('');
+            return;
+          }
+          let cur = words[0];
+          for (let i = 1; i < words.length; i++) {
+            if ((cur + ' ' + words[i]).length <= maxChars) {
+              cur += ' ' + words[i];
+            } else {
+              lines.push(cur);
+              cur = words[i];
+            }
+          }
+          lines.push(cur);
+        });
+        return lines;
+      }
+
+      const pages = [];
+      let currentOps = [];
+      let currentLinks = [];
+      let y = pageHeight - marginTop;
+
+      function startNewPage() {
+        if (currentOps.length > 0) {
+          pages.push({ ops: currentOps, links: currentLinks });
+        }
+        currentOps = [];
+        currentLinks = [];
+        y = pageHeight - marginTop;
+      }
+
+      function ensureSpace(neededHeight) {
+        if (y - neededHeight < marginBottom) {
+          startNewPage();
+        }
+      }
+
+      function drawTextLine(text, x, yPos, fontRef, fontSize, colorRgb) {
+        const [r, g, b] = colorRgb;
+        currentOps.push(`BT /${fontRef} ${fontSize} Tf ${r} ${g} ${b} rg 1 0 0 1 ${x.toFixed(2)} ${yPos.toFixed(2)} Tm (${escapePdfText(text)}) Tj ET`);
+      }
+
+      const BLACK = [0, 0, 0];
+      const RUBRIC_RED = [0.725, 0.11, 0.11];
+
+      items.forEach((item) => {
+        if (item.type === 'meta_parish') {
+          ensureSpace(18);
+          const txt = toWinAnsiSafe(item.text);
+          const x = Math.max(marginLeft, (pageWidth - txt.length * 5.2) / 2);
+          drawTextLine(txt, x, y, 'F4', 9, BLACK);
+          y -= 16;
+        } else if (item.type === 'title') {
+          ensureSpace(26);
+          const txt = toWinAnsiSafe(item.text);
+          const x = Math.max(marginLeft, (pageWidth - txt.length * 8.5) / 2);
+          drawTextLine(txt, x, y, 'F2', 17, BLACK);
+          y -= 20;
+        } else if (item.type === 'subtitle') {
+          ensureSpace(18);
+          const txt = toWinAnsiSafe(item.text);
+          const x = Math.max(marginLeft, (pageWidth - txt.length * 5.5) / 2);
+          drawTextLine(txt, x, y, 'F2', 11, BLACK);
+          y -= 15;
+        } else if (item.type === 'meta_date') {
+          ensureSpace(16);
+          const txt = toWinAnsiSafe(item.text);
+          const x = Math.max(marginLeft, (pageWidth - txt.length * 5.0) / 2);
+          drawTextLine(txt, x, y, 'F2', 9.5, BLACK);
+          y -= 14;
+        } else if (item.type === 'rubric_center') {
+          ensureSpace(22);
+          const txt = toWinAnsiSafe(item.text);
+          const x = Math.max(marginLeft, (pageWidth - txt.length * 4.5) / 2);
+          drawTextLine(txt, x, y, 'F3', 9.5, RUBRIC_RED);
+          y -= 10;
+          currentOps.push(`0 0 0 RG 1.2 w ${marginLeft} ${y.toFixed(2)} m ${pageWidth - marginRight} ${y.toFixed(2)} l S`);
+          y -= 16;
+        } else if (item.type === 'section') {
+          ensureSpace(34);
+          y -= 8;
+          drawTextLine(item.text, marginLeft, y, 'F4', 11.5, BLACK);
+          y -= 5;
+          currentOps.push(`0 0 0 RG 1 w ${marginLeft} ${y.toFixed(2)} m ${pageWidth - marginRight} ${y.toFixed(2)} l S`);
+          y -= 14;
+        } else if (item.type === 'block_header') {
+          ensureSpace(24);
+          y -= 4;
+          drawTextLine(item.text, marginLeft, y, 'F4', 9.5, BLACK);
+          y -= 13;
+        } else if (item.type === 'rubric') {
+          const lines = wrapTextLines(item.text, 10, contentWidth);
+          ensureSpace(lines.length * 13 + 4);
+          lines.forEach((ln) => {
+            drawTextLine(ln, marginLeft, y, 'F3', 10, RUBRIC_RED);
+            y -= 13;
+          });
+          y -= 2;
+        } else if (item.type === 'dialogue') {
+          const spkWidth = 86;
+          const bodyFont = item.bold ? 'F2' : 'F1';
+          const lines = wrapTextLines(item.text, 10.5, contentWidth - spkWidth);
+          ensureSpace(lines.length * 14 + 4);
+          drawTextLine(item.speaker, marginLeft, y, 'F3', 10, RUBRIC_RED);
+          lines.forEach((ln) => {
+            drawTextLine(ln, marginLeft + spkWidth, y, bodyFont, 10.5, BLACK);
+            y -= 14;
+          });
+          y -= 2;
+        } else if (item.type === 'psalm_verse') {
+          const lLines = wrapTextLines(item.leader, 10.5, contentWidth - 12);
+          const pLines = wrapTextLines(item.people, 10.5, contentWidth - 30);
+          ensureSpace((lLines.length + pLines.length) * 13.5 + 4);
+          lLines.forEach((ln) => {
+            drawTextLine(ln, marginLeft + 8, y, 'F1', 10.5, BLACK);
+            y -= 13.5;
+          });
+          pLines.forEach((ln) => {
+            drawTextLine(ln, marginLeft + 26, y, 'F2', 10.5, BLACK);
+            y -= 13.5;
+          });
+          y -= 2;
+        } else if (item.type === 'scripture_link') {
+          ensureSpace(24);
+          const labelTxt = `${item.citation} (NRSV) — `;
+          const linkTxt = `Read Full Passage on Bible Gateway (NRSV)`;
+          drawTextLine(labelTxt, marginLeft + 12, y, 'F2', 10.5, BLACK);
+          const linkX = marginLeft + 12 + toWinAnsiSafe(labelTxt).length * 5.2;
+          drawTextLine(linkTxt, linkX, y, 'F3', 10.5, RUBRIC_RED);
+          const linkW = toWinAnsiSafe(linkTxt).length * 5.0;
+          currentLinks.push({
+            rect: [linkX, y - 3, linkX + linkW, y + 11],
+            url: item.url
+          });
+          y -= 16;
+        } else if (item.type === 'paragraph') {
+          const fontRef = item.bold ? 'F2' : 'F1';
+          const lines = wrapTextLines(item.text, 10.5, contentWidth);
+          ensureSpace(lines.length * 14 + 4);
+          lines.forEach((ln) => {
+            drawTextLine(ln, marginLeft, y, fontRef, 10.5, BLACK);
+            y -= 14;
+          });
+          y -= 3;
+        } else if (item.type === 'spacer') {
+          y -= 4;
+        }
+      });
+
+      if (currentOps.length > 0) {
+        pages.push({ ops: currentOps, links: currentLinks });
+      }
+
+      // Assemble PDF 1.4 objects
+      const objects = [];
+      function addObj(content) {
+        objects.push(content);
+        return objects.length;
+      }
+
+      const font1Id = addObj(`<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman /Encoding /WinAnsiEncoding >>`);
+      const font2Id = addObj(`<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold /Encoding /WinAnsiEncoding >>`);
+      const font3Id = addObj(`<< /Type /Font /Subtype /Type1 /BaseFont /Times-Italic /Encoding /WinAnsiEncoding >>`);
+      const font4Id = addObj(`<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>`);
+      const pagesRootId = addObj(''); // placeholder for /Pages root
+
+      const pageIds = [];
+      const totalPages = pages.length;
+
+      pages.forEach((pg, idx) => {
+        const footerTxt = `Page ${idx + 1} of ${totalPages}  •  The Book of Alternative Services (1985)`;
+        pg.ops.push(`BT /F3 8.5 Tf 0.725 0.11 0.11 rg 1 0 0 1 ${marginLeft} 28 Tm (${escapePdfText(footerTxt)}) Tj ET`);
+        const streamStr = pg.ops.join('\n');
+        const contentId = addObj(`<< /Length ${streamStr.length} >>\nstream\n${streamStr}\nendstream`);
+
+        const annotIds = pg.links.map((lnk) => {
+          const [x1, y1, x2, y2] = lnk.rect.map((n) => n.toFixed(2));
+          return addObj(`<< /Type /Annot /Subtype /Link /Rect [${x1} ${y1} ${x2} ${y2}] /Border [0 0 0] /A << /Type /Action /S /URI /URI (${escapePdfText(lnk.url)}) >> >>`);
+        });
+
+        const annotsEntry = annotIds.length > 0 ? `/Annots [${annotIds.map((id) => id + ' 0 R').join(' ')}]` : '';
+        const pageId = addObj(`<< /Type /Page /Parent ${pagesRootId} 0 R /MediaBox [0 0 ${pageWidth} ${pageHeight}] /Resources << /Font << /F1 ${font1Id} 0 R /F2 ${font2Id} 0 R /F3 ${font3Id} 0 R /F4 ${font4Id} 0 R >> >> /Contents ${contentId} 0 R ${annotsEntry} >>`);
+        pageIds.push(pageId);
+      });
+
+      objects[pagesRootId - 1] = `<< /Type /Pages /Kids [${pageIds.map((id) => id + ' 0 R').join(' ')}] /Count ${pageIds.length} >>`;
+      const catalogId = addObj(`<< /Type /Catalog /Pages ${pagesRootId} 0 R >>`);
+
+      let pdfOut = '%PDF-1.4\n';
+      const offsets = [0];
+      objects.forEach((objContent, i) => {
+        offsets.push(pdfOut.length);
+        pdfOut += `${i + 1} 0 obj\n${objContent}\nendobj\n`;
+      });
+
+      const xrefOffset = pdfOut.length;
+      pdfOut += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+      for (let i = 1; i <= objects.length; i++) {
+        pdfOut += String(offsets[i]).padStart(10, '0') + ' 00000 n \n';
+      }
+      pdfOut += `trailer\n<< /Size ${objects.length + 1} /Root ${catalogId} 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+
+      const blob = new Blob([pdfOut], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `digitalbas-service-${appState.selectedDayKey}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Downloaded service PDF (.pdf)!');
+    }
+
 
     function rubric(text) {
       if (!appState.showRubrics || !text) return '';
